@@ -20,24 +20,20 @@
     var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Xcode在生成库（.a或.framework）的时候，通常会生成两个版本，一个是用于真机的版本，一个是用于模拟器的版本  真机：armv7, armv7s, arm64架构 模拟器：i386, x86_64">
-<meta name="keywords" content="iOS">
+  <meta name="description" content="Cycrypt脚本语言（Objective-C，java，js的混合语言），可以编写调试代码  通过cydia安装添加源http://apt.saurik.com/cydia   进入Cycrypt调试模式# 进入调试模式$ cycript# 调试进程（PID=323）$ cycript -p 323# 调试进程（进程名）$ cycript -p SpringBoard$ cycript -p n">
+<meta name="keywords" content="iOS,逆向">
 <meta property="og:type" content="article">
-<meta property="og:title" content="合并和分离.a和.framework库">
-<meta property="og:url" content="http://zhengbomo.github.io/2016-04-29/merge-ios-lib/index.html">
+<meta property="og:title" content="使用cycript调试应用">
+<meta property="og:url" content="http://zhengbomo.github.io/2019-07-03/ios-cycript/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
-<meta property="og:description" content="Xcode在生成库（.a或.framework）的时候，通常会生成两个版本，一个是用于真机的版本，一个是用于模拟器的版本  真机：armv7, armv7s, arm64架构 模拟器：i386, x86_64">
+<meta property="og:description" content="Cycrypt脚本语言（Objective-C，java，js的混合语言），可以编写调试代码  通过cydia安装添加源http://apt.saurik.com/cydia   进入Cycrypt调试模式# 进入调试模式$ cycript# 调试进程（PID=323）$ cycript -p 323# 调试进程（进程名）$ cycript -p SpringBoard$ cycript -p n">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/73528845.jpg">
-<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/37235497.jpg">
-<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/39574369.jpg">
-<meta property="og:updated_time" content="2016-04-29T10:51:41.000Z">
+<meta property="og:updated_time" content="2019-07-03T12:36:24.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="合并和分离.a和.framework库">
-<meta name="twitter:description" content="Xcode在生成库（.a或.framework）的时候，通常会生成两个版本，一个是用于真机的版本，一个是用于模拟器的版本  真机：armv7, armv7s, arm64架构 模拟器：i386, x86_64">
-<meta name="twitter:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/73528845.jpg">
+<meta name="twitter:title" content="使用cycript调试应用">
+<meta name="twitter:description" content="Cycrypt脚本语言（Objective-C，java，js的混合语言），可以编写调试代码  通过cydia安装添加源http://apt.saurik.com/cydia   进入Cycrypt调试模式# 进入调试模式$ cycript# 调试进程（PID=323）$ cycript -p 323# 调试进程（进程名）$ cycript -p SpringBoard$ cycript -p n">
 
-<link rel="canonical" href="http://zhengbomo.github.io/2016-04-29/merge-ios-lib/">
+<link rel="canonical" href="http://zhengbomo.github.io/2019-07-03/ios-cycript/">
 
 
 <script id="page-configurations">
@@ -49,7 +45,7 @@
   };
 </script>
 
-  <title>合并和分离.a和.framework库 | bomo的开发随笔</title>
+  <title>使用cycript调试应用 | bomo的开发随笔</title>
   
 
 
@@ -195,7 +191,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-04-29/merge-ios-lib/">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-07-03/ios-cycript/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -208,7 +204,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          合并和分离.a和.framework库
+          使用cycript调试应用
         </h1>
 
         <div class="post-meta">
@@ -217,9 +213,8 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2016-04-29 18:50:52 / 修改时间：18:51:41" itemprop="dateCreated datePublished" datetime="2016-04-29T18:50:52+08:00">2016-04-29</time>
+              <time title="创建时间：2019-07-03 20:36:24" itemprop="dateCreated datePublished" datetime="2019-07-03T20:36:24+08:00">2019-07-03</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -242,59 +237,52 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Xcode在生成库（.a或.framework）的时候，通常会生成两个版本，一个是用于真机的版本，一个是用于模拟器的版本</p>
-<ul>
-<li>真机：<code>armv7</code>, <code>armv7s</code>, <code>arm64</code>架构</li>
-<li>模拟器：<code>i386</code>, <code>x86_64</code></li>
-</ul>
-<a id="more"></a>
-
-<p>如果在库和项目在同一个工程中，通常会自动根据当前是模拟器还是真机自动引用相关的库文件</p>
-<p>在使用第三方库的时候通常只有一个.a库，这个库既能用于真机调试，又能用于模拟器调试，这个时候我们需要对不同的架构的库进行合并</p>
-<p>使用<code>lipo</code>对不同架构的库进行合并，在编译的时候会自动识别</p>
-<h2 id="一、-a库合并与拆分"><a href="#一、-a库合并与拆分" class="headerlink" title="一、.a库合并与拆分"></a>一、.a库合并与拆分</h2><p>例如有两个不同架构的库<code>liba-arm64.a</code>, <code>liba-i386.a</code></p>
+        <h2 id="Cycrypt"><a href="#Cycrypt" class="headerlink" title="Cycrypt"></a>Cycrypt</h2><p>脚本语言（Objective-C，java，js的混合语言），可以编写调试代码</p>
 <ol>
-<li><p>查看库的架构信息</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo -info liba-arm64.a</span><br><span class="line">input file liba-arm64.a is not a fat file</span><br><span class="line">Non-fat file: liba-arm64.a is architecture: arm64</span><br></pre></td></tr></table></figure>
-
-<p>如果静态库支持多种架构，那么就是一个<code>fat file</code></p>
-</li>
-<li><p>合并两个库</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo -create liba-arm64.a liba-i386.a -output liba.a</span><br></pre></td></tr></table></figure>
-
-<p>合并成<code>liba.a</code>到当前目录</p>
-</li>
-<li><p>抽取出<code>arm64</code>库</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo liba.a -thin arm64 -output liba-arm64.a</span><br></pre></td></tr></table></figure>
+<li>通过cydia安装<br>添加源<code>http://apt.saurik.com/cydia</code></li>
+</ol>
+<ol start="2">
+<li>进入Cycrypt调试模式<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 进入调试模式</span></span><br><span class="line">$ cycript</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试进程（PID=323）</span></span><br><span class="line">$ cycript -p 323</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试进程（进程名）</span></span><br><span class="line">$ cycript -p SpringBoard</span><br><span class="line">$ cycript -p neteasemusic</span><br></pre></td></tr></table></figure>
 
 </li>
 </ol>
-<h2 id="二、-Framework库合并与拆分"><a href="#二、-Framework库合并与拆分" class="headerlink" title="二、.Framework库合并与拆分"></a>二、.Framework库合并与拆分</h2><p>.framework库与.a库类似，只是.framework库可以包含Header和Bundle，其实相当于一个目录，所以操作的是里面的库文件，而不是<code>xxx.framework</code>文件</p>
-<p>例如有两个不同架构的库</p>
-<ul>
-<li><code>IJKMediaFramework_x86_64.framework</code></li>
-<li><code>IJKMediaFramework_arm64.framework</code>  </li>
-</ul>
-<ol>
-<li><p>查看.framework信息</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo -info IJKMediaFramework_arm64.framework/IJKMediaFramework</span><br><span class="line">input file IJKMediaFramework_arm64.framework/IJKMediaFramework is not a fat file</span><br><span class="line">Non-fat file: IJKMediaFramework_arm64.framework/IJKMediaFramework is architecture: arm64</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>合并库</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo -create IJKMediaFramework_x86_64.framework/IJKMediaFramework IJKMediaFramework_arm64.framework/IJKMediaFramework -output IJKMediaFramework</span><br></pre></td></tr></table></figure>
+<p><code>Control+D</code>退出cycript模式</p>
+<ol start="3">
+<li>获取进程Id</li>
+</ol>
+<p>需要先安装插件：<code>adv-cmds</code>（在saurik官方源可找到）</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看所有进程</span></span><br><span class="line">$ ps -A </span><br><span class="line"></span><br><span class="line"><span class="comment"># 搜索进程</span></span><br><span class="line">$ ps -A | grep neteasemusic</span><br></pre></td></tr></table></figure>
 
-<p>得到通用的库<code>IJKMediaFramework</code>替换到<code>IJKMediaFramework_x86_64.framework/IJKMediaFramework</code>，这时候<code>IJKMediaFramework_x86_64.framework</code>就是通用framework</p>
+<ol start="4">
+<li><p>常用语法</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">* UIApp：[UIApplication sharedApplication]</span><br><span class="line">* 定义变量：var 变量名 = 变量值</span><br><span class="line">* 通过内存获得对象：#内存地址</span><br><span class="line">* 获取所有已加载的OC类：ObjectiveC.classes</span><br><span class="line">* 获取当前内存中所有UITableViewCell（包含子类）的实例：choose(UITableViewCell)</span><br><span class="line">* 查看对象的所有成员：*对象</span><br><span class="line">* 递归打印所有的子控件：[view recursiveDescription].toString()</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>抽取出<code>arm64</code>库</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo IJKMediaFramework_x86_64.framework/IJKMediaFramework -thin x86_64 -output IJKMediaFramework</span><br></pre></td></tr></table></figure>
-
+<li><p>使用<a href="https://github.com/CoderMJLee/mjcript" target="_blank" rel="noopener"><code>mjcript</code></a></p>
 </li>
 </ol>
-<h2 id="三、xcode脚本自动合并库"><a href="#三、xcode脚本自动合并库" class="headerlink" title="三、xcode脚本自动合并库"></a>三、xcode脚本自动合并库</h2><p>如果是自己生成的库，有个技巧，xcode生成库的时候自动执行脚本完成合并的操作，需要选择真机和模拟器分别编译一遍</p>
-<p>在Build Phases添加Run Script<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/73528845.jpg" alt><br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/37235497.jpg" alt></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 编译的时候</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$&#123;ACTION&#125;</span>"</span> = <span class="string">"build"</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成通用framework的目录</span></span><br><span class="line">INSTALL_DIR=<span class="variable">$&#123;SRCROOT&#125;</span>/Products/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line"></span><br><span class="line"><span class="comment"># 需要合并的framework</span></span><br><span class="line">DEVICE_DIR=<span class="variable">$&#123;BUILD_ROOT&#125;</span>/<span class="variable">$&#123;CONFIGURATION&#125;</span>-iphoneos/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line">SIMULATOR_DIR=<span class="variable">$&#123;BUILD_ROOT&#125;</span>/<span class="variable">$&#123;CONFIGURATION&#125;</span>-iphonesimulator/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果已经存在，则删除</span></span><br><span class="line"><span class="keyword">if</span> [ -d <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>"</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">rm -rf <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line">mkdir -p <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 拷贝Header到目标目录</span></span><br><span class="line">cp -R <span class="string">"<span class="variable">$&#123;DEVICE_DIR&#125;</span>/"</span> <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>/"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 合并framework</span></span><br><span class="line">lipo -create <span class="string">"<span class="variable">$&#123;DEVICE_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>"</span> <span class="string">"<span class="variable">$&#123;SIMULATOR_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>"</span> -output <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译完成后打开文件夹</span></span><br><span class="line"><span class="comment">#open "$&#123;DEVICE_DIR&#125;"</span></span><br><span class="line">open <span class="string">"<span class="variable">$&#123;SRCROOT&#125;</span>/Products/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework"</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<p>把文件拷贝到手机上</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ scp mjcript.cy root@xx.xx.xx.xx:/usr/lib/cycript0.9/mjcript.cy</span><br></pre></td></tr></table></figure>
 
-<p>切换到Release模式，分别切换到模拟器和真机编译一次，编译完成后会自动打开输出文件夹，通过<code>lipo</code>命令查看<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/39574369.jpg" alt></p>
-<p>完成，接下来可以直接用了合并后的库了</p>
+<p>把手机的文件拷贝到本地</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ scp root@xx.xx.xx.xx:/usr/lib/cycript0.9/mjcript.cy ~/Desktop/mjcript.cy</span><br></pre></td></tr></table></figure>
+
+<p>加载脚本</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 附加到进程</span></span><br><span class="line">cycript -p XXX</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载</span></span><br><span class="line">@import mjcript</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用脚本</span></span><br><span class="line">cy<span class="comment"># MJFrontVc()</span></span><br><span class="line"><span class="comment">#"&lt;ZTPersonCenterViewController: 0x10520ba00&gt;"</span></span><br></pre></td></tr></table></figure>
+
+<p><code>mjcript</code>功能列表</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 包名</span></span><br><span class="line">MJAppId;</span><br><span class="line"></span><br><span class="line"><span class="comment">// bundle path</span></span><br><span class="line">MJAppPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// document path</span></span><br><span class="line">MJDocPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// caches path</span></span><br><span class="line">MJCachesPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载系统动态库（/System/Library/Frameworks/xxx.framework，/System/Library/Private/Frameworks/xxx.framework）</span></span><br><span class="line">MJLoadFramework(<span class="string">"BluetoothManager"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// keyWindow</span></span><br><span class="line">MJKeyWin();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 根控制器</span></span><br><span class="line">MJRootVc();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 找到显示在最前面的控制器</span></span><br><span class="line">MJFrontVc();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印UIViewController view的层级结构</span></span><br><span class="line">MJVcSubviews(vc);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印最上层UIViewController view的层级结构</span></span><br><span class="line">MJFrontVcSubViews();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取按钮绑定的所有TouchUpInside事件的方法名</span></span><br><span class="line">MJBtnTouchUpEvent(btn);</span><br><span class="line"></span><br><span class="line"><span class="comment">// CG函数</span></span><br><span class="line">MJPointMake(x, y);</span><br><span class="line"></span><br><span class="line">MJSizeMake(w, h);</span><br><span class="line"></span><br><span class="line">MJRectMake(x, y, w, h);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印controller的层级结构</span></span><br><span class="line">MJChildVcs(vc);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印view的层级结构</span></span><br><span class="line">MJSubviews(view);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否为字符串 "str" @"str"</span></span><br><span class="line">MJIsString(value);</span><br><span class="line">		</span><br><span class="line"><span class="comment">// 判断是否为数组 []、@[]</span></span><br><span class="line">MJIsArray(value);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否为数字 666 @666</span></span><br><span class="line">MJIsNumber(value);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的子类</span></span><br><span class="line">MJSubclasses(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的对象方法</span></span><br><span class="line">MJInstanceMethods(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的对象方法名字</span></span><br><span class="line">MJInstanceMethodNames(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的类方法</span></span><br><span class="line">MJClassMethods(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的类方法名字</span></span><br><span class="line">MJClassMethodNames(className, reg);</span><br><span class="line">		</span><br><span class="line"><span class="comment">// 打印所有的成员变量</span></span><br><span class="line">MJIvars(obj, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的成员变量名字</span></span><br><span class="line">MJIvarNames(obj, reg);</span><br></pre></td></tr></table></figure>
+
+<p>技巧：使用python把中文转成unicode字符</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">unicode(&quot;登录&quot;, &quot;UTF-8&quot;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="封装cycript脚本"><a href="#封装cycript脚本" class="headerlink" title="封装cycript脚本"></a>封装cycript脚本</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params">exports</span>) </span>&#123;</span><br><span class="line">	exports.sum = <span class="function"><span class="keyword">function</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> a + b;</span><br><span class="line">	&#125;;</span><br><span class="line">	exports.minus = <span class="function"><span class="keyword">function</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> a - b;</span><br><span class="line">	&#125;;</span><br><span class="line">	exports.age = <span class="number">10</span>;</span><br><span class="line">&#125;)(exports);</span><br></pre></td></tr></table></figure>
+
+<p>导入(<code>/usr/lib/cycript0.9/test.cy</code>)，并引用</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">@<span class="keyword">import</span> test</span><br><span class="line"></span><br><span class="line">test.sum(<span class="number">1</span>, <span class="number">30</span>)     <span class="comment">// 31</span></span><br></pre></td></tr></table></figure>
+
+<p>通过目录引用<code>/usr/lib/cycript0.9/com/mj/cycript.cy</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">@<span class="keyword">import</span> com.mj.mjcript</span><br></pre></td></tr></table></figure>
+
 
     </div>
 
@@ -305,6 +293,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/逆向/" rel="tag"># 逆向</a>
           </div>
 
         
@@ -313,12 +302,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2016-04-28/hexo-no-generate-categories-tags-index-page/" rel="prev" title="hexo不生成categories和tags的index页">
-      <i class="fa fa-chevron-left"></i> hexo不生成categories和tags的index页
+    <a href="/2019-06-25/ios-reveal/" rel="prev" title="使用Reveal查看AppUI结构">
+      <i class="fa fa-chevron-left"></i> 使用Reveal查看AppUI结构
     </a></div>
       <div class="post-nav-item">
-    <a href="/2016-05-04/cocoapod-specs-start/" rel="next" title="为自己的库添加CocoaPods支持">
-      为自己的库添加CocoaPods支持 <i class="fa fa-chevron-right"></i>
+    <a href="/2019-12-26/ios-orientation/" rel="next" title="iOS旋转屏幕">
+      iOS旋转屏幕 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -379,7 +368,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、-a库合并与拆分"><span class="nav-number">1.</span> <span class="nav-text">一、.a库合并与拆分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、-Framework库合并与拆分"><span class="nav-number">2.</span> <span class="nav-text">二、.Framework库合并与拆分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、xcode脚本自动合并库"><span class="nav-number">3.</span> <span class="nav-text">三、xcode脚本自动合并库</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cycrypt"><span class="nav-number">1.</span> <span class="nav-text">Cycrypt</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#封装cycript脚本"><span class="nav-number">1.1.</span> <span class="nav-text">封装cycript脚本</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

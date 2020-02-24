@@ -20,29 +20,18 @@
     var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="在开发中，我们可能需要参考其它app界面的实现方式来寻找开发思路，通过Reveal工具，我们可以很方便的查看App在内存中的视图结构，如下(AppStore)">
-<meta name="keywords" content="iOS,逆向,Reveal">
-<meta property="og:type" content="article">
-<meta property="og:title" content="使用Reveal查看AppUI结构">
-<meta property="og:url" content="http://zhengbomo.github.io/2019-12-30/ios-reveal/index.html">
+  <meta name="description" content="懒人">
+<meta property="og:type" content="website">
+<meta property="og:title" content="bomo的开发随笔">
+<meta property="og:url" content="http://zhengbomo.github.io/archives/2019/07/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
-<meta property="og:description" content="在开发中，我们可能需要参考其它app界面的实现方式来寻找开发思路，通过Reveal工具，我们可以很方便的查看App在内存中的视图结构，如下(AppStore)">
+<meta property="og:description" content="懒人">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://zhengbomo.github.io/images/post/reveal_appstore.png">
-<meta property="og:image" content="http://zhengbomo.github.io/images/post/reveal2loader.jpg">
-<meta property="og:image" content="http://zhengbomo.github.io/images/post/restartspringboard.jpg">
-<meta property="og:image" content="http://zhengbomo.github.io/images/post/reveal_ios_library.png">
-<meta property="og:image" content="http://zhengbomo.github.io/images/post/setting_reveal.jpg">
-<meta property="og:image" content="http://zhengbomo.github.io/images/post/reveal_list_appstore.jpg">
-<meta property="og:image" content="http://zhengbomo.github.io/images/post/reveal_list.png">
-<meta property="og:image" content="http://zhengbomo.github.io/images/post/reveal_appstore.png">
-<meta property="og:updated_time" content="2019-12-30T15:37:56.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="使用Reveal查看AppUI结构">
-<meta name="twitter:description" content="在开发中，我们可能需要参考其它app界面的实现方式来寻找开发思路，通过Reveal工具，我们可以很方便的查看App在内存中的视图结构，如下(AppStore)">
-<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/reveal_appstore.png">
+<meta name="twitter:title" content="bomo的开发随笔">
+<meta name="twitter:description" content="懒人">
 
-<link rel="canonical" href="http://zhengbomo.github.io/2019-12-30/ios-reveal/">
+<link rel="canonical" href="http://zhengbomo.github.io/archives/2019/07/">
 
 
 <script id="page-configurations">
@@ -50,11 +39,11 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: true
+    isPost: false
   };
 </script>
 
-  <title>使用Reveal查看AppUI结构 | bomo的开发随笔</title>
+  <title>归档 | bomo的开发随笔</title>
   
 
 
@@ -195,126 +184,50 @@
           <div class="content">
             
 
-  <div class="posts-expand">
-      
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-12-30/ios-reveal/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="bomo">
-      <meta itemprop="description" content="懒人">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="bomo的开发随笔">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          使用Reveal查看AppUI结构
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-12-30 23:37:56" itemprop="dateCreated datePublished" datetime="2019-12-30T23:37:56+08:00">2019-12-30</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+  
+  <div class="post-block">
+    <div class="posts-collapse">
+      <div class="collection-title">
+        
+        <span class="collection-header">还行! 目前共计 50 篇日志。 继续努力。</span>
+      </div>
 
       
-        <p>在开发中，我们可能需要参考其它app界面的实现方式来寻找开发思路，通过Reveal工具，我们可以很方便的查看App在内存中的视图结构，如下(AppStore)</p>
-<a id="more"></a>
-
-<p><img src="/images/post/reveal_appstore.png" alt="RevealAppstore"></p>
-<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><ol>
-<li>一台越狱的手机</li>
-<li><a href="https://xclient.info/s/reveal.html" target="_blank" rel="noopener">Reveal</a>，推荐使用v4以上的版本，支持USB链接，速度快</li>
-</ol>
-<h2 id="手机安装Reveal2Loader插件"><a href="#手机安装Reveal2Loader插件" class="headerlink" title="手机安装Reveal2Loader插件"></a>手机安装Reveal2Loader插件</h2><p>在Cydia搜索<code>Reveal2Loader</code>，该插件在<code>BissBoss</code>源，直接就能搜到，安装</p>
-<img src="/images/post/reveal2loader.jpg" width="300" title="Reveal2Loader">
-
-<p>安装完成后重启SpringBoard</p>
-<img src="/images/post/restartspringboard.jpg" width="300" title="RestartSpringBoard">
-
-<h2 id="拷贝Reveal服务文件到iPhone中"><a href="#拷贝Reveal服务文件到iPhone中" class="headerlink" title="拷贝Reveal服务文件到iPhone中"></a>拷贝Reveal服务文件到iPhone中</h2><p>打开mac上的Reveal，<code>Help</code>-&gt;<code>Show Reveal Library in Finder</code>-&gt;<code>iOS Library</code><br><img src="/images/post/reveal_ios_library.png" alt="Reveal2Loader"></p>
-<p>进入目录<code>/Applications/Reveal.app/Contents/SharedSupport/iOS-Libraries/RevealServer.framework</code>，也可以直接打开这个目录</p>
-<p>将<code>RevealServer.framework</code>库中的<code>RevealServer</code>拷贝到手机<code>Library/RHRevealLoader/</code>并重命名为<code>libReveal.dylib</code></p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 进入目录</span></span><br><span class="line">$ <span class="built_in">cd</span> /Applications/Reveal.app/Contents/SharedSupport/iOS-Libraries/RevealServer.framework</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果手机上没有/Library/RHRevealLoader这个目录，需要先创建一下</span></span><br><span class="line">$ scp RevealServer root@xx.xx.xx.xx:/Library/RHRevealLoader/libReveal.dylib</span><br></pre></td></tr></table></figure>
-
-<p>将<code>RevealServer.framework</code>复制到手机的<code>/System/Library</code>中</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 进入目录</span></span><br><span class="line">$ <span class="built_in">cd</span> /Applications/Reveal.app/Contents/SharedSupport/iOS-Libraries</span><br><span class="line"></span><br><span class="line"><span class="comment"># 远程拷贝目录</span></span><br><span class="line">$ scp -r RevealServer.framework root@xx.xx.xx.xx://System/Library/RevealServer.framework</span><br></pre></td></tr></table></figure>
-
-<h2 id="重启手机"><a href="#重启手机" class="headerlink" title="重启手机"></a>重启手机</h2><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ killall SpringBoard</span><br></pre></td></tr></table></figure>
-
-<p>这时候设置里面会出现<code>Reveal</code>选项</p>
-<img src="/images/post/setting_reveal.jpg" width="300" title="SettingReveal">
-
-<p>我们进入<code>Enabled Applications</code>打开<code>AppStore</code></p>
-<img src="/images/post/reveal_list_appstore.jpg" width="300" title="EnableAppStore">
-
-<p>打开Mac上的Reveal，打开手机上的AppStore，可以看到Reveal识别到AppStore<br><img src="/images/post/reveal_list.png" alt="RevealList"></p>
-<p>进入查看视图<br><img src="/images/post/reveal_appstore.png" alt="RevealAppstore"></p>
-<p>Reveal可以看到视图结构，内存地址，还能看到<code>View</code>对应的<code>ViewController</code></p>
-
+    <div class="collection-year">
+      <h1 class="collection-header">2019</h1>
     </div>
 
-    
-    
-    
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
 
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/iOS/" rel="tag"># iOS</a>
-              <a href="/tags/逆向/" rel="tag"># 逆向</a>
-              <a href="/tags/Reveal/" rel="tag"># Reveal</a>
-          </div>
+      <div class="post-meta">
+        <time itemprop="dateCreated"
+              datetime="2019-07-03T20:36:24+08:00"
+              content="2019-07-03">
+          07-03
+        </time>
+      </div>
 
-        
+      <h2 class="post-title">
+          <a class="post-title-link" href="/2019-07-03/ios-cycript/" itemprop="url">
+            <span itemprop="name">使用cycript调试应用</span>
+          </a>
+      </h2>
 
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2019-12-26/ios-orientation/" rel="prev" title="iOS旋转屏幕">
-      <i class="fa fa-chevron-left"></i> iOS旋转屏幕
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2020-02-04/ios-entitlement/" rel="next" title="iOS可执行文件权限签名">
-      iOS可执行文件权限签名 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
+    </header>
   </article>
+
+
+    </div>
+  </div>
   
   
   
 
-  </div>
+  
+
 
 
           </div>
@@ -365,7 +278,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#准备"><span class="nav-number">1.</span> <span class="nav-text">准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#手机安装Reveal2Loader插件"><span class="nav-number">2.</span> <span class="nav-text">手机安装Reveal2Loader插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拷贝Reveal服务文件到iPhone中"><span class="nav-number">3.</span> <span class="nav-text">拷贝Reveal服务文件到iPhone中</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重启手机"><span class="nav-number">4.</span> <span class="nav-text">重启手机</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -379,7 +291,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">49</span>
+          <span class="site-state-item-count">50</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

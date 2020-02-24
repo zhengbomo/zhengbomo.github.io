@@ -276,80 +276,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-12-30/ios-reveal/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="bomo">
-      <meta itemprop="description" content="懒人">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="bomo的开发随笔">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2019-12-30/ios-reveal/" class="post-title-link" itemprop="url">使用Reveal查看AppUI结构</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-12-30 23:37:56" itemprop="dateCreated datePublished" datetime="2019-12-30T23:37:56+08:00">2019-12-30</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在开发中，我们可能需要参考其它app界面的实现方式来寻找开发思路，通过Reveal工具，我们可以很方便的查看App在内存中的视图结构，如下(AppStore)</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019-12-30/ios-reveal/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-12-26/ios-orientation/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -424,7 +350,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-06-03/ios-theos/">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-07-03/ios-cycript/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -438,7 +364,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            <a href="/2019-06-03/ios-theos/" class="post-title-link" itemprop="url">使用Theos编写CydiaSubstrate插件</a>
+            <a href="/2019-07-03/ios-cycript/" class="post-title-link" itemprop="url">使用cycript调试应用</a>
         </h1>
 
         <div class="post-meta">
@@ -448,15 +374,8 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-06-03 23:37:09" itemprop="dateCreated datePublished" datetime="2019-06-03T23:37:09+08:00">2019-06-03</time>
+              <time title="创建时间：2019-07-03 20:36:24" itemprop="dateCreated datePublished" datetime="2019-07-03T20:36:24+08:00">2019-07-03</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-02-24 18:59:10" itemprop="dateModified" datetime="2020-02-24T18:59:10+08:00">2020-02-24</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -478,7 +397,194 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>常用的逆向手段有</p>
+          <h2 id="Cycrypt"><a href="#Cycrypt" class="headerlink" title="Cycrypt"></a>Cycrypt</h2><p>脚本语言（Objective-C，java，js的混合语言），可以编写调试代码</p>
+<ol>
+<li>通过cydia安装<br>添加源<code>http://apt.saurik.com/cydia</code></li>
+</ol>
+<ol start="2">
+<li>进入Cycrypt调试模式<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 进入调试模式</span></span><br><span class="line">$ cycript</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试进程（PID=323）</span></span><br><span class="line">$ cycript -p 323</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试进程（进程名）</span></span><br><span class="line">$ cycript -p SpringBoard</span><br><span class="line">$ cycript -p neteasemusic</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p><code>Control+D</code>退出cycript模式</p>
+<ol start="3">
+<li>获取进程Id</li>
+</ol>
+<p>需要先安装插件：<code>adv-cmds</code>（在saurik官方源可找到）</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看所有进程</span></span><br><span class="line">$ ps -A </span><br><span class="line"></span><br><span class="line"><span class="comment"># 搜索进程</span></span><br><span class="line">$ ps -A | grep neteasemusic</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><p>常用语法</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">* UIApp：[UIApplication sharedApplication]</span><br><span class="line">* 定义变量：var 变量名 = 变量值</span><br><span class="line">* 通过内存获得对象：#内存地址</span><br><span class="line">* 获取所有已加载的OC类：ObjectiveC.classes</span><br><span class="line">* 获取当前内存中所有UITableViewCell（包含子类）的实例：choose(UITableViewCell)</span><br><span class="line">* 查看对象的所有成员：*对象</span><br><span class="line">* 递归打印所有的子控件：[view recursiveDescription].toString()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用<a href="https://github.com/CoderMJLee/mjcript" target="_blank" rel="noopener"><code>mjcript</code></a></p>
+</li>
+</ol>
+<p>把文件拷贝到手机上</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ scp mjcript.cy root@xx.xx.xx.xx:/usr/lib/cycript0.9/mjcript.cy</span><br></pre></td></tr></table></figure>
+
+<p>把手机的文件拷贝到本地</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ scp root@xx.xx.xx.xx:/usr/lib/cycript0.9/mjcript.cy ~/Desktop/mjcript.cy</span><br></pre></td></tr></table></figure>
+
+<p>加载脚本</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 附加到进程</span></span><br><span class="line">cycript -p XXX</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载</span></span><br><span class="line">@import mjcript</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用脚本</span></span><br><span class="line">cy<span class="comment"># MJFrontVc()</span></span><br><span class="line"><span class="comment">#"&lt;ZTPersonCenterViewController: 0x10520ba00&gt;"</span></span><br></pre></td></tr></table></figure>
+
+<p><code>mjcript</code>功能列表</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 包名</span></span><br><span class="line">MJAppId;</span><br><span class="line"></span><br><span class="line"><span class="comment">// bundle path</span></span><br><span class="line">MJAppPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// document path</span></span><br><span class="line">MJDocPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// caches path</span></span><br><span class="line">MJCachesPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载系统动态库（/System/Library/Frameworks/xxx.framework，/System/Library/Private/Frameworks/xxx.framework）</span></span><br><span class="line">MJLoadFramework(<span class="string">"BluetoothManager"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// keyWindow</span></span><br><span class="line">MJKeyWin();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 根控制器</span></span><br><span class="line">MJRootVc();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 找到显示在最前面的控制器</span></span><br><span class="line">MJFrontVc();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印UIViewController view的层级结构</span></span><br><span class="line">MJVcSubviews(vc);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印最上层UIViewController view的层级结构</span></span><br><span class="line">MJFrontVcSubViews();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取按钮绑定的所有TouchUpInside事件的方法名</span></span><br><span class="line">MJBtnTouchUpEvent(btn);</span><br><span class="line"></span><br><span class="line"><span class="comment">// CG函数</span></span><br><span class="line">MJPointMake(x, y);</span><br><span class="line"></span><br><span class="line">MJSizeMake(w, h);</span><br><span class="line"></span><br><span class="line">MJRectMake(x, y, w, h);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印controller的层级结构</span></span><br><span class="line">MJChildVcs(vc);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印view的层级结构</span></span><br><span class="line">MJSubviews(view);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否为字符串 "str" @"str"</span></span><br><span class="line">MJIsString(value);</span><br><span class="line">		</span><br><span class="line"><span class="comment">// 判断是否为数组 []、@[]</span></span><br><span class="line">MJIsArray(value);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否为数字 666 @666</span></span><br><span class="line">MJIsNumber(value);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的子类</span></span><br><span class="line">MJSubclasses(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的对象方法</span></span><br><span class="line">MJInstanceMethods(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的对象方法名字</span></span><br><span class="line">MJInstanceMethodNames(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的类方法</span></span><br><span class="line">MJClassMethods(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的类方法名字</span></span><br><span class="line">MJClassMethodNames(className, reg);</span><br><span class="line">		</span><br><span class="line"><span class="comment">// 打印所有的成员变量</span></span><br><span class="line">MJIvars(obj, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的成员变量名字</span></span><br><span class="line">MJIvarNames(obj, reg);</span><br></pre></td></tr></table></figure>
+
+<p>技巧：使用python把中文转成unicode字符</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">unicode(&quot;登录&quot;, &quot;UTF-8&quot;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="封装cycript脚本"><a href="#封装cycript脚本" class="headerlink" title="封装cycript脚本"></a>封装cycript脚本</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params">exports</span>) </span>&#123;</span><br><span class="line">	exports.sum = <span class="function"><span class="keyword">function</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> a + b;</span><br><span class="line">	&#125;;</span><br><span class="line">	exports.minus = <span class="function"><span class="keyword">function</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> a - b;</span><br><span class="line">	&#125;;</span><br><span class="line">	exports.age = <span class="number">10</span>;</span><br><span class="line">&#125;)(exports);</span><br></pre></td></tr></table></figure>
+
+<p>导入(<code>/usr/lib/cycript0.9/test.cy</code>)，并引用</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">@<span class="keyword">import</span> test</span><br><span class="line"></span><br><span class="line">test.sum(<span class="number">1</span>, <span class="number">30</span>)     <span class="comment">// 31</span></span><br></pre></td></tr></table></figure>
+
+<p>通过目录引用<code>/usr/lib/cycript0.9/com/mj/cycript.cy</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">@<span class="keyword">import</span> com.mj.mjcript</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-06-25/ios-reveal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bomo">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2019-06-25/ios-reveal/" class="post-title-link" itemprop="url">使用Reveal查看AppUI结构</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-25 23:37:56" itemprop="dateCreated datePublished" datetime="2019-06-25T23:37:56+08:00">2019-06-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在开发中，我们可能需要参考其它app界面的实现方式来寻找开发思路，通过Reveal工具，我们可以很方便的查看App在内存中的视图结构，如下(AppStore)</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019-06-25/ios-reveal/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-06-03/ios-theos/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bomo">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2019-06-03/ios-theos/" class="post-title-link" itemprop="url">未命名</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-03 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-03T00:00:00+08:00">2019-06-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-02-24 19:02:55" itemprop="dateModified" datetime="2020-02-24T19:02:55+08:00">2020-02-24</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<p>title: 使用Theos编写CydiaSubstrate插件<br>categories: iOS<br>tags: [iOS, 逆向]<br>date: 2019-06-03 23:37:09<br>updated: 2019-06-03 23:37:09</p>
+<hr>
+<p>常用的逆向手段有</p>
 <ol>
 <li>通过<code>Reveal</code>查看App的视图和ViewController</li>
 <li>通过<code>cycript</code>动态调试正在运行的App</li>
@@ -884,87 +990,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2018-10-15/n1-run-armbian/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="bomo">
-      <meta itemprop="description" content="懒人">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="bomo的开发随笔">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2018-10-15/n1-run-armbian/" class="post-title-link" itemprop="url">斐讯N1刷Armbian Linux做服务器</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-10-15 11:48:43" itemprop="dateCreated datePublished" datetime="2018-10-15T11:48:43+08:00">2018-10-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-02-03 10:11:00" itemprop="dateModified" datetime="2020-02-03T10:11:00+08:00">2020-02-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/路由器/" itemprop="url" rel="index"><span itemprop="name">路由器</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>N1上了不到两个月，斐讯就翻车了，现在N1也挖不了矿，作为NAS又太鸡肋，看到可以刷Armbian系统还是很激动的，可以作为服务器折腾一下，这里记录一下刷机的过程</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018-10-15/n1-run-armbian/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1035,7 +1060,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">49</span>
+          <span class="site-state-item-count">50</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
