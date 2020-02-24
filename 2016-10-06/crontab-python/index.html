@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="之前使用crontab经常遇到一些问题，例如脚本不执行的问题，报错问题，在这里记录一下过程，先介绍一个python工具，可以自动更改和生成crontab运行脚本，使用起来非常友好：plan">
+<meta name="keywords" content="python,crontab">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用crontab运行python脚本">
+<meta property="og:url" content="http://zhengbomo.github.io/2016-10-06/crontab-python/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="之前使用crontab经常遇到一些问题，例如脚本不执行的问题，报错问题，在这里记录一下过程，先介绍一个python工具，可以自动更改和生成crontab运行脚本，使用起来非常友好：plan">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-02-03T02:11:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用crontab运行python脚本">
+<meta name="twitter:description" content="之前使用crontab经常遇到一些问题，例如脚本不执行的问题，报错问题，在这里记录一下过程，先介绍一个python工具，可以自动更改和生成crontab运行脚本，使用起来非常友好：plan">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2016-10-06/crontab-python/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>使用crontab运行python脚本 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bomo的开发随笔</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-10-06/crontab-python/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bomo">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用crontab运行python脚本
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-10-06 22:52:00" itemprop="dateCreated datePublished" datetime="2016-10-06T22:52:00+08:00">2016-10-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-02-03 10:11:00" itemprop="dateModified" datetime="2020-02-03T10:11:00+08:00">2020-02-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>之前使用crontab经常遇到一些问题，例如脚本不执行的问题，报错问题，在这里记录一下过程，先介绍一个python工具，可以自动更改和生成crontab运行脚本，使用起来非常友好：<a href="http://github.com/fengsp/plan" target="_blank" rel="noopener">plan</a></p>
+<a id="more"></a>
+<h2 id="一、安装"><a href="#一、安装" class="headerlink" title="一、安装"></a>一、安装</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ pip install plan</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、创建任务脚本"><a href="#二、创建任务脚本" class="headerlink" title="二、创建任务脚本"></a>二、创建任务脚本</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> plan <span class="keyword">import</span> Plan</span><br><span class="line"></span><br><span class="line">cron = Plan()</span><br><span class="line"></span><br><span class="line"><span class="comment"># register one command, script or module</span></span><br><span class="line"><span class="comment"># cron.command('command', every='1.day')</span></span><br><span class="line"><span class="comment"># cron.script('script.py', path='/web/yourproject/scripts', every='1.month')</span></span><br><span class="line"><span class="comment"># cron.module('calendar', every='feburary', at='day.3')</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    cron.run()</span><br></pre></td></tr></table></figure>
+
+<p>也可以使用下面命令自动创建，会在<code>schedule</code>目录下生成一个<code>schedule.py</code>文件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ mkdir schedule</span><br><span class="line">$ cd schedule</span><br><span class="line">$ plan-quickstart</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、使用"><a href="#三、使用" class="headerlink" title="三、使用"></a>三、使用</h2><p>直接在crontab配置文件中使用执行python脚本遇到了好多坑，最后还是使用sh脚本来运行，我们在schedule目录下创建一个文件夹<code>bash</code>，新增一个sh脚本文件<code>OneMinitesTask.sh</code></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"><span class="comment"># 当前路径为: schedule/bash</span></span><br><span class="line"><span class="built_in">cd</span> ..;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 激活虚拟环境</span></span><br><span class="line"><span class="built_in">source</span> env/bin/activate;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行python脚本</span></span><br><span class="line">python OneMinitesTask.py</span><br><span class="line"></span><br><span class="line"><span class="comment"># 退出虚拟环境</span></span><br><span class="line">deactivate</span><br></pre></td></tr></table></figure>
+
+<p>创建完后我们还需要保证添加可执行权限</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ chmod +x OneMinitesTask.sh</span><br></pre></td></tr></table></figure>
+
+<p>下面是<code>schedule.py</code></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> plan <span class="keyword">import</span> Plan</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取bash路径（由于这里依赖于getcwd方法，所以要确保运行目录为当前目录）</span></span><br><span class="line">bash_path = os.path.abspath(os.path.join(os.getcwd(), <span class="string">"bash"</span>))</span><br><span class="line"></span><br><span class="line">cron = Plan()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加一个任务，每分钟执行一次TenMinutesTask.sh脚本</span></span><br><span class="line"><span class="comment"># 这里的every参数详细介绍见官网：http://plan.readthedocs.io/job_definition.html#every</span></span><br><span class="line">job = Job(<span class="string">'./OneMinutesTask.sh &gt; hello.txt'</span>, path=bash_path, every=<span class="string">'1.minute'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加到plan上，可以添加多个job</span></span><br><span class="line">cron.job(job)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    <span class="comment"># 输出到文件，覆盖原有的任务，这里还有其他的参数，详情见官网：http://plan.readthedocs.io/run_types.html</span></span><br><span class="line">    cron.run(<span class="string">'white'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>运行脚本</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> schedule</span><br><span class="line">$ python schedule.py</span><br><span class="line">[write] crontab file written</span><br></pre></td></tr></table></figure>
+
+<p>查看crontab任务</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ crontab -l</span><br><span class="line"><span class="comment"># Begin Plan generated jobs for: main</span></span><br><span class="line">* * * * * <span class="built_in">cd</span> /home/ubuntu/schedule/bash &amp;&amp; ./OneMinutesTask.sh</span><br><span class="line"><span class="comment"># End Plan generated jobs for: main</span></span><br></pre></td></tr></table></figure>
+
+<p>ok，测试运行成功，使用python脚本配置crontab运行脚本可读性更强，更好维护</p>
+<h2 id="四、常见问题"><a href="#四、常见问题" class="headerlink" title="四、常见问题"></a>四、常见问题</h2><h3 id="1-不确定任务是否运行，可以到-var-log-cron-log查看crontab的运行日志"><a href="#1-不确定任务是否运行，可以到-var-log-cron-log查看crontab的运行日志" class="headerlink" title="1. 不确定任务是否运行，可以到/var/log/cron.log查看crontab的运行日志"></a>1. 不确定任务是否运行，可以到<code>/var/log/cron.log</code>查看crontab的运行日志</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ vim /var/<span class="built_in">log</span>/cron.log</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>Shift+G</code>跳到最后一行</p>
+<p>如果没有日志也可能是log服务没有开启，到<code>/etc/rsyslog.d/50-default.conf</code>查看<code>cron.*              /var/log/cron.log</code>一行是否被注释掉了，如果注释掉了，把注释关了</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo vim /etc/rsyslog.d/50-default.conf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改完后重启rsyslog</span></span><br><span class="line">$ sudo service rsyslog restart</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-关闭crontab任务"><a href="#2-关闭crontab任务" class="headerlink" title="2. 关闭crontab任务"></a>2. 关闭crontab任务</h3><p>如果要关闭定时crontab，使用下面命令</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 删除crontab任务，删除后通过crontab -l查看则提示无任务</span></span><br><span class="line">$ crontab -r</span><br></pre></td></tr></table></figure>
+
+<p>如果crontab的定时任务启动了，由于crontab只负责定时调用任务，crontab本身不支持任务的管理，如果需要关闭后台正在运行的任务，可以通过<code>ps aux</code>命令查看任务的<code>PID</code>，然后找到我们的任务，然后使用<code>kill {PID}</code>杀掉任务即可</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/python/" rel="tag"># python</a>
+              <a href="/tags/crontab/" rel="tag"># crontab</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016-09-21/book-2016/" rel="prev" title="2016学习书单">
+      <i class="fa fa-chevron-left"></i> 2016学习书单
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016-11-02/flask-nginx-gunicorn-deploy/" rel="next" title="flask+nginx+gunicorn部署">
+      flask+nginx+gunicorn部署 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、安装"><span class="nav-number">1.</span> <span class="nav-text">一、安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、创建任务脚本"><span class="nav-number">2.</span> <span class="nav-text">二、创建任务脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、使用"><span class="nav-number">3.</span> <span class="nav-text">三、使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、常见问题"><span class="nav-number">4.</span> <span class="nav-text">四、常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-不确定任务是否运行，可以到-var-log-cron-log查看crontab的运行日志"><span class="nav-number">4.1.</span> <span class="nav-text">1. 不确定任务是否运行，可以到/var/log/cron.log查看crontab的运行日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-关闭crontab任务"><span class="nav-number">4.2.</span> <span class="nav-text">2. 关闭crontab任务</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">bomo</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

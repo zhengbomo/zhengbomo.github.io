@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="swift构造器的语法和规则比其他语言复杂，有很多限制和检查，刚开始学的时候经常搞懵，在这里做一个简单的总结">
+<meta name="keywords" content="swift">
+<meta property="og:type" content="article">
+<meta property="og:title" content="swift构造器总结">
+<meta property="og:url" content="http://zhengbomo.github.io/2016-07-07/swift-constructor/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="swift构造器的语法和规则比其他语言复杂，有很多限制和检查，刚开始学的时候经常搞懵，在这里做一个简单的总结">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2016-07-07T13:17:17.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="swift构造器总结">
+<meta name="twitter:description" content="swift构造器的语法和规则比其他语言复杂，有很多限制和检查，刚开始学的时候经常搞懵，在这里做一个简单的总结">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2016-07-07/swift-constructor/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>swift构造器总结 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bomo的开发随笔</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-07-07/swift-constructor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bomo">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          swift构造器总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-07-07 21:17:17" itemprop="dateCreated datePublished" datetime="2016-07-07T21:17:17+08:00">2016-07-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>swift构造器的语法和规则比其他语言复杂，有很多限制和检查，刚开始学的时候经常搞懵，在这里做一个简单的总结</p>
+<a id="more"></a>
+
+<h2 id="一、基本用法"><a href="#一、基本用法" class="headerlink" title="一、基本用法"></a>一、基本用法</h2><p>构造器与函数类似，但不是函数，构造器无返回值，使用方式与函数类似，名称为<code>init</code>，可以带参数</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name: <span class="type">String</span></span><br><span class="line">    <span class="keyword">var</span> gender: <span class="type">Int?</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义一个无参数的构造器</span></span><br><span class="line">    <span class="keyword">init</span>() &#123;</span><br><span class="line">        name = <span class="string">""</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义一个带参数的构造器</span></span><br><span class="line">    <span class="keyword">init</span>(name: <span class="type">String</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.name = name</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>构造器的作用是保证所有的成员（变量/常量）初始化完成，所有常量被赋值，所有非<code>Optional</code>变量都要进行赋值</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name: <span class="type">String</span>                <span class="comment">// 非Optional类型变量，必须初始化</span></span><br><span class="line">    <span class="keyword">var</span> age: <span class="type">Int?</span>                   <span class="comment">// Optional类型变量，可以不显式初始化</span></span><br><span class="line">    <span class="keyword">let</span> idNumber: <span class="type">String</span>            <span class="comment">// 非Optional类型常量，必须初始化</span></span><br><span class="line">    <span class="keyword">let</span> gender: <span class="type">Int?</span>                <span class="comment">// Optional类型常量，必须初始化</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义一个无参数的构造器</span></span><br><span class="line">    <span class="keyword">init</span>() &#123;</span><br><span class="line">        name = <span class="string">""</span></span><br><span class="line">        idNumber = <span class="string">""</span></span><br><span class="line">        gender = <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义一个带参数的构造器</span></span><br><span class="line">    <span class="keyword">init</span>(name: <span class="type">String</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.name = name</span><br><span class="line">        idNumber = <span class="string">""</span></span><br><span class="line">        gender = <span class="literal">nil</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、便利构造器"><a href="#二、便利构造器" class="headerlink" title="二、便利构造器"></a>二、便利构造器</h2><p>上面我们看到的构造器，都是指定构造器（designated），指定构造器必须保证所有的成员都完成初始化了，我们可以对初始化话方法做一些方便的扩展，并且可以重用原指定构构造器的逻辑，这时候可以定义便利构造器（convenience），定义便利构造器使用<code>convenience init()</code>，如上面Person类的例子</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name: <span class="type">String</span>                <span class="comment">// 非Optional类型变量，必须初始化</span></span><br><span class="line">    <span class="keyword">var</span> age: <span class="type">Int?</span>                   <span class="comment">// Optional类型变量，可以不显式初始化</span></span><br><span class="line">    <span class="keyword">let</span> idNumber: <span class="type">String</span>            <span class="comment">// 非Optional类型常量，必须初始化</span></span><br><span class="line">    <span class="keyword">let</span> gender: <span class="type">Int?</span>                <span class="comment">// Optional类型常量，必须初始化</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义一个无参数的构造器</span></span><br><span class="line">    <span class="keyword">init</span>() &#123;</span><br><span class="line">        name = <span class="string">""</span></span><br><span class="line">        idNumber = <span class="string">""</span></span><br><span class="line">        gender = <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义便利构造器</span></span><br><span class="line">    <span class="keyword">convenience</span> <span class="keyword">init</span>(name: <span class="type">String</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.<span class="keyword">init</span>()                 <span class="comment">// 调用指定构造器</span></span><br><span class="line">        <span class="keyword">self</span>.name = name</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>便利构造器不能被子类继承，子类不能通过<code>super</code>调用，如果希望便利构造器被子类继承，可以使用<code>required</code>声明子类必须重写该方法</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name: <span class="type">String</span>                <span class="comment">// 非Optional类型变量，必须初始化</span></span><br><span class="line">    <span class="keyword">var</span> age: <span class="type">Int?</span>                   <span class="comment">// Optional类型变量，可以不显式初始化</span></span><br><span class="line">    <span class="keyword">let</span> idNumber: <span class="type">String</span>            <span class="comment">// 非Optional类型常量，必须初始化</span></span><br><span class="line">    <span class="keyword">let</span> gender: <span class="type">Int?</span>                <span class="comment">// Optional类型常量，必须初始化</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义一个无参数的构造器</span></span><br><span class="line">    <span class="keyword">init</span>() &#123;</span><br><span class="line">        name = <span class="string">""</span></span><br><span class="line">        idNumber = <span class="string">""</span></span><br><span class="line">        gender = <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义一个带参数的构造器</span></span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">convenience</span> <span class="keyword">init</span>(name: <span class="type">String</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.<span class="keyword">init</span>()</span><br><span class="line">        <span class="keyword">self</span>.name = name</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span>: <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> classNo: <span class="type">String</span> = <span class="string">""</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>(name: <span class="type">String</span>) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>便利构造器只能调用当前类的指定构造器，不能调用父类的指定构造器，类不能只有便利构造器，便利构造器是<strong>横向</strong>调用（当前类）而指定构造器是<strong>纵向</strong>调用的（父类）</p>
+<blockquote>
+<p>开始使用<code>convenience</code>声明便利构造器感觉有点奇葩，因为编译器是可以识别到构造器是否调用了其他指定构造器（designated）的，也就是说可以，却还需要我们自己声明，当然自己声明可以方便我们区分构造器，以便更直观的看出指定构造器和便利构造器，这样可以很快的分辨是否可以被子类使用</p>
+</blockquote>
+<h2 id="三、可失败构造器（Failable-initializer）"><a href="#三、可失败构造器（Failable-initializer）" class="headerlink" title="三、可失败构造器（Failable initializer）"></a>三、可失败构造器（Failable initializer）</h2><p>除了普通的构造器，swift还允许构造失败，如当我们传入一些不恰当的参数导致类构造出现一些异常的情况，这时候我们可以让构造器返回nil，说明构造失败，声明方式为<code>init?()</code>，在需要的地方<code>return nil</code></p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name: <span class="type">String</span></span><br><span class="line">    <span class="keyword">var</span> gender: <span class="type">Int</span></span><br><span class="line">    <span class="comment">// 定义一个无参数的构造器</span></span><br><span class="line">    <span class="keyword">init</span>?(name: <span class="type">String</span>, gender: <span class="type">Int</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.name = name</span><br><span class="line">        <span class="keyword">if</span> gender != <span class="number">0</span> &amp;&amp; gender != <span class="number">1</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span>      <span class="comment">// 失败的地方返回nil即可</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">self</span>.gender = gender</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> person = <span class="type">Person</span>(name: <span class="string">"bomo"</span>, gender: <span class="number">2</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="keyword">let</span> p = person &#123;</span><br><span class="line">    <span class="built_in">print</span>(p.name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可失败构造这名字太难听了，我更喜欢叫为可空构造器，返回是一个<code>Optional</code>类型，使用的时候需要先取值</p>
+<h2 id="四、必须构造器"><a href="#四、必须构造器" class="headerlink" title="四、必须构造器"></a>四、必须构造器</h2><p>类可以定义<code>required</code>构造器，当子类继承父类是，必须实现<code>required</code>构造器，当然，如果子类不实现任何构造器时，也可以不实现<code>required</code>构造器</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parent</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name: <span class="type">String</span></span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>(name: <span class="type">String</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.name = name</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Son</span>: <span class="title">Parent</span> </span>&#123;</span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>(name: <span class="type">String</span>) &#123;       <span class="comment">//子类必须实现</span></span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>(name: name)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">init</span>() &#123;</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>(name: <span class="string">"bomo"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Son2</span>: <span class="title">Parent</span> </span>&#123;      <span class="comment">// 如果子类不实现任何构造器，则不可以不实现required</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、闭包初始化属性"><a href="#五、闭包初始化属性" class="headerlink" title="五、闭包初始化属性"></a>五、闭包初始化属性</h2><p>出行的初始化可以通过构造器设置，也可以在声明的时候直接设置，swift还支持通过执行闭包函数初始化属性</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SomeClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> someProperty: <span class="type">SomeType</span> = &#123;</span><br><span class="line">        <span class="comment">// 这里不能使用类相关的属性，因为在这里类还没有初始化完成</span></span><br><span class="line">        <span class="keyword">return</span> someValue</span><br><span class="line">    &#125;()   <span class="comment">// 最后需要执行闭包，否则返回的是闭包，而不是闭包函数运行后返回的值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、继承"><a href="#六、继承" class="headerlink" title="六、继承"></a>六、继承</h2><pre><code>* 子类只能继承父类的指定构造器和`required`声明的构造器，required声明构造器表示子类必须重写该构造器
+* 如果子类实现了父类的**部分**指定构造器，则不会继承父类的构造器
+* 如果子类实现了父类的**所有**指定构造器，则会继承父类
+* 如果子类没有实现任何构造器，则会继承父类的**所有构造器**
+* 子类的指定构造器最终必须调用父类的指定构造器
+* 子类调用父类构造器之前必须保证当前类的所有属性已初始化为适当的值（非可选变量都已赋值，所有常量都已赋值）
+* 子类使用父类的属性时，必须在调用父类指定构造器之后</code></pre><p>所有的构造器都必须保证，在执行完构造器时，所有的属性都初始化为适当的值</p>
+<h2 id="七、两段式构造"><a href="#七、两段式构造" class="headerlink" title="七、两段式构造"></a>七、两段式构造</h2><p>swift的构造器有点奇葩，分为两段式构造<br>    * 第一阶段：为每个属性初始化一个初始值<br>    * 第二阶段：为每个属性定制化值</p>
+<p>在其他语言中C#/Java中，系统默认会为对象的所有属性和字段初始化值，如值类型初始化为0，引用类型初始化为null，结构体成员遵循前两条，系统自动为我们完成了第一阶段，我们直接进入第二阶段，直接定制化属性/字段值，而swift把这两个阶段分开给我们实现了</p>
+<h2 id="八、外部参数名"><a href="#八、外部参数名" class="headerlink" title="八、外部参数名"></a>八、外部参数名</h2><p>所有带参数的构造器在调用的时候必须显式使用外部参数名，如果不显式声明外部参数名，外部参数名与内部参数名相同（与函数的规则一样）</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name: <span class="type">String</span></span><br><span class="line">    <span class="comment">// 定义一个带参数的构造器</span></span><br><span class="line">    <span class="keyword">init</span>(outName name: <span class="type">String</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.name = name</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> p1 = <span class="type">Person</span>(<span class="string">"bomo"</span>)            <span class="comment">// 报编译错误，需要指定外部参数名</span></span><br><span class="line"><span class="keyword">var</span> p2 = <span class="type">Person</span>(outName: <span class="string">""</span>)</span><br></pre></td></tr></table></figure>
+
+<p>如果想忽略外部参数名，可以使用<code>_</code>代替外部参数名</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name: <span class="type">String</span></span><br><span class="line">    <span class="comment">// 定义一个带参数的构造器</span></span><br><span class="line">    <span class="keyword">init</span>(<span class="number">_</span> name: <span class="type">String</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.name = name</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> p = <span class="type">Person</span>(<span class="string">"bomo"</span>)            <span class="comment">// 编译通过</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="九、构造器总结"><a href="#九、构造器总结" class="headerlink" title="九、构造器总结"></a>九、构造器总结</h2><h3 id="属性"><a href="#属性" class="headerlink" title="属性"></a>属性</h3><ul>
+<li>如果所有成员都进行了初始化，并且没有提供构造器，编译器会自动为类生成一个无参数构造器，如果是结构体，那么还会生成一个带所有参数的构造器</li>
+</ul>
+<h3 id="指定构造器和便利构造器"><a href="#指定构造器和便利构造器" class="headerlink" title="指定构造器和便利构造器"></a>指定构造器和便利构造器</h3><ul>
+<li>指定构造器总是纵向向上代理，便利构造器总是横向代理</li>
+<li>便利构造器只能调用当前类内的构造器</li>
+<li>便利构造器最终需调用指定构造器</li>
+</ul>
+<h3 id="4种检查"><a href="#4种检查" class="headerlink" title="4种检查"></a>4种检查</h3><ul>
+<li>指定构造器必须保证所有的成员属性都被初始化</li>
+<li>指定构造器（如果有父类）必须最终调用父类的构造器</li>
+<li>指定构造器调用父类构造器之前必须保证当前类的所有成员已完成初始化</li>
+</ul>
+<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><ul>
+<li>父类构造器通常情况下不会被子类继承，只有子类无构造器的时候才会</li>
+<li>子类可以通过<code>super</code>调用父类的指定构造器，不能调用父类的便利构造器</li>
+<li>如果有父类，所有的构造器最终都必须调用父类的指定构造器</li>
+<li>使用父类的属性之前，必须先调用父类的构造器，再使用</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/swift/" rel="tag"># swift</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016-06-28/swift-start/" rel="prev" title="swift学习笔记">
+      <i class="fa fa-chevron-left"></i> swift学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016-07-18/amazon-aws-start/" rel="next" title="亚马逊VPS免费一年试用">
+      亚马逊VPS免费一年试用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、基本用法"><span class="nav-number">1.</span> <span class="nav-text">一、基本用法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、便利构造器"><span class="nav-number">2.</span> <span class="nav-text">二、便利构造器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、可失败构造器（Failable-initializer）"><span class="nav-number">3.</span> <span class="nav-text">三、可失败构造器（Failable initializer）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、必须构造器"><span class="nav-number">4.</span> <span class="nav-text">四、必须构造器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、闭包初始化属性"><span class="nav-number">5.</span> <span class="nav-text">五、闭包初始化属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、继承"><span class="nav-number">6.</span> <span class="nav-text">六、继承</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、两段式构造"><span class="nav-number">7.</span> <span class="nav-text">七、两段式构造</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#八、外部参数名"><span class="nav-number">8.</span> <span class="nav-text">八、外部参数名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#九、构造器总结"><span class="nav-number">9.</span> <span class="nav-text">九、构造器总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#属性"><span class="nav-number">9.1.</span> <span class="nav-text">属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#指定构造器和便利构造器"><span class="nav-number">9.2.</span> <span class="nav-text">指定构造器和便利构造器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4种检查"><span class="nav-number">9.3.</span> <span class="nav-text">4种检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#继承"><span class="nav-number">9.4.</span> <span class="nav-text">继承</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">bomo</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

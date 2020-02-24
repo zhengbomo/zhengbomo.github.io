@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="N1上了不到两个月，斐讯就翻车了，现在N1也挖不了矿，作为NAS又太鸡肋，看到可以刷Armbian系统还是很激动的，可以作为服务器折腾一下，这里记录一下刷机的过程">
+<meta name="keywords" content="路由器,斐讯">
+<meta property="og:type" content="article">
+<meta property="og:title" content="斐讯N1刷Armbian Linux做服务器">
+<meta property="og:url" content="http://zhengbomo.github.io/2018-10-15/n1-run-armbian/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="N1上了不到两个月，斐讯就翻车了，现在N1也挖不了矿，作为NAS又太鸡肋，看到可以刷Armbian系统还是很激动的，可以作为服务器折腾一下，这里记录一下刷机的过程">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/1541040423315.jpg">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/5451539908386_.pic_hd.jpg">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/WX20181101-134634.png">
+<meta property="og:updated_time" content="2020-02-03T02:11:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="斐讯N1刷Armbian Linux做服务器">
+<meta name="twitter:description" content="N1上了不到两个月，斐讯就翻车了，现在N1也挖不了矿，作为NAS又太鸡肋，看到可以刷Armbian系统还是很激动的，可以作为服务器折腾一下，这里记录一下刷机的过程">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/1541040423315.jpg">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2018-10-15/n1-run-armbian/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>斐讯N1刷Armbian Linux做服务器 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bomo的开发随笔</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2018-10-15/n1-run-armbian/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bomo">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          斐讯N1刷Armbian Linux做服务器
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-10-15 11:48:43" itemprop="dateCreated datePublished" datetime="2018-10-15T11:48:43+08:00">2018-10-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-02-03 10:11:00" itemprop="dateModified" datetime="2020-02-03T10:11:00+08:00">2020-02-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/路由器/" itemprop="url" rel="index"><span itemprop="name">路由器</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>N1上了不到两个月，斐讯就翻车了，现在N1也挖不了矿，作为NAS又太鸡肋，看到可以刷Armbian系统还是很激动的，可以作为服务器折腾一下，这里记录一下刷机的过程</p>
+<a id="more"></a>
+
+<h2 id="工具准备"><a href="#工具准备" class="headerlink" title="工具准备"></a>工具准备</h2><ol>
+<li>双公头USB线，可以3.9淘宝一根，<a href="https://detail.tmall.com/item.htm?id=13036924933" target="_blank" rel="noopener">https://detail.tmall.com/item.htm?id=13036924933</a></li>
+<li>adb调试工具：<a href="https://dl.google.com/android/repository/platform-tools-latest-windows.zip" target="_blank" rel="noopener">https://dl.google.com/android/repository/platform-tools-latest-windows.zip</a></li>
+<li><a href="https://sourceforge.net/projects/win32diskimager/" target="_blank" rel="noopener">DiskImager</a>: 降<code>img</code>文件写入U盘的工具</li>
+<li>降级分区：<code>boot.img</code>, <code>bootloader.img</code>, <code>recovery.img</code></li>
+<li>U盘一个：用于写入系统</li>
+<li>PC一台：我这里用的是Win10</li>
+<li>USB键盘一个：用于连接N1座一些初始化设置</li>
+<li>HDMI线和显示器一台：用于连接N1做一些初始化设置</li>
+<li>armbian固件下载：<a href="https://yadi.sk/d/pHxaRAs-tZiei" target="_blank" rel="noopener">https://yadi.sk/d/pHxaRAs-tZiei</a>，我选的是这个<br> Armbian_5.62_Aml-s9xxx_Ubuntu_xenial_default_4.18.7_desktop_20181012.img.xz</li>
+</ol>
+<h2 id="降级"><a href="#降级" class="headerlink" title="降级"></a>降级</h2><p>先降级，然后刷入比较保险，有些帖子说不用降级，但我没成功，还是先降级稳妥些</p>
+<ol>
+<li><p>先打开adb模式：在N1的主界面的【固件版本】点击4次，会看到<code>adb打开</code>的提示<br> <img src="/images/post/1541040423315.jpg" alt></p>
+</li>
+<li><p>N1与PC需要在同一个局域网，我的N1的IP是：<code>10.10.10.120</code></p>
+</li>
+<li><p>测试连接是否成功：在终端输入</p>
+ <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 进入adb工具目录</span><br><span class="line">cd path/to/adb</span><br><span class="line"></span><br><span class="line">adb connect 10.10.10.120</span><br></pre></td></tr></table></figure>
+
+<p> 会看到返回<code>connected to 10.10.10.120</code>的提示，说明连接成功<br> <img src="/images/post/5451539908386_.pic_hd.jpg" alt></p>
+</li>
+<li><p>使用双公头链接N1和PC：连接N1靠近HDMI的USB口</p>
+</li>
+<li><p>用下面命令让N1重启为fastboot模式</p>
+ <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">adb shell reboot fastboot</span><br></pre></td></tr></table></figure>
+
+<p> 这时候N1会重启，重启后没什么变化，可以通过<code>fastboot devices -l</code>命令查看设备<br> <img src="/images/post/WX20181101-134634.png" alt></p>
+</li>
+</ol>
+<h2 id="刷机"><a href="#刷机" class="headerlink" title="刷机"></a>刷机</h2><h3 id="刷入降级分区"><a href="#刷入降级分区" class="headerlink" title="刷入降级分区"></a>刷入降级分区</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 进入工具目录</span><br><span class="line">cd /path/to/fastboot</span><br><span class="line"></span><br><span class="line">fastboot flash boot boot.img</span><br><span class="line">fastboot flash bootloader bootloader.img</span><br><span class="line">fastboot flash recovery recovery.img</span><br></pre></td></tr></table></figure>
+
+<p>如果没有错误提示，说明写入成功，接下来重启</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">fastboot reboot</span><br></pre></td></tr></table></figure>
+
+<p>重启完成后，就可以刷新固件了</p>
+<h3 id="制作U盘启动固件"><a href="#制作U盘启动固件" class="headerlink" title="制作U盘启动固件"></a>制作U盘启动固件</h3><ol>
+<li>插入U盘，并格式化</li>
+<li>打开<code>Win32DiskImager</code>，选择<code>img</code>文件和<code>U盘盘符</code></li>
+<li>点击写入，等待几分钟后写入成功</li>
+<li>写入完成后，可以看到有个Boot的磁盘<ul>
+<li>5.62后的版本：修改根目录下的<code>uEnv.ini</code>文件，将<code>meson-gxl-s905x-khadas-vim.dtb</code>换成N1对应的<code>meson-gxl-s905d-p230.dtb</code></li>
+<li>之前的版本：复制<code>dtb/meson-gxl-s905d-p230.dtb</code>到根目录，并重命名为<code>dtb.img</code></li>
+</ul>
+</li>
+<li>弹出U盘</li>
+<li>U盘插入N1靠近HDMI的USB口</li>
+</ol>
+<h3 id="写入系统到N1"><a href="#写入系统到N1" class="headerlink" title="写入系统到N1"></a>写入系统到N1</h3><ol>
+<li><p>连接N1的HDMI到显示器，N1断电重连</p>
+</li>
+<li><p>显示器可以看到N1从U盘启动，加载U盘的ubuntu系统</p>
+</li>
+<li><p>跟进提示配置即可，默认用户：root，密码：1234</p>
+</li>
+<li><p>在<code>/root/</code>目录下，有两个文件<code>install.sh</code>和<code>install-2018.sh</code>，运行这个会把U盘的系统写到N1的<code>eMMC</code>，就可以脱离U盘使用了</p>
+ <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./install.sh</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>写入完成后重启系统，关机的时候拔出U盘</p>
+ <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 重启</span><br><span class="line">reboot</span><br><span class="line"></span><br><span class="line"># 关机</span><br><span class="line">poweroff</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h2 id="初始化配置"><a href="#初始化配置" class="headerlink" title="初始化配置"></a>初始化配置</h2><p>先使用<code>armbian-config</code>配置系统和网络，我们先配置网络就行，其他根据需要配置</p>
+<h3 id="卸载红外模块"><a href="#卸载红外模块" class="headerlink" title="卸载红外模块"></a>卸载红外模块</h3><p>N1不支持红外线，下面命令关闭和删除红外服务</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 关闭红外服务</span></span><br><span class="line">systemctl stop lircd.service lircd-setup.service lircd.socket lircd-uinput.service lircmd.service</span><br><span class="line"><span class="comment"># 卸载红外模块</span></span><br><span class="line">apt remove -y lirc &amp;&amp; apt autoremove -y</span><br></pre></td></tr></table></figure>
+
+<h3 id="更新软件包"><a href="#更新软件包" class="headerlink" title="更新软件包"></a>更新软件包</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">apt update &amp;&amp; apt upgrade -y</span><br></pre></td></tr></table></figure>
+
+<h3 id="挂在外置存储"><a href="#挂在外置存储" class="headerlink" title="挂在外置存储"></a>挂在外置存储</h3><p>插入外置硬盘或U盘，通过<code>fdisk -l</code>查看磁盘信息和分区</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Disk /dev/mmcblk1: 7.3 GiB, 7818182656 bytes, 15269888 sectors</span><br><span class="line">Units: sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disklabel type: dos</span><br><span class="line">Disk identifier: 0x91950000</span><br><span class="line"></span><br><span class="line">Device         Boot   Start      End  Sectors  Size Id Type</span><br><span class="line">/dev/mmcblk1p1      1368064  1617919   249856  122M  c W95 FAT32 (LBA)</span><br><span class="line">/dev/mmcblk1p2      1619968 15269887 13649920  6.5G 83 Linux</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Disk /dev/sda: 931.5 GiB, 1000204886016 bytes, 1953525168 sectors</span><br><span class="line">Units: sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disklabel type: dos</span><br><span class="line">Disk identifier: 0xa32f3aa6</span><br><span class="line"></span><br><span class="line">Device     Boot Start        End    Sectors   Size Id Type</span><br><span class="line">/dev/sda1           2 1953525167 1953525166 931.5G  7 HPFS/NTFS/exFAT</span><br></pre></td></tr></table></figure>
+
+<p>通过上面，看到硬盘分区为<code>/dev/sda1</code>通过<code>mount</code>挂在分区</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 如果不存在就创建</span></span><br><span class="line">mkdir /mnt/usb_disk</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂载分区</span></span><br><span class="line">mount /dev/sda1 /mnt/usb_disk</span><br></pre></td></tr></table></figure>
+
+<p>进入<code>/mnt/usb_disk</code>可以看到硬盘分区的文件</p>
+<h3 id="配置frp用于公网连接"><a href="#配置frp用于公网连接" class="headerlink" title="配置frp用于公网连接"></a>配置frp用于公网连接</h3><p>参考这里：<a href="/2018-10-18/frp-start/">frp内网穿透</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/路由器/" rel="tag"># 路由器</a>
+              <a href="/tags/斐讯/" rel="tag"># 斐讯</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018-10-15/k3n-ttl-flashing/" rel="prev" title="斐讯K3N通过ttl刷K3固件">
+      <i class="fa fa-chevron-left"></i> 斐讯K3N通过ttl刷K3固件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018-10-18/frp-start/" rel="next" title="frp内网穿透">
+      frp内网穿透 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#工具准备"><span class="nav-number">1.</span> <span class="nav-text">工具准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#降级"><span class="nav-number">2.</span> <span class="nav-text">降级</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#刷机"><span class="nav-number">3.</span> <span class="nav-text">刷机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#刷入降级分区"><span class="nav-number">3.1.</span> <span class="nav-text">刷入降级分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#制作U盘启动固件"><span class="nav-number">3.2.</span> <span class="nav-text">制作U盘启动固件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#写入系统到N1"><span class="nav-number">3.3.</span> <span class="nav-text">写入系统到N1</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#初始化配置"><span class="nav-number">4.</span> <span class="nav-text">初始化配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#卸载红外模块"><span class="nav-number">4.1.</span> <span class="nav-text">卸载红外模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新软件包"><span class="nav-number">4.2.</span> <span class="nav-text">更新软件包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挂在外置存储"><span class="nav-number">4.3.</span> <span class="nav-text">挂在外置存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置frp用于公网连接"><span class="nav-number">4.4.</span> <span class="nav-text">配置frp用于公网连接</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">bomo</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

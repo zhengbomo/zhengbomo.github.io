@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一直想整个服务器玩玩，又苦于没时间没钱，最近看到亚马逊VPS服务器有免费一年的使用时间，于是整了一个，在这里记录申请和配置的过程">
+<meta name="keywords" content="VPS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="亚马逊VPS免费一年试用">
+<meta property="og:url" content="http://zhengbomo.github.io/2016-07-18/amazon-aws-start/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="一直想整个服务器玩玩，又苦于没时间没钱，最近看到亚马逊VPS服务器有免费一年的使用时间，于是整了一个，在这里记录申请和配置的过程">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/83846668.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/7930100.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/83423717.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/78094703.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/59379720.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/83309431.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/72114717.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/57044390.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/4340751.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/22826182.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/8236634.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/50658203.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/24114515.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/55317071.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/17503114.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-6/79653608.jpg">
+<meta property="og:updated_time" content="2016-07-18T13:02:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="亚马逊VPS免费一年试用">
+<meta name="twitter:description" content="一直想整个服务器玩玩，又苦于没时间没钱，最近看到亚马逊VPS服务器有免费一年的使用时间，于是整了一个，在这里记录申请和配置的过程">
+<meta name="twitter:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/83846668.jpg">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2016-07-18/amazon-aws-start/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>亚马逊VPS免费一年试用 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bomo的开发随笔</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-07-18/amazon-aws-start/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bomo">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          亚马逊VPS免费一年试用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-07-18 21:02:00" itemprop="dateCreated datePublished" datetime="2016-07-18T21:02:00+08:00">2016-07-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一直想整个服务器玩玩，又苦于没时间没钱，最近看到亚马逊VPS服务器有免费一年的使用时间，于是整了一个，在这里记录申请和配置的过程</p>
+<a id="more"></a>
+
+<h2 id="一、准备"><a href="#一、准备" class="headerlink" title="一、准备"></a>一、准备</h2><p>需要用到VISA信用卡或者Master信用卡，钱的问题比较敏感，添加信用卡只是当预授权做验证用，会扣除<code>$1</code>，有个心理准备</p>
+<h2 id="二、开始"><a href="#二、开始" class="headerlink" title="二、开始"></a>二、开始</h2><ol>
+<li><p>到<a href="https://aws.amazon.com/cn" target="_blank" rel="noopener">亚马逊</a>注册账号</p>
+</li>
+<li><p>按步骤填写，中间需要使用到信用卡，会扣除$1的手续费，在使用过程中需要注意，有很多服务是收费的，并且绑定信用卡后不会每次都询问你确认就直接扣除了（呵呵），操作的时候要小心，我使用完就直接到<a href="https://www.amazon.com/gp/wallet" target="_blank" rel="noopener">账户中心</a>把信用卡删除了</p>
+</li>
+<li><p>到<a href="https://console.aws.amazon.com/ec2/" target="_blank" rel="noopener">https://console.aws.amazon.com/ec2/</a>创建实例，选择linux Ubuntu服务器（有部分服务器是要钱的）有两种版本HVM和PV，PV运行效率高一些，linux选择PV（半虚拟）就可以了，区别见<a href="http://stackoverflow.com/questions/22130214/amazon-ec2-ubuntupv-or-ubuntuhvm" target="_blank" rel="noopener"></a></p>
+<p><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/83846668.jpg" alt="启动实例"></p>
+<p><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/7930100.jpg" alt="选择Ubuntu Server LTS (PV)"></p>
+<p><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/83423717.jpg" alt="设置存储大小"></p>
+<p><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/78094703.jpg" alt="选择实例类型"></p>
+<p><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/59379720.jpg" alt="审核"></p>
+<p><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/83309431.jpg" alt="启动"></p>
+</li>
+<li><p>一直下一步走，会有提示免费的选项，选择免费的就行，在最后会让你创建秘钥，输入名字创建，并且下载到本地<code>xxx.pem</code>（<strong>只有一次下载机会</strong>）然后完成<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/72114717.jpg" alt="秘钥文件"></p>
+</li>
+<li><p>到<a href="https://console.aws.amazon.com/ec2/" target="_blank" rel="noopener">https://console.aws.amazon.com/ec2/</a>查看正在运行的实例，这个时候应该只有一个，可以看到实例的公网ip，等信息<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/57044390.jpg" alt></p>
+</li>
+<li><p>这个时候需要用秘钥与服务器配对连接</p>
+<ul>
+<li>进入终端修改秘钥文件的权限：chmod 400 xxx.pem</li>
+<li>默认用户为<code>ubuntu</code>，连接公网服务器：ssh -i xxx.pem ubuntu@[公网ip]（如：ssh -i “ABC.pem” <a href="mailto:ubuntu@52.39.168.235" target="_blank" rel="noopener">ubuntu@52.39.168.235</a>），以后也是通过这个连接的</li>
+<li>ok，连接成功</li>
+<li>接下来就可以对服务器进行操作了<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/4340751.jpg" alt></li>
+</ul>
+<p>如果是windows下默认不支持<code>ssh</code>登陆，需要安装<code>PuTTY</code>，详情参见<a href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/putty.html?icmpid=docs_ec2_console" target="_blank" rel="noopener">这里</a></p>
+</li>
+</ol>
+<h2 id="三、固定IP"><a href="#三、固定IP" class="headerlink" title="三、固定IP"></a>三、固定IP</h2><p>默认情况下，服务器每次重启的的时候，IP可能会更变，我们在后台控制面板申请一个新的公网地址<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/22826182.jpg" alt></p>
+<p>然后绑定到实例上，因为我这里已经绑定了，所以是解除关联<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/8236634.jpg" alt></p>
+<p>这样在每次重启的的时候ip就不会变了</p>
+<h2 id="四、设置安全组"><a href="#四、设置安全组" class="headerlink" title="四、设置安全组"></a>四、设置安全组</h2><p>默认情况下服务器只能通过ssh访问，如果我们配置了web服务器，默认情况下是不能通过ip访问的，需要在安全组中添加入站规则，在后台找到实例对应的安全组<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/50658203.jpg" alt></p>
+<p>找到添加入站规则（如：http）<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/24114515.jpg" alt><br>这样就可以通过http访问了，下面我们安装nginx测试一下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo add-apt-repository ppa:nginx/stable</span><br><span class="line">$ sudo apt-get update &amp;&amp; sudo apt-get upgrade</span><br><span class="line">$ sudo apt-get install nginx</span><br></pre></td></tr></table></figure>
+
+<p>启动nginx</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo /etc/init.d/nginx start</span><br><span class="line">start: Job is already running: nginx</span><br></pre></td></tr></table></figure>
+
+<p>这个时候我们就可以通过ip访问了<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/55317071.jpg" alt></p>
+<h2 id="五、绑定域名"><a href="#五、绑定域名" class="headerlink" title="五、绑定域名"></a>五、绑定域名</h2><p>有了固定ip绑定域名就很简单了，在dns域名解析服务器(如<a href="https://www.dnspod.cn/" target="_blank" rel="noopener">dnspod</a>)添加一个A记录即可<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-3/17503114.jpg" alt><br>接下来就可以用域名访问了（可能有延迟）</p>
+<h2 id="六、iTerm快捷连接"><a href="#六、iTerm快捷连接" class="headerlink" title="六、iTerm快捷连接"></a>六、iTerm快捷连接</h2><p>iTerm基本上是Mac上必备的终端工具，功能比自带的终端强大的多，这里使用其中一个技巧来实现快速连接和登录服务器，打开iTerm配置（Cmd+,）添加Profile</p>
+<p><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-9-6/79653608.jpg" alt></p>
+<p>添加完后，通过快捷键（Cmd+o）打开profile列表，然后选择就可以自动打开新窗口执行了，特别方便</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/VPS/" rel="tag"># VPS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016-07-07/swift-constructor/" rel="prev" title="swift构造器总结">
+      <i class="fa fa-chevron-left"></i> swift构造器总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016-07-28/ubuntu-install-mysql-python/" rel="next" title="ubuntu安装mysql和python">
+      ubuntu安装mysql和python <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、准备"><span class="nav-number">1.</span> <span class="nav-text">一、准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、开始"><span class="nav-number">2.</span> <span class="nav-text">二、开始</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、固定IP"><span class="nav-number">3.</span> <span class="nav-text">三、固定IP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、设置安全组"><span class="nav-number">4.</span> <span class="nav-text">四、设置安全组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、绑定域名"><span class="nav-number">5.</span> <span class="nav-text">五、绑定域名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、iTerm快捷连接"><span class="nav-number">6.</span> <span class="nav-text">六、iTerm快捷连接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">bomo</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

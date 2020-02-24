@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="最近在读《编写高质量代码 改善Python程序的91个建议》，在这里总结阅读中遇到的一些要点，和一些自己的理解">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《编写高质量代码 改善Python程序的91个建议》学习笔记">
+<meta property="og:url" content="http://zhengbomo.github.io/2016-06-28/Python-tip/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="最近在读《编写高质量代码 改善Python程序的91个建议》，在这里总结阅读中遇到的一些要点，和一些自己的理解">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2016-07-11T03:16:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《编写高质量代码 改善Python程序的91个建议》学习笔记">
+<meta name="twitter:description" content="最近在读《编写高质量代码 改善Python程序的91个建议》，在这里总结阅读中遇到的一些要点，和一些自己的理解">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2016-06-28/Python-tip/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>《编写高质量代码 改善Python程序的91个建议》学习笔记 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bomo的开发随笔</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-06-28/Python-tip/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bomo">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          《编写高质量代码 改善Python程序的91个建议》学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-06-28 11:16:46" itemprop="dateCreated datePublished" datetime="2016-06-28T11:16:46+08:00">2016-06-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2016-07-11 11:16:46" itemprop="dateModified" datetime="2016-07-11T11:16:46+08:00">2016-07-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近在读《编写高质量代码 改善Python程序的91个建议》，在这里总结阅读中遇到的一些要点，和一些自己的理解</p>
+<a id="more"></a>
+
+<h2 id="0-the-Zen-of-Python"><a href="#0-the-Zen-of-Python" class="headerlink" title="0. the Zen of Python"></a>0. the Zen of Python</h2><p>先来看看一个有趣的彩蛋，python的设计之禅，我们在Python控制台输入<code>import this</code>，可以看到</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> this</span><br><span class="line">The Zen of Python, by Tim Peters          <span class="comment"># Python的禅宗</span></span><br><span class="line"></span><br><span class="line">Beautiful <span class="keyword">is</span> better than ugly.            <span class="comment"># 优美胜于丑陋</span></span><br><span class="line">Explicit <span class="keyword">is</span> better than implicit.         <span class="comment"># 明了胜于晦涩</span></span><br><span class="line">Simple <span class="keyword">is</span> better than complex.            <span class="comment"># 简单胜于复杂</span></span><br><span class="line">Complex <span class="keyword">is</span> better than complicated.       <span class="comment"># 复杂胜于凌乱</span></span><br><span class="line">Flat <span class="keyword">is</span> better than nested.               <span class="comment"># 扁平胜于嵌套</span></span><br><span class="line">Sparse <span class="keyword">is</span> better than dense.              <span class="comment"># 间隔胜于紧凑</span></span><br><span class="line">Readability counts.                       <span class="comment"># 可读性很重要</span></span><br><span class="line">Special cases aren<span class="string">'t special enough to break the rules.                     # 特例并不违背规则</span></span><br><span class="line"><span class="string">Although practicality beats purity.                                         # 虽然实用性比完美</span></span><br><span class="line"><span class="string">Errors should never pass silently.</span></span><br><span class="line"><span class="string">Unless explicitly silenced.                                                 # 错误不应该被忽略，除非你明确要这样做</span></span><br><span class="line"><span class="string">In the face of ambiguity, refuse the temptation to guess.                   # 在模棱两可的时候，拒绝胡乱猜测</span></span><br><span class="line"><span class="string">There should be one-- and preferably only one --obvious way to do it.       # 应该有一个，最后只有一个方式可以做到</span></span><br><span class="line"><span class="string">Although that way may not be obvious at first unless you'</span>re Dutch.          <span class="comment"># 虽然好的方式可能不容易做到（但我心向之），除非你是Python之父</span></span><br><span class="line">Now <span class="keyword">is</span> better than never.                           <span class="comment"># 立行胜于不做</span></span><br><span class="line">Although never <span class="keyword">is</span> often better than *right* now.    <span class="comment"># 不做胜于鲁莽</span></span><br><span class="line">If the implementation <span class="keyword">is</span> hard to explain, it<span class="string">'s a bad idea.</span></span><br><span class="line"><span class="string">If the implementation is easy to explain, it may be a good idea.    # 如果你无法向别人描述好你的实现，那这一定是个糟糕的想法，如果能，或许是个好想法</span></span><br><span class="line"><span class="string">Namespaces are one honking great idea -- let'</span>s do more of those!    <span class="comment"># 命名空间是一个很棒的理念，我们尽量多利用它</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>python的设计哲学可以归纳为两个单词：简单，易懂</p>
+<h2 id="1-理解Pythonic"><a href="#1-理解Pythonic" class="headerlink" title="1. 理解Pythonic"></a>1. 理解Pythonic</h2><p>什么是Pythonic，最直观的解释就是Python风格的代码，那什么是Python风格的代码<br>看看下面这个C语言的例子</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; mylist_length; i++) &#123;</span><br><span class="line">   do_something(mylist[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果直接写成Python的风格，是这样的（Python的<code>for</code>语句只用于迭代，故我们把上面的写法转成<code>while</code>语句）</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">i = <span class="number">0</span></span><br><span class="line"><span class="keyword">while</span> i &lt; mylist_length:</span><br><span class="line">   do_something(mylist[i])</span><br><span class="line">   i += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>上面代码可以正确运行，但是并不被人为是Python的风格，我们稍作修改</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(mylist_length):</span><br><span class="line">   do_something(mylist[i])</span><br></pre></td></tr></table></figure>
+
+<p>上面代码比之前的<code>while</code>更为简洁，但还不是完全的Pythonic风格，下面方式才是完全的Pythonic风格</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> element <span class="keyword">in</span> mylist:</span><br><span class="line">   do_something(element)</span><br></pre></td></tr></table></figure>
+
+<p>从上面例子中我们可以看出，Pythonic的代码，变量更少，更为短小，更为简单，读起来更为清晰</p>
+<p>另外一个经常被提到的问题是，如何直接修改引用的变量（指针变量），我们再来看另外一个C语言的例子</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">(<span class="keyword">int</span>* a, <span class="keyword">float</span>* b)</span> </span>&#123;</span><br><span class="line">    *a = <span class="number">3</span>;</span><br><span class="line">    *b = <span class="number">5.5</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> alpha;</span><br><span class="line"><span class="keyword">int</span> beta;</span><br><span class="line">foo(&amp;alpha, &amp;beta);</span><br></pre></td></tr></table></figure>
+
+<p>上面代码不能很好的描述其功能，并且晦涩难懂，在Python不鼓励这种写法，也不支持这种写法，Python使用输入输出的方式传值</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">3</span>, <span class="number">5.5</span></span><br><span class="line"></span><br><span class="line">alpha, beta = foo()</span><br></pre></td></tr></table></figure>
+
+<p>再看一个例子，在C语言中交换两个数</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">1</span>, b = <span class="number">2</span></span><br><span class="line"><span class="keyword">int</span> tmp = a</span><br><span class="line">a = b</span><br><span class="line">b = tmp</span><br></pre></td></tr></table></figure>
+
+<p>Python中交换两个数</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">a, b = b, a</span><br></pre></td></tr></table></figure>
+
+<p>Pythonic是一种代码风格，以简单，易懂为宗旨</p>
+<p>参考：<a href="http://blog.startifact.com/posts/older/what-is-pythonic.html" target="_blank" rel="noopener">http://blog.startifact.com/posts/older/what-is-pythonic.html</a></p>
+<h2 id="2-编写Pythonic代码"><a href="#2-编写Pythonic代码" class="headerlink" title="2. 编写Pythonic代码"></a>2. 编写Pythonic代码</h2><ul>
+<li><p>变量名不与内建方法重名，如dict, list, element等，</p>
+</li>
+<li><p>由于Python使用缩进识别代码块，所以在代码里面，多余的空格和Tab尽量不要随便使用，<strong>不推荐</strong>对齐等号的方式（下面方式）</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a        = <span class="number">10</span>                 <span class="comment"># some comment</span></span><br><span class="line">some_str = <span class="string">'hello world'</span>      <span class="comment"># some comment</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>注释</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 下面第一种比较第二行更好</span></span><br><span class="line">x = x + <span class="number">1</span>         <span class="comment"># increase x by 1</span></span><br><span class="line">x = x + <span class="number">1</span> <span class="comment"># increase x by 1</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>函数详细注释</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span><span class="params">(a, b)</span>:</span></span><br><span class="line">    <span class="string">"""summary desctiption</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    more detail comments for the function</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        a: some comment for parameter a</span></span><br><span class="line"><span class="string">        b: some comment for parameter b</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns:</span></span><br><span class="line"><span class="string">        return type, return value desctiption</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Raises:</span></span><br><span class="line"><span class="string">        IOError: IOError exception may raise in the function</span></span><br><span class="line"><span class="string">        IndexError: IndexError exception may raise in the function</span></span><br><span class="line"><span class="string">    """</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>函数设计</p>
+<ul>
+<li>函数长度不宜过长，通常以小于一屏为准</li>
+<li>函数嵌套不宜过多，通常保持在3层以内（for, if-else等）</li>
+<li>参数不宜过多</li>
+<li>函数只做一件事</li>
+<li>使用异常抛出错误，而不通过返回值错误</li>
+<li>尽量不要在函数中定义可变对象，除非特殊需要</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-常量"><a href="#3-常量" class="headerlink" title="3. 常量"></a>3. 常量</h2><p>Python没有提供常量的支持，通常使用命名规范识别常量，所有字母大写，如<code>MAX_OVERFLOW</code>，当然，这只是一种约定，实际上与变量一样，是可以改变的</p>
+<p>还有一种方式来模拟实现常量的功能，使用类来限制对属性的赋值</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_const</span>:</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">ConstError</span><span class="params">(TypeError)</span>:</span> <span class="keyword">pass</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">ConstCaseError</span><span class="params">(ConstError)</span>:</span> <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__setattr__</span><span class="params">(self, name, value)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.__dict__.has_key(name):</span><br><span class="line">            <span class="keyword">raise</span> self.ConstError, <span class="string">'Can\'t change const.%s'</span> % name</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> name.isupper():</span><br><span class="line">            <span class="keyword">raise</span> self.ConstCaseError, <span class="string">'const name "%s" is not all uppercase'</span> % name</span><br><span class="line">        self.__dict__[name] = value</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> const</span><br><span class="line">const.COMPANY = <span class="string">'Google'</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-使用断言"><a href="#4-使用断言" class="headerlink" title="4. 使用断言"></a>4. 使用断言</h2><p>断言在其他很多语言都存在，可以方便用于测试和调试程序，使用断言格式如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">assert</span> expression, some_error_info</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如下</span></span><br><span class="line">x, y = <span class="number">1</span>, <span class="number">2</span></span><br><span class="line"><span class="keyword">assert</span> x == y, <span class="string">'not equals'</span></span><br></pre></td></tr></table></figure>
+
+<p>上面例子相当于</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">x, y = <span class="number">1</span>, <span class="number">2</span></span><br><span class="line"><span class="keyword">if</span> __debug__ <span class="keyword">and</span> <span class="keyword">not</span> x == y:</span><br><span class="line">    <span class="keyword">raise</span> AssertionError(<span class="string">'not equals'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>断言会带来一定的性能消耗，由于Python没有严格意义上的Debug和Release模式，故它并不优化字节码，只是忽略相关代码的执行，在执行脚本的时候添加<code>-O</code>参数可以禁用断言</p>
+<h2 id="5-使用枚举"><a href="#5-使用枚举" class="headerlink" title="5. 使用枚举"></a>5. 使用枚举</h2><p>Python本身并不提供枚举的功能，关于Python是否要加入枚举功能，也引发了很多讨论，最后被组织拒绝了(在Python3.4以后又支持了😅)，但是因为Python强大的动态性，我们可以通过很多方式实现枚举的功能</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Seasons</span>:</span></span><br><span class="line">    Spring = <span class="number">0</span></span><br><span class="line">    Summer = <span class="number">1</span></span><br><span class="line">    Autumn = <span class="number">2</span></span><br><span class="line">    Winter = <span class="number">3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 简写为</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Seasons</span>:</span></span><br><span class="line">    Spring, Summer, Autumn, Winter = range(<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用函数动态构造一个对象</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">enum</span><span class="params">(*posarg, **kvarg)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> type(<span class="string">'Enum'</span>, (object,), dict(zip(posarg, xrange(len(posarg)))))</span><br><span class="line"></span><br><span class="line">season = enum(<span class="string">'spring'</span>, <span class="string">'summer'</span>, <span class="string">'autumn'</span>, <span class="string">'winter'</span>)</span><br><span class="line"><span class="keyword">print</span> season.summer</span><br></pre></td></tr></table></figure>
+
+<p>我们还可以用第三方模块实现枚举的功能<code>flufl.enum</code><br>//TODO:</p>
+<h2 id="6-不推荐使用type-来判断类型相等"><a href="#6-不推荐使用type-来判断类型相等" class="headerlink" title="6. 不推荐使用type()来判断类型相等"></a>6. 不推荐使用type()来判断类型相等</h2><ul>
+<li><p>在经典类中，所有对象执行type()都相等</p>
+</li>
+<li><p>在新式类中，type()无法用于判断子类与父类的关系</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">type(son) <span class="keyword">is</span> type(parent)       <span class="comment"># 正常逻辑应该为True，但是结果是False</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通常使用isinstance()方法判断类型</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">isinstance(son, Son)                  <span class="comment"># True</span></span><br><span class="line">isinstance(son, (Son, list, tuple))   <span class="comment"># True</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="7-注意运算时候的精度问题"><a href="#7-注意运算时候的精度问题" class="headerlink" title="7. 注意运算时候的精度问题"></a>7. 注意运算时候的精度问题</h2><p>Python与C语言一样，计算精度取决于计算的值的类型，如两个整数相除，结果是整数，如果需要获得高精度的结果，需要转换为float类型在进行计算，在python3里，这个问题不存在</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a, b = <span class="number">1</span>, <span class="number">3</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> a / b             <span class="comment"># 0</span></span><br><span class="line"><span class="keyword">print</span> a / float(b)      <span class="comment"># 0.33333333</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="8-尽量避免浮点类型的比较"><a href="#8-尽量避免浮点类型的比较" class="headerlink" title="8. 尽量避免浮点类型的比较"></a>8. 尽量避免浮点类型的比较</h2><p>浮点类型，在计算过程中可能有精度损失的风险，应尽量避免，如果可以转成整形再计算</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">i = <span class="number">1.0</span></span><br><span class="line"><span class="keyword">while</span> i != <span class="number">1.5</span>:</span><br><span class="line">    i += <span class="number">0.1</span></span><br><span class="line">    <span class="keyword">print</span> i</span><br></pre></td></tr></table></figure>
+
+<p>上面语句会一直在while循环，而不能正确跳出</p>
+<h2 id="9-避免使用eval"><a href="#9-避免使用eval" class="headerlink" title="9. 避免使用eval"></a>9. 避免使用eval</h2><p>用过JS或PHP的可能都知道eval函数，可以直接执行字符串脚本，然而，字符串有注入的风险，有安全性问题，如果需要，可以考虑使用<code>ast.literal_eval</code>代替</p>
+<p>//TODO</p>
+<h2 id="10-使用enumerate枚举索引和变量"><a href="#10-使用enumerate枚举索引和变量" class="headerlink" title="10. 使用enumerate枚举索引和变量"></a>10. 使用enumerate枚举索引和变量</h2><p>Python语言很灵活，同一功能有多种实现方式，如索引列表</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">l = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式一</span></span><br><span class="line">index = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> l:</span><br><span class="line">    do_something(i, index)</span><br><span class="line">    index+=<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二</span></span><br><span class="line"><span class="keyword">for</span> index <span class="keyword">in</span> range(len(l))</span><br><span class="line">    do_something(l[index], index)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式三</span></span><br><span class="line"><span class="keyword">for</span> index, i <span class="keyword">in</span> zip(range(len(l)), l)</span><br><span class="line">    do_something(i, index)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式四</span></span><br><span class="line"><span class="keyword">for</span> index, i <span class="keyword">in</span> enumerate(l):</span><br><span class="line">    do_something(i, index)</span><br></pre></td></tr></table></figure>
+
+<p>推荐使用方式四，支持延迟加载，不会一次枚举出所有的值，性能最优，书写也简洁，enumerate不适用于dict对象</p>
+<h2 id="11-分清is和"><a href="#11-分清is和" class="headerlink" title="11. 分清is和=="></a>11. 分清is和==</h2><p>is：比较内存地址，而不是内容，<code>a is b</code>相当于<code>id(a) == id(b)</code><br>==：<code>a == b</code>相当于<code>a.__eq__(b)</code>，可以重载<code>__eq__</code>方法实现等于的逻辑</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">person</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, pid, name)</span>:</span></span><br><span class="line">        self.pid = pid</span><br><span class="line">        self.name = name</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__eq__</span><span class="params">(self, p)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self.pid == p.pid</span><br><span class="line"></span><br><span class="line">p1 = person(<span class="number">1</span>, <span class="string">'bomo'</span>)</span><br><span class="line">p2 = person(<span class="number">1</span>, <span class="string">'tobi'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> p1 == p2    <span class="comment"># True</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="12-尽量使用Unicode编码"><a href="#12-尽量使用Unicode编码" class="headerlink" title="12. 尽量使用Unicode编码"></a>12. 尽量使用Unicode编码</h2><p>python编码见<a href="/2016-06-24/python-encode-decode/">这里</a></p>
+<h2 id="13-多使用模块和包来管理文件"><a href="#13-多使用模块和包来管理文件" class="headerlink" title="13. 多使用模块和包来管理文件"></a>13. 多使用模块和包来管理文件</h2><ul>
+<li>尽量减少使用<code>from pack import *</code>这种导入方式，会污染命名空间，容易导致命名冲突，如果冲突，则后导入的覆盖先导入的</li>
+<li>TODO: absolute import, relative import</li>
+</ul>
+<h2 id="14-Python不支持-i语法"><a href="#14-Python不支持-i语法" class="headerlink" title="14. Python不支持++i语法"></a>14. Python不支持++i语法</h2><p>Python会把<code>++i</code>解释为<code>+(+i)</code></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a = <span class="number">-1</span></span><br><span class="line"><span class="keyword">print</span> ++a</span><br><span class="line"><span class="comment"># 相当于</span></span><br><span class="line"><span class="keyword">print</span> +(+a)</span><br><span class="line"><span class="comment"># 输出-1</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="15-使用with自动释放资源"><a href="#15-使用with自动释放资源" class="headerlink" title="15. 使用with自动释放资源"></a>15. 使用with自动释放资源</h2><p>用过C#的朋友应该都知道using，可以在代码块结束后自动释放资源，而Python也支持类似的语法</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> io</span><br><span class="line">f = open(<span class="string">'test.txt'</span>, <span class="string">'r'</span>)</span><br><span class="line"><span class="keyword">print</span> f.read()</span><br><span class="line">f.close()</span><br></pre></td></tr></table></figure>
+
+<p>像上面这种IO资源，在使用完成后需要开发者自己调用释放资源的方法，通常也会使用<code>try-except-finall</code>y来保证释放资源，而通常情况下，释放资源很容易遗漏，可以使用<code>with</code>语法，把相关操作放在代码块中，当离开代码块的时候会自动调用释放资源的方法，这样就可以避免人为的遗漏问题，上面代码可以写成下面方式</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">with</span> open(<span class="string">'test.txt'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    <span class="keyword">print</span> f.read()</span><br><span class="line"><span class="comment"># 离开代码块后，f会自动释放</span></span><br></pre></td></tr></table></figure>
+
+<p>无论代码块中是否会抛出异常，离开代码块的时候，资源f都会被释放，其实只需要实现<code>__enter__</code>和<code>__exit__</code>方法就能支持这种行为</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyObj</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">open</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'open'</span></span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__enter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'enter'</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__exit__</span><span class="params">(self, exc_type, exc_val, exc_tb)</span>:</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'close'</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> exc_type <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">print</span> <span class="string">'没有异常'</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">print</span> <span class="string">'出现异常'</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">obj = MyObj()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> obj.open() <span class="keyword">as</span> v:</span><br><span class="line">    <span class="keyword">print</span> str(v) + <span class="string">'执行一些操作'</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line"><span class="comment"># open</span></span><br><span class="line"><span class="comment"># enter</span></span><br><span class="line"><span class="comment"># Nonedo something</span></span><br><span class="line"><span class="comment"># close</span></span><br><span class="line"><span class="comment"># 没有异常</span></span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/python/" rel="tag"># python</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016-06-27/python-lagou/" rel="prev" title="python爬取拉勾网数据">
+      <i class="fa fa-chevron-left"></i> python爬取拉勾网数据
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016-06-28/swift-start/" rel="next" title="swift学习笔记">
+      swift学习笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-the-Zen-of-Python"><span class="nav-number">1.</span> <span class="nav-text">0. the Zen of Python</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-理解Pythonic"><span class="nav-number">2.</span> <span class="nav-text">1. 理解Pythonic</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-编写Pythonic代码"><span class="nav-number">3.</span> <span class="nav-text">2. 编写Pythonic代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-常量"><span class="nav-number">4.</span> <span class="nav-text">3. 常量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-使用断言"><span class="nav-number">5.</span> <span class="nav-text">4. 使用断言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-使用枚举"><span class="nav-number">6.</span> <span class="nav-text">5. 使用枚举</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-不推荐使用type-来判断类型相等"><span class="nav-number">7.</span> <span class="nav-text">6. 不推荐使用type()来判断类型相等</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-注意运算时候的精度问题"><span class="nav-number">8.</span> <span class="nav-text">7. 注意运算时候的精度问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-尽量避免浮点类型的比较"><span class="nav-number">9.</span> <span class="nav-text">8. 尽量避免浮点类型的比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-避免使用eval"><span class="nav-number">10.</span> <span class="nav-text">9. 避免使用eval</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-使用enumerate枚举索引和变量"><span class="nav-number">11.</span> <span class="nav-text">10. 使用enumerate枚举索引和变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-分清is和"><span class="nav-number">12.</span> <span class="nav-text">11. 分清is和==</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-尽量使用Unicode编码"><span class="nav-number">13.</span> <span class="nav-text">12. 尽量使用Unicode编码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-多使用模块和包来管理文件"><span class="nav-number">14.</span> <span class="nav-text">13. 多使用模块和包来管理文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#14-Python不支持-i语法"><span class="nav-number">15.</span> <span class="nav-text">14. Python不支持++i语法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-使用with自动释放资源"><span class="nav-number">16.</span> <span class="nav-text">15. 使用with自动释放资源</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">bomo</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
