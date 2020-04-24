@@ -13,25 +13,28 @@
 <link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Cycrypt脚本语言（Objective-C，java，js的混合语言），可以编写调试代码  通过cydia安装添加源http://apt.saurik.com/cydia   进入Cycrypt调试模式# 进入调试模式$ cycript# 调试进程（PID=323）$ cycript -p 323# 调试进程（进程名）$ cycript -p SpringBoard$ cycript -p n">
+  <meta name="description" content="Cycript是由Cydia创始人Saurik推出的一款脚本语言，Cycript混合了OC、JavaScript语法的解释器，这意味着我们能够在一个命令中使用Oc或者JavaScript，甚至两者并用。它能够附加到正在运行的进程，能够查看和修改运行时的数据">
 <meta name="keywords" content="iOS,逆向">
 <meta property="og:type" content="article">
-<meta property="og:title" content="使用cycript调试应用">
+<meta property="og:title" content="【iOS逆向】使用Cycript调试应用">
 <meta property="og:url" content="http://zhengbomo.github.io/2019-07-03/ios-cycript/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
-<meta property="og:description" content="Cycrypt脚本语言（Objective-C，java，js的混合语言），可以编写调试代码  通过cydia安装添加源http://apt.saurik.com/cydia   进入Cycrypt调试模式# 进入调试模式$ cycript# 调试进程（PID=323）$ cycript -p 323# 调试进程（进程名）$ cycript -p SpringBoard$ cycript -p n">
+<meta property="og:description" content="Cycript是由Cydia创始人Saurik推出的一款脚本语言，Cycript混合了OC、JavaScript语法的解释器，这意味着我们能够在一个命令中使用Oc或者JavaScript，甚至两者并用。它能够附加到正在运行的进程，能够查看和修改运行时的数据">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/cydia-cycript.png">
 <meta property="og:updated_time" content="2019-07-03T12:36:24.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="使用cycript调试应用">
-<meta name="twitter:description" content="Cycrypt脚本语言（Objective-C，java，js的混合语言），可以编写调试代码  通过cydia安装添加源http://apt.saurik.com/cydia   进入Cycrypt调试模式# 进入调试模式$ cycript# 调试进程（PID=323）$ cycript -p 323# 调试进程（进程名）$ cycript -p SpringBoard$ cycript -p n">
+<meta name="twitter:title" content="【iOS逆向】使用Cycript调试应用">
+<meta name="twitter:description" content="Cycript是由Cydia创始人Saurik推出的一款脚本语言，Cycript混合了OC、JavaScript语法的解释器，这意味着我们能够在一个命令中使用Oc或者JavaScript，甚至两者并用。它能够附加到正在运行的进程，能够查看和修改运行时的数据">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/cydia-cycript.png">
 
 <link rel="canonical" href="http://zhengbomo.github.io/2019-07-03/ios-cycript/">
 
@@ -40,12 +43,13 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
-    isPost: true
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
   };
 </script>
 
-  <title>使用cycript调试应用 | bomo的开发随笔</title>
+  <title>【iOS逆向】使用Cycript调试应用 | bomo的开发随笔</title>
   
 
 
@@ -76,6 +80,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -94,14 +99,12 @@
 
   <div class="site-meta">
 
-    <div>
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">bomo的开发随笔</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-        <p class="site-subtitle">记录工作学习点滴</p>
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
   </div>
 
   <div class="site-nav-right">
@@ -112,32 +115,33 @@
 </div>
 
 
+
+
 <nav class="site-nav">
-  
-  <ul id="menu" class="menu">
+  <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">9</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">60</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -145,16 +149,18 @@
         </a>
       </li>
   </ul>
-
 </nav>
-  <div class="site-search">
+
+
+
+  <div class="search-pop-overlay">
     <div class="popup search-popup">
-    <div class="search-header">
+        <div class="search-header">
   <span class="search-icon">
     <i class="fa fa-search"></i>
   </span>
   <div class="search-input-container">
-    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+    <input autocomplete="off" autocapitalize="off"
            placeholder="搜索..." spellcheck="false"
            type="search" class="search-input">
   </div>
@@ -162,12 +168,15 @@
     <i class="fa fa-times-circle"></i>
   </span>
 </div>
-<div id="search-result"></div>
-
-</div>
-<div class="search-pop-overlay"></div>
-
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
   </div>
+</div>
+
+    </div>
+  </div>
+
 </div>
     </header>
 
@@ -183,18 +192,17 @@
         <div class="content-wrap">
           
 
-          <div class="content">
+          <div class="content post posts-expand">
             
 
-  <div class="posts-expand">
-      
+    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-07-03/ios-cycript/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.png">
       <meta itemprop="name" content="bomo">
       <meta itemprop="description" content="懒人">
     </span>
@@ -204,13 +212,13 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          使用cycript调试应用
+          【iOS逆向】使用Cycript调试应用
         </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
 
@@ -218,7 +226,7 @@
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
+                <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -237,58 +245,89 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="Cycrypt"><a href="#Cycrypt" class="headerlink" title="Cycrypt"></a>Cycrypt</h2><p>脚本语言（Objective-C，java，js的混合语言），可以编写调试代码</p>
-<ol>
-<li>通过cydia安装<br>添加源<code>http://apt.saurik.com/cydia</code></li>
-</ol>
-<ol start="2">
-<li>进入Cycrypt调试模式<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 进入调试模式</span></span><br><span class="line">$ cycript</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试进程（PID=323）</span></span><br><span class="line">$ cycript -p 323</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试进程（进程名）</span></span><br><span class="line">$ cycript -p SpringBoard</span><br><span class="line">$ cycript -p neteasemusic</span><br></pre></td></tr></table></figure>
-
+        <p>Cycript是由Cydia创始人Saurik推出的一款脚本语言，Cycript混合了OC、JavaScript语法的解释器，这意味着我们能够在一个命令中使用Oc或者JavaScript，甚至两者并用。它能够附加到正在运行的进程，能够查看和修改运行时的数据</p>
+<a id="more"></a>
+<h2 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h2><ol>
+<li><p>通过cydia安装，自带的源<code>https://apt.bingner.com/</code>就有cycript</p>
+ <img src="/images/post/cydia-cycript.png" width="300" title="cydia-cycript">
 </li>
-</ol>
-<p><code>Control+D</code>退出cycript模式</p>
-<ol start="3">
-<li>获取进程Id</li>
-</ol>
-<p>需要先安装插件：<code>adv-cmds</code>（在saurik官方源可找到）</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看所有进程</span></span><br><span class="line">$ ps -A </span><br><span class="line"></span><br><span class="line"><span class="comment"># 搜索进程</span></span><br><span class="line">$ ps -A | grep neteasemusic</span><br></pre></td></tr></table></figure>
-
-<ol start="4">
+<li><p>打开 App ，通过 ssh 连接设备，然后进入Cycrypt调试模式</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 调试进程（PID=323）</span></span><br><span class="line">cycript -p 323</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试进程（进程名）</span></span><br><span class="line">cycript -p SpringBoard</span><br><span class="line">cycript -p neteasemusic</span><br><span class="line"></span><br><span class="line"><span class="comment"># `Control+D`退出cycript模式</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取进程Id</p>
+<p> 需要先安装插件：<code>adv-cmds</code>（在自带源<code>https://apt.bingner.com/</code>可找到）</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看所有进程</span></span><br><span class="line">ps -A</span><br><span class="line"></span><br><span class="line"><span class="comment"># 搜索进程</span></span><br><span class="line">ps -A | grep neteasemusic</span><br></pre></td></tr></table></figure>
+</li>
 <li><p>常用语法</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">* UIApp：[UIApplication sharedApplication]</span><br><span class="line">* 定义变量：var 变量名 = 变量值</span><br><span class="line">* 通过内存获得对象：#内存地址</span><br><span class="line">* 获取所有已加载的OC类：ObjectiveC.classes</span><br><span class="line">* 获取当前内存中所有UITableViewCell（包含子类）的实例：choose(UITableViewCell)</span><br><span class="line">* 查看对象的所有成员：*对象</span><br><span class="line">* 递归打印所有的子控件：[view recursiveDescription].toString()</span><br></pre></td></tr></table></figure>
+<ul>
+<li>UIApp：<code>[UIApplication sharedApplication]</code></li>
+<li>定义变量：<code>var 变量名 = 变量值</code></li>
+<li>通过内存获得对象：<code>#内存地址</code></li>
+<li>查看对象的所有成员：<code>*对象</code></li>
+<li>获取所有已加载的OC类：<code>ObjectiveC.classes</code></li>
+<li>获取当前内存中所有UITableViewCell（包含子类）的实例：<code>choose(UITableViewCell)</code></li>
+<li>递归打印所有的子控件：<code>[view recursiveDescription].toString()</code></li>
+<li>查看 bundleId: <code>[[NSBundle mainBundle] bundleIdentifier]</code></li>
+</ul>
 </li>
-<li><p>使用<a href="https://github.com/CoderMJLee/mjcript" target="_blank" rel="noopener"><code>mjcript</code></a></p>
+<li><p>函数</p>
+ <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">KenPrintIvars</span>(<span class="params">objc</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> x = &#123;&#125;;</span><br><span class="line">    <span class="keyword">for</span>(i <span class="keyword">in</span> *objc)&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            x[i] = (*objc)[i];</span><br><span class="line">        &#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 </li>
 </ol>
+<h2 id="引用外部脚本"><a href="#引用外部脚本" class="headerlink" title="引用外部脚本"></a>引用外部脚本</h2><p>这里使用<a href="https://github.com/CoderMJLee/mjcript" target="_blank" rel="noopener"><code>mjcript</code></a>作为外部脚本引入，下载得到<code>mjcript.cy</code></p>
 <p>把文件拷贝到手机上</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ scp mjcript.cy root@xx.xx.xx.xx:/usr/lib/cycript0.9/mjcript.cy</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp mjcript.cy root@xx.xx.xx.xx:/usr/lib/cycript0.9/mjcript.cy</span><br></pre></td></tr></table></figure>
 
 <p>把手机的文件拷贝到本地</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ scp root@xx.xx.xx.xx:/usr/lib/cycript0.9/mjcript.cy ~/Desktop/mjcript.cy</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp root@xx.xx.xx.xx:/usr/lib/cycript0.9/mjcript.cy ~/Desktop/mjcript.cy</span><br></pre></td></tr></table></figure>
 
 <p>加载脚本</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 附加到进程</span></span><br><span class="line">cycript -p XXX</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载</span></span><br><span class="line">@import mjcript</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用脚本</span></span><br><span class="line">cy<span class="comment"># MJFrontVc()</span></span><br><span class="line"><span class="comment">#"&lt;ZTPersonCenterViewController: 0x10520ba00&gt;"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 附加到进程</span></span><br><span class="line">cycript -p XXX</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载</span></span><br><span class="line">cy<span class="comment"># @import mjcript</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用脚本</span></span><br><span class="line">cy<span class="comment"># MJFrontVc()</span></span><br><span class="line"><span class="comment">#"&lt;ZTPersonCenterViewController: 0x10520ba00&gt;"</span></span><br></pre></td></tr></table></figure>
 
 <p><code>mjcript</code>功能列表</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 包名</span></span><br><span class="line">MJAppId;</span><br><span class="line"></span><br><span class="line"><span class="comment">// bundle path</span></span><br><span class="line">MJAppPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// document path</span></span><br><span class="line">MJDocPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// caches path</span></span><br><span class="line">MJCachesPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载系统动态库（/System/Library/Frameworks/xxx.framework，/System/Library/Private/Frameworks/xxx.framework）</span></span><br><span class="line">MJLoadFramework(<span class="string">"BluetoothManager"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// keyWindow</span></span><br><span class="line">MJKeyWin();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 根控制器</span></span><br><span class="line">MJRootVc();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 找到显示在最前面的控制器</span></span><br><span class="line">MJFrontVc();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印UIViewController view的层级结构</span></span><br><span class="line">MJVcSubviews(vc);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印最上层UIViewController view的层级结构</span></span><br><span class="line">MJFrontVcSubViews();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取按钮绑定的所有TouchUpInside事件的方法名</span></span><br><span class="line">MJBtnTouchUpEvent(btn);</span><br><span class="line"></span><br><span class="line"><span class="comment">// CG函数</span></span><br><span class="line">MJPointMake(x, y);</span><br><span class="line"></span><br><span class="line">MJSizeMake(w, h);</span><br><span class="line"></span><br><span class="line">MJRectMake(x, y, w, h);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印controller的层级结构</span></span><br><span class="line">MJChildVcs(vc);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印view的层级结构</span></span><br><span class="line">MJSubviews(view);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否为字符串 "str" @"str"</span></span><br><span class="line">MJIsString(value);</span><br><span class="line">		</span><br><span class="line"><span class="comment">// 判断是否为数组 []、@[]</span></span><br><span class="line">MJIsArray(value);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否为数字 666 @666</span></span><br><span class="line">MJIsNumber(value);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的子类</span></span><br><span class="line">MJSubclasses(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的对象方法</span></span><br><span class="line">MJInstanceMethods(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的对象方法名字</span></span><br><span class="line">MJInstanceMethodNames(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的类方法</span></span><br><span class="line">MJClassMethods(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的类方法名字</span></span><br><span class="line">MJClassMethodNames(className, reg);</span><br><span class="line">		</span><br><span class="line"><span class="comment">// 打印所有的成员变量</span></span><br><span class="line">MJIvars(obj, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的成员变量名字</span></span><br><span class="line">MJIvarNames(obj, reg);</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 包名</span></span><br><span class="line">MJAppId;</span><br><span class="line"></span><br><span class="line"><span class="comment">// bundle path</span></span><br><span class="line">MJAppPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// document path</span></span><br><span class="line">MJDocPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// caches path</span></span><br><span class="line">MJCachesPath;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载系统动态库（/System/Library/Frameworks/xxx.framework，/System/Library/Private/Frameworks/xxx.framework）</span></span><br><span class="line">MJLoadFramework(<span class="string">"BluetoothManager"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// keyWindow</span></span><br><span class="line">MJKeyWin();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 根控制器</span></span><br><span class="line">MJRootVc();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 找到显示在最前面的控制器</span></span><br><span class="line">MJFrontVc();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印UIViewController view的层级结构</span></span><br><span class="line">MJVcSubviews(vc);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印最上层UIViewController view的层级结构</span></span><br><span class="line">MJFrontVcSubViews();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取按钮绑定的所有TouchUpInside事件的方法名</span></span><br><span class="line">MJBtnTouchUpEvent(btn);</span><br><span class="line"></span><br><span class="line"><span class="comment">// CG函数</span></span><br><span class="line">MJPointMake(x, y);</span><br><span class="line"></span><br><span class="line">MJSizeMake(w, h);</span><br><span class="line"></span><br><span class="line">MJRectMake(x, y, w, h);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印controller的层级结构</span></span><br><span class="line">MJChildVcs(vc);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归打印view的层级结构</span></span><br><span class="line">MJSubviews(view);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否为字符串 "str" @"str"</span></span><br><span class="line">MJIsString(value);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否为数组 []、@[]</span></span><br><span class="line">MJIsArray(value);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否为数字 666 @666</span></span><br><span class="line">MJIsNumber(value);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的子类</span></span><br><span class="line">MJSubclasses(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的对象方法</span></span><br><span class="line">MJInstanceMethods(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的对象方法名字</span></span><br><span class="line">MJInstanceMethodNames(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的类方法</span></span><br><span class="line">MJClassMethods(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的类方法名字</span></span><br><span class="line">MJClassMethodNames(className, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的成员变量</span></span><br><span class="line">MJIvars(obj, reg);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印所有的成员变量名字</span></span><br><span class="line">MJIvarNames(obj, reg);</span><br></pre></td></tr></table></figure>
 
-<p>技巧：使用python把中文转成unicode字符</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">unicode(&quot;登录&quot;, &quot;UTF-8&quot;)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Cycript默认不支持中文，可以使用 unicode 字符表示中文<code>\**\**\**\**</code><br>技巧：使用python把中文转成unicode字符</p>
+</blockquote>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unicode(<span class="string">"登录"</span>, <span class="string">"UTF-8"</span>)</span><br></pre></td></tr></table></figure>
 
-<h3 id="封装cycript脚本"><a href="#封装cycript脚本" class="headerlink" title="封装cycript脚本"></a>封装cycript脚本</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params">exports</span>) </span>&#123;</span><br><span class="line">	exports.sum = <span class="function"><span class="keyword">function</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> a + b;</span><br><span class="line">	&#125;;</span><br><span class="line">	exports.minus = <span class="function"><span class="keyword">function</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> a - b;</span><br><span class="line">	&#125;;</span><br><span class="line">	exports.age = <span class="number">10</span>;</span><br><span class="line">&#125;)(exports);</span><br></pre></td></tr></table></figure>
+<h3 id="封装cycript脚本"><a href="#封装cycript脚本" class="headerlink" title="封装cycript脚本"></a>封装cycript脚本</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params">exports</span>) </span>&#123;</span><br><span class="line">    exports.sum = <span class="function"><span class="keyword">function</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a + b;</span><br><span class="line">    &#125;;</span><br><span class="line">    exports.minus = <span class="function"><span class="keyword">function</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a - b;</span><br><span class="line">    &#125;;</span><br><span class="line">    exports.age = <span class="number">10</span>;</span><br><span class="line">&#125;)(exports);</span><br></pre></td></tr></table></figure>
 
 <p>导入(<code>/usr/lib/cycript0.9/test.cy</code>)，并引用</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">@<span class="keyword">import</span> test</span><br><span class="line"></span><br><span class="line">test.sum(<span class="number">1</span>, <span class="number">30</span>)     <span class="comment">// 31</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@<span class="keyword">import</span> test</span><br><span class="line"></span><br><span class="line">test.sum(<span class="number">1</span>, <span class="number">30</span>)     <span class="comment">// 31</span></span><br><span class="line">test.minus(<span class="number">6</span>, <span class="number">2</span>)    <span class="comment">// 4</span></span><br></pre></td></tr></table></figure>
 
 <p>通过目录引用<code>/usr/lib/cycript0.9/com/mj/cycript.cy</code></p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">@<span class="keyword">import</span> com.mj.mjcript</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@<span class="keyword">import</span> com.mj.mjcript</span><br></pre></td></tr></table></figure>
 
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Cycript 可以直接附加到App 进行内存调试，可以查看和修改 UIViewController，UIView，可以动态修改和分析应用的业务逻辑，用起来非常方便</p>
+<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><ul>
+<li><a href="http://www.cycript.org" target="_blank" rel="noopener">Cycript 官网</a></li>
+</ul>
 
     </div>
 
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>bomo
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2019-07-03/ios-cycript/" title="【iOS逆向】使用Cycript调试应用">http://zhengbomo.github.io/2019-07-03/ios-cycript/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -302,12 +341,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2019-06-25/ios-reveal/" rel="prev" title="使用Reveal查看AppUI结构">
-      <i class="fa fa-chevron-left"></i> 使用Reveal查看AppUI结构
+    <a href="/2019-06-25/ios-reveal/" rel="prev" title="【iOS逆向】使用Reveal查看AppUI结构">
+      <i class="fa fa-chevron-left"></i> 【iOS逆向】使用Reveal查看AppUI结构
     </a></div>
       <div class="post-nav-item">
-    <a href="/2019-12-26/ios-orientation/" rel="next" title="iOS旋转屏幕">
-      iOS旋转屏幕 <i class="fa fa-chevron-right"></i>
+    <a href="/2019-07-18/ios-dyld-shared-cache/" rel="next" title="【iOS逆向】iOS动态库共享缓存">
+      【iOS逆向】iOS动态库共享缓存 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -317,7 +356,6 @@
   
   
 
-  </div>
 
 
           </div>
@@ -325,7 +363,7 @@
 
 <script>
   window.addEventListener('tabs:register', () => {
-    let activeClass = CONFIG.comments.activeClass;
+    let { activeClass } = CONFIG.comments;
     if (CONFIG.comments.storage) {
       activeClass = localStorage.getItem('comments_active') || activeClass;
     }
@@ -368,12 +406,14 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cycrypt"><span class="nav-number">1.</span> <span class="nav-text">Cycrypt</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#封装cycript脚本"><span class="nav-number">1.1.</span> <span class="nav-text">封装cycript脚本</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本使用"><span class="nav-number">1.</span> <span class="nav-text">基本使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引用外部脚本"><span class="nav-number">2.</span> <span class="nav-text">引用外部脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#封装cycript脚本"><span class="nav-number">2.1.</span> <span class="nav-text">封装cycript脚本</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">3.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引用"><span class="nav-number">4.</span> <span class="nav-text">引用</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="bomo"
+      src="/images/avatar.png">
   <p class="site-author-name" itemprop="name">bomo</p>
   <div class="site-description" itemprop="description">懒人</div>
 </div>
@@ -382,42 +422,42 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
       </span>
       <span class="links-of-author-item">
-        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
       </span>
   </div>
 
@@ -437,19 +477,18 @@
       <div class="footer-inner">
         
 
+        
+
 <div class="copyright">
   
-  &copy; 
+  &copy; 2016 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">bomo</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
-  </div>
-  <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         
@@ -467,6 +506,8 @@
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 <script src="/js/utils.js"></script><script src="/js/motion.js"></script>

@@ -13,11 +13,12 @@
 <link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="Xcode在生成库（.a或.framework）的时候，通常会生成两个版本，一个是用于真机的版本，一个是用于模拟器的版本  真机：armv7, armv7s, arm64架构 模拟器：i386, x86_64">
@@ -44,8 +45,9 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
-    isPost: true
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -80,6 +82,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -98,14 +101,12 @@
 
   <div class="site-meta">
 
-    <div>
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">bomo的开发随笔</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-        <p class="site-subtitle">记录工作学习点滴</p>
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
   </div>
 
   <div class="site-nav-right">
@@ -116,32 +117,33 @@
 </div>
 
 
+
+
 <nav class="site-nav">
-  
-  <ul id="menu" class="menu">
+  <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">9</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">60</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -149,16 +151,18 @@
         </a>
       </li>
   </ul>
-
 </nav>
-  <div class="site-search">
+
+
+
+  <div class="search-pop-overlay">
     <div class="popup search-popup">
-    <div class="search-header">
+        <div class="search-header">
   <span class="search-icon">
     <i class="fa fa-search"></i>
   </span>
   <div class="search-input-container">
-    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+    <input autocomplete="off" autocapitalize="off"
            placeholder="搜索..." spellcheck="false"
            type="search" class="search-input">
   </div>
@@ -166,12 +170,15 @@
     <i class="fa fa-times-circle"></i>
   </span>
 </div>
-<div id="search-result"></div>
-
-</div>
-<div class="search-pop-overlay"></div>
-
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
   </div>
+</div>
+
+    </div>
+  </div>
+
 </div>
     </header>
 
@@ -187,18 +194,17 @@
         <div class="content-wrap">
           
 
-          <div class="content">
+          <div class="content post posts-expand">
             
 
-  <div class="posts-expand">
-      
+    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-04-29/merge-ios-lib/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.png">
       <meta itemprop="name" content="bomo">
       <meta itemprop="description" content="懒人">
     </span>
@@ -214,7 +220,7 @@
         <div class="post-meta">
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
               
@@ -223,7 +229,7 @@
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
+                <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -255,17 +261,17 @@
 <h2 id="一、-a库合并与拆分"><a href="#一、-a库合并与拆分" class="headerlink" title="一、.a库合并与拆分"></a>一、.a库合并与拆分</h2><p>例如有两个不同架构的库<code>liba-arm64.a</code>, <code>liba-i386.a</code></p>
 <ol>
 <li><p>查看库的架构信息</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo -info liba-arm64.a</span><br><span class="line">input file liba-arm64.a is not a fat file</span><br><span class="line">Non-fat file: liba-arm64.a is architecture: arm64</span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lipo -info liba-arm64.a</span><br><span class="line"><span class="selector-tag">input</span> file liba-arm64<span class="selector-class">.a</span> is not <span class="selector-tag">a</span> fat file</span><br><span class="line">Non-fat file: liba-arm64<span class="selector-class">.a</span> is architecture: arm64</span><br></pre></td></tr></table></figure>
 
 <p>如果静态库支持多种架构，那么就是一个<code>fat file</code></p>
 </li>
 <li><p>合并两个库</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo -create liba-arm64.a liba-i386.a -output liba.a</span><br></pre></td></tr></table></figure>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lipo -<span class="built_in">create</span> liba-arm64.<span class="keyword">a</span> liba-i386.<span class="keyword">a</span> -output liba.<span class="keyword">a</span></span><br></pre></td></tr></table></figure>
 
 <p>合并成<code>liba.a</code>到当前目录</p>
 </li>
 <li><p>抽取出<code>arm64</code>库</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo liba.a -thin arm64 -output liba-arm64.a</span><br></pre></td></tr></table></figure>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">lipo</span> <span class="selector-tag">liba</span><span class="selector-class">.a</span> <span class="selector-tag">-thin</span> <span class="selector-tag">arm64</span> <span class="selector-tag">-output</span> <span class="selector-tag">liba-arm64</span><span class="selector-class">.a</span></span><br></pre></td></tr></table></figure>
 
 </li>
 </ol>
@@ -277,21 +283,21 @@
 </ul>
 <ol>
 <li><p>查看.framework信息</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo -info IJKMediaFramework_arm64.framework/IJKMediaFramework</span><br><span class="line">input file IJKMediaFramework_arm64.framework/IJKMediaFramework is not a fat file</span><br><span class="line">Non-fat file: IJKMediaFramework_arm64.framework/IJKMediaFramework is architecture: arm64</span><br></pre></td></tr></table></figure>
+<figure class="highlight vhdl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lipo -info IJKMediaFramework_arm64.framework/IJKMediaFramework</span><br><span class="line">input <span class="keyword">file</span> IJKMediaFramework_arm64.framework/IJKMediaFramework <span class="keyword">is</span> <span class="keyword">not</span> a fat <span class="keyword">file</span></span><br><span class="line">Non-fat <span class="keyword">file</span>: IJKMediaFramework_arm64.framework/IJKMediaFramework <span class="keyword">is</span> <span class="keyword">architecture</span>: arm64</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>合并库</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo -create IJKMediaFramework_x86_64.framework/IJKMediaFramework IJKMediaFramework_arm64.framework/IJKMediaFramework -output IJKMediaFramework</span><br></pre></td></tr></table></figure>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lipo -create <span class="module-access"><span class="module"><span class="identifier">IJKMediaFramework_x86_64</span>.</span></span>framework/IJKMediaFramework <span class="module-access"><span class="module"><span class="identifier">IJKMediaFramework_arm64</span>.</span></span>framework/IJKMediaFramework -output IJKMediaFramework</span><br></pre></td></tr></table></figure>
 
 <p>得到通用的库<code>IJKMediaFramework</code>替换到<code>IJKMediaFramework_x86_64.framework/IJKMediaFramework</code>，这时候<code>IJKMediaFramework_x86_64.framework</code>就是通用framework</p>
 </li>
 <li><p>抽取出<code>arm64</code>库</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lipo IJKMediaFramework_x86_64.framework/IJKMediaFramework -thin x86_64 -output IJKMediaFramework</span><br></pre></td></tr></table></figure>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lipo <span class="module-access"><span class="module"><span class="identifier">IJKMediaFramework_x86_64</span>.</span></span>framework/IJKMediaFramework -thin x86_64 -output IJKMediaFramework</span><br></pre></td></tr></table></figure>
 
 </li>
 </ol>
 <h2 id="三、xcode脚本自动合并库"><a href="#三、xcode脚本自动合并库" class="headerlink" title="三、xcode脚本自动合并库"></a>三、xcode脚本自动合并库</h2><p>如果是自己生成的库，有个技巧，xcode生成库的时候自动执行脚本完成合并的操作，需要选择真机和模拟器分别编译一遍</p>
 <p>在Build Phases添加Run Script<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/73528845.jpg" alt><br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/37235497.jpg" alt></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 编译的时候</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$&#123;ACTION&#125;</span>"</span> = <span class="string">"build"</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成通用framework的目录</span></span><br><span class="line">INSTALL_DIR=<span class="variable">$&#123;SRCROOT&#125;</span>/Products/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line"></span><br><span class="line"><span class="comment"># 需要合并的framework</span></span><br><span class="line">DEVICE_DIR=<span class="variable">$&#123;BUILD_ROOT&#125;</span>/<span class="variable">$&#123;CONFIGURATION&#125;</span>-iphoneos/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line">SIMULATOR_DIR=<span class="variable">$&#123;BUILD_ROOT&#125;</span>/<span class="variable">$&#123;CONFIGURATION&#125;</span>-iphonesimulator/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果已经存在，则删除</span></span><br><span class="line"><span class="keyword">if</span> [ -d <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>"</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">rm -rf <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line">mkdir -p <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 拷贝Header到目标目录</span></span><br><span class="line">cp -R <span class="string">"<span class="variable">$&#123;DEVICE_DIR&#125;</span>/"</span> <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>/"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 合并framework</span></span><br><span class="line">lipo -create <span class="string">"<span class="variable">$&#123;DEVICE_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>"</span> <span class="string">"<span class="variable">$&#123;SIMULATOR_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>"</span> -output <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译完成后打开文件夹</span></span><br><span class="line"><span class="comment">#open "$&#123;DEVICE_DIR&#125;"</span></span><br><span class="line">open <span class="string">"<span class="variable">$&#123;SRCROOT&#125;</span>/Products/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework"</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编译的时候</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$&#123;ACTION&#125;</span>"</span> = <span class="string">"build"</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成通用framework的目录</span></span><br><span class="line">INSTALL_DIR=<span class="variable">$&#123;SRCROOT&#125;</span>/Products/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line"></span><br><span class="line"><span class="comment"># 需要合并的framework</span></span><br><span class="line">DEVICE_DIR=<span class="variable">$&#123;BUILD_ROOT&#125;</span>/<span class="variable">$&#123;CONFIGURATION&#125;</span>-iphoneos/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line">SIMULATOR_DIR=<span class="variable">$&#123;BUILD_ROOT&#125;</span>/<span class="variable">$&#123;CONFIGURATION&#125;</span>-iphonesimulator/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果已经存在，则删除</span></span><br><span class="line"><span class="keyword">if</span> [ -d <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>"</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">rm -rf <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line">mkdir -p <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 拷贝Header到目标目录</span></span><br><span class="line">cp -R <span class="string">"<span class="variable">$&#123;DEVICE_DIR&#125;</span>/"</span> <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>/"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 合并framework</span></span><br><span class="line">lipo -create <span class="string">"<span class="variable">$&#123;DEVICE_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>"</span> <span class="string">"<span class="variable">$&#123;SIMULATOR_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>"</span> -output <span class="string">"<span class="variable">$&#123;INSTALL_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译完成后打开文件夹</span></span><br><span class="line"><span class="comment">#open "$&#123;DEVICE_DIR&#125;"</span></span><br><span class="line">open <span class="string">"<span class="variable">$&#123;SRCROOT&#125;</span>/Products/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework"</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
 
 <p>切换到Release模式，分别切换到模拟器和真机编译一次，编译完成后会自动打开输出文件夹，通过<code>lipo</code>命令查看<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/39574369.jpg" alt></p>
 <p>完成，接下来可以直接用了合并后的库了</p>
@@ -301,6 +307,23 @@
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>bomo
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2016-04-29/merge-ios-lib/" title="合并和分离.a和.framework库">http://zhengbomo.github.io/2016-04-29/merge-ios-lib/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -328,7 +351,6 @@
   
   
 
-  </div>
 
 
           </div>
@@ -336,7 +358,7 @@
 
 <script>
   window.addEventListener('tabs:register', () => {
-    let activeClass = CONFIG.comments.activeClass;
+    let { activeClass } = CONFIG.comments;
     if (CONFIG.comments.storage) {
       activeClass = localStorage.getItem('comments_active') || activeClass;
     }
@@ -385,6 +407,8 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="bomo"
+      src="/images/avatar.png">
   <p class="site-author-name" itemprop="name">bomo</p>
   <div class="site-description" itemprop="description">懒人</div>
 </div>
@@ -393,42 +417,42 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
       </span>
       <span class="links-of-author-item">
-        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
       </span>
   </div>
 
@@ -448,19 +472,18 @@
       <div class="footer-inner">
         
 
+        
+
 <div class="copyright">
   
-  &copy; 
+  &copy; 2016 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">bomo</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
-  </div>
-  <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         
@@ -478,6 +501,8 @@
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 <script src="/js/utils.js"></script><script src="/js/motion.js"></script>

@@ -13,11 +13,12 @@
 <link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="与其他高级语言一样，Python也提供了迭代器的功能，迭代器统一了访问的集合的方式，Python中所有的集合数据类型（list, str, dict, set, tuple）都支持使用for进行迭代，当然我们也可以为自己定义的类或函数实现这种迭代的功能">
@@ -39,8 +40,9 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
-    isPost: true
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -75,6 +77,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -93,14 +96,12 @@
 
   <div class="site-meta">
 
-    <div>
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">bomo的开发随笔</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-        <p class="site-subtitle">记录工作学习点滴</p>
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
   </div>
 
   <div class="site-nav-right">
@@ -111,32 +112,33 @@
 </div>
 
 
+
+
 <nav class="site-nav">
-  
-  <ul id="menu" class="menu">
+  <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">9</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">60</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -144,16 +146,18 @@
         </a>
       </li>
   </ul>
-
 </nav>
-  <div class="site-search">
+
+
+
+  <div class="search-pop-overlay">
     <div class="popup search-popup">
-    <div class="search-header">
+        <div class="search-header">
   <span class="search-icon">
     <i class="fa fa-search"></i>
   </span>
   <div class="search-input-container">
-    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+    <input autocomplete="off" autocapitalize="off"
            placeholder="搜索..." spellcheck="false"
            type="search" class="search-input">
   </div>
@@ -161,12 +165,15 @@
     <i class="fa fa-times-circle"></i>
   </span>
 </div>
-<div id="search-result"></div>
-
-</div>
-<div class="search-pop-overlay"></div>
-
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
   </div>
+</div>
+
+    </div>
+  </div>
+
 </div>
     </header>
 
@@ -182,18 +189,17 @@
         <div class="content-wrap">
           
 
-          <div class="content">
+          <div class="content post posts-expand">
             
 
-  <div class="posts-expand">
-      
+    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-06-21/python-iterator-generator/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.png">
       <meta itemprop="name" content="bomo">
       <meta itemprop="description" content="懒人">
     </span>
@@ -209,7 +215,7 @@
         <div class="post-meta">
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
 
@@ -217,7 +223,7 @@
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
+                <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -240,10 +246,10 @@
 <a id="more"></a>
 
 <h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p>我们先来看一个例子，我们生成一个斐波那契序列</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fabs</span><span class="params">(count)</span>:</span></span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">while</span> n &lt; max:</span><br><span class="line">        <span class="keyword">print</span> b</span><br><span class="line">        a, b = b, a + b</span><br><span class="line">        n = n + <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fabs</span><span class="params">(count)</span>:</span></span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">while</span> n &lt; max:</span><br><span class="line">        <span class="keyword">print</span> b</span><br><span class="line">        a, b = b, a + b</span><br><span class="line">        n = n + <span class="number">1</span></span><br></pre></td></tr></table></figure>
 
 <p>上面在函数里面直接print结果，显然这样做的复用性特别差，于是我们想到了用列表</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fabs</span><span class="params">(count)</span>:</span></span><br><span class="line">    l = []</span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">while</span> n &lt; max:</span><br><span class="line">        l.append(b)</span><br><span class="line">        a, b = b, a + b</span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> l</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> fabs(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">print</span> i</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fabs</span><span class="params">(count)</span>:</span></span><br><span class="line">    l = []</span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">while</span> n &lt; max:</span><br><span class="line">        l.append(b)</span><br><span class="line">        a, b = b, a + b</span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> l</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> fabs(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">print</span> i</span><br></pre></td></tr></table></figure>
 
 <p>使用list返回可以解决了复用性问题，但是有时候我们需要使用的数据量非常大的时候，返回整个list会占用大量内存，这个时候，我们希望，函数返回的值不要一次性全部返回，而是用到的时候计算再返回，这样数据量再打也只占用一份内存而已了，Python提供了两种方式实现这种逐步迭代的方式，于是就有了下面迭代器和生成器</p>
 <h2 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h2><p>迭代器统一了所有集合访问元素的方式，包括有序无序的，相比for遍历集合，其支持随机访问的集合，如<code>set</code>，<code>dict</code>，只能向前，不能后退，迭代器有下面两个基本方法，大多数高级语言都会定义统一的迭代器操作，Python中的迭代器类型需要实现下面两个方法</p>
@@ -252,13 +258,13 @@
 <li><code>__iter__</code>方法：返回一个迭代器</li>
 </ul>
 <p>给一个类实现迭代器功能，生成斐波那契序列</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Fabs</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, max)</span>:</span></span><br><span class="line">        <span class="string">"""传入斐波那契数列的个数"""</span></span><br><span class="line">        self.max = max;</span><br><span class="line">        self.n, self.a, self.b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">next</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.n &lt; self.max:</span><br><span class="line">            r = self.b</span><br><span class="line">            self.a, self.b = self.b, self.a + self.b</span><br><span class="line">            self.n = self.n + <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> r;</span><br><span class="line">        <span class="keyword">raise</span> StopIteration()   <span class="comment"># 迭代结束需要抛出异常</span></span><br><span class="line"></span><br><span class="line">fab = Fabs(<span class="number">8</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> fab:</span><br><span class="line">    <span class="keyword">print</span> i             <span class="comment"># 1, 1, 2, 3, 5, 8, 13, 21</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Fabs</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, max)</span>:</span></span><br><span class="line">        <span class="string">"""传入斐波那契数列的个数"""</span></span><br><span class="line">        self.max = max;</span><br><span class="line">        self.n, self.a, self.b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">next</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.n &lt; self.max:</span><br><span class="line">            r = self.b</span><br><span class="line">            self.a, self.b = self.b, self.a + self.b</span><br><span class="line">            self.n = self.n + <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> r;</span><br><span class="line">        <span class="keyword">raise</span> StopIteration()   <span class="comment"># 迭代结束需要抛出异常</span></span><br><span class="line"></span><br><span class="line">fab = Fabs(<span class="number">8</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> fab:</span><br><span class="line">    <span class="keyword">print</span> i             <span class="comment"># 1, 1, 2, 3, 5, 8, 13, 21</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="生成器yield"><a href="#生成器yield" class="headerlink" title="生成器yield"></a>生成器yield</h2><p>上面我们看到每次迭代通过调用next取得值，Python还提供了另一个关键字yield用于更方便的迭代每个值，C#也支持这种语法，带有yield关键的函数被称为生成器（generator）</p>
 <blockquote>
 <p>yield：在函数使用yield返回每次迭代的值，而不直接返回，yield返回值后等待下次迭代，而保留当前的状态（局部变量不变），直到下次迭代的时候，接着后面的代码继续执行</p>
 </blockquote>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Foo</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">yield</span> <span class="number">1</span>   <span class="comment"># 返回后等待第二次迭代</span></span><br><span class="line">    <span class="keyword">yield</span> <span class="number">3</span>   <span class="comment"># 第二次迭代从这里开始，等待第三次迭代</span></span><br><span class="line">    <span class="keyword">yield</span> <span class="number">2</span>   <span class="comment"># 第三次迭代从这里开始，迭代完成</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">myrange</span><span class="params">(max)</span>:</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">'iter start'</span>      <span class="comment"># 迭代开始时执行</span></span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> i &lt; max:</span><br><span class="line">        <span class="keyword">yield</span> i</span><br><span class="line">        i += <span class="number">1</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">'iter end'</span>      <span class="comment"># 迭代函数执行完没yield返回时，抛出StopIteration异常表示迭代结束</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 不执行迭代过程（不输出iter start）</span></span><br><span class="line"><span class="keyword">print</span> type(myrange(<span class="number">10</span>))   <span class="comment"># 输出：&lt;type 'generator'&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> _ <span class="keyword">in</span> Foo():</span><br><span class="line">    <span class="keyword">print</span> str(_)    <span class="comment"># 输出：1 3 2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> _ <span class="keyword">in</span> myrange(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">print</span> str(_)    <span class="comment"># 输出：0 1 2 3 4 5 6 7 8 9 iter end</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Foo</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">yield</span> <span class="number">1</span>   <span class="comment"># 返回后等待第二次迭代</span></span><br><span class="line">    <span class="keyword">yield</span> <span class="number">3</span>   <span class="comment"># 第二次迭代从这里开始，等待第三次迭代</span></span><br><span class="line">    <span class="keyword">yield</span> <span class="number">2</span>   <span class="comment"># 第三次迭代从这里开始，迭代完成</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">myrange</span><span class="params">(max)</span>:</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">'iter start'</span>      <span class="comment"># 迭代开始时执行</span></span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> i &lt; max:</span><br><span class="line">        <span class="keyword">yield</span> i</span><br><span class="line">        i += <span class="number">1</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">'iter end'</span>      <span class="comment"># 迭代函数执行完没yield返回时，抛出StopIteration异常表示迭代结束</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 不执行迭代过程（不输出iter start）</span></span><br><span class="line"><span class="keyword">print</span> type(myrange(<span class="number">10</span>))   <span class="comment"># 输出：&lt;type 'generator'&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> _ <span class="keyword">in</span> Foo():</span><br><span class="line">    <span class="keyword">print</span> str(_)    <span class="comment"># 输出：1 3 2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> _ <span class="keyword">in</span> myrange(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">print</span> str(_)    <span class="comment"># 输出：0 1 2 3 4 5 6 7 8 9 iter end</span></span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>上面函数Foo可以迭代三次，分别返回1,3,2，与普通的列表一样</li>
@@ -268,10 +274,10 @@
 <li>只有生成器调用<code>next</code>方法的时候才会运行迭代过程</li>
 </ul>
 <h2 id="生成器支持与外部函数交互send"><a href="#生成器支持与外部函数交互send" class="headerlink" title="生成器支持与外部函数交互send"></a>生成器支持与外部函数交互send</h2><p>生成器可以通过yield返回值给外部函数，也可以接受外部函数传递的值，通过<code>send</code>方法传值</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> _ <span class="keyword">in</span> test():</span><br><span class="line">    <span class="keyword">print</span> _</span><br><span class="line"></span><br><span class="line"><span class="comment"># 相当于</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">print</span> ite.next()</span><br><span class="line"><span class="keyword">except</span> StopIteration, e:</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _ <span class="keyword">in</span> test():</span><br><span class="line">    <span class="keyword">print</span> _</span><br><span class="line"></span><br><span class="line"><span class="comment"># 相当于</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">print</span> ite.next()</span><br><span class="line"><span class="keyword">except</span> StopIteration, e:</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
 
 <p>迭代器每次迭代实际上相当于调用了next方法，然后从yield取值，Python迭代器还提供了send方法，功能与next类似，但是可以传递参数作为yield的返回值在迭代器内部使用</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    n = <span class="number">1</span></span><br><span class="line">    p = <span class="keyword">yield</span> n</span><br><span class="line">    <span class="keyword">if</span> p:         <span class="comment"># 调用send时，p接收参数值，调用next时，p为None</span></span><br><span class="line">        n += p</span><br><span class="line"></span><br><span class="line">    p = <span class="keyword">yield</span> n</span><br><span class="line">    <span class="keyword">if</span> p:</span><br><span class="line">        n += p</span><br><span class="line"></span><br><span class="line">    <span class="keyword">yield</span> n</span><br><span class="line"></span><br><span class="line">ite = test()</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">print</span> ite.next()    <span class="comment"># 第一次不允许调用send</span></span><br><span class="line">    <span class="keyword">print</span> ite.send(<span class="number">1</span>)   <span class="comment"># 传递参数1给迭代器</span></span><br><span class="line">    <span class="keyword">print</span> ite.send(<span class="number">2</span>)   <span class="comment"># 传递参数2给迭代器</span></span><br><span class="line">    <span class="keyword">print</span> ite.send(<span class="number">3</span>)   <span class="comment"># 最后一次传至无效，因为迭代已经完成，触发StopIteration</span></span><br><span class="line"><span class="keyword">except</span> StopIteration, e:</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    n = <span class="number">1</span></span><br><span class="line">    p = <span class="keyword">yield</span> n</span><br><span class="line">    <span class="keyword">if</span> p:         <span class="comment"># 调用send时，p接收参数值，调用next时，p为None</span></span><br><span class="line">        n += p</span><br><span class="line"></span><br><span class="line">    p = <span class="keyword">yield</span> n</span><br><span class="line">    <span class="keyword">if</span> p:</span><br><span class="line">        n += p</span><br><span class="line"></span><br><span class="line">    <span class="keyword">yield</span> n</span><br><span class="line"></span><br><span class="line">ite = test()</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">print</span> ite.next()    <span class="comment"># 第一次不允许调用send</span></span><br><span class="line">    <span class="keyword">print</span> ite.send(<span class="number">1</span>)   <span class="comment"># 传递参数1给迭代器</span></span><br><span class="line">    <span class="keyword">print</span> ite.send(<span class="number">2</span>)   <span class="comment"># 传递参数2给迭代器</span></span><br><span class="line">    <span class="keyword">print</span> ite.send(<span class="number">3</span>)   <span class="comment"># 最后一次传至无效，因为迭代已经完成，触发StopIteration</span></span><br><span class="line"><span class="keyword">except</span> StopIteration, e:</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="yield的原理"><a href="#yield的原理" class="headerlink" title="yield的原理"></a>yield的原理</h2><p>//TODO:</p>
 
@@ -280,6 +286,23 @@
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>bomo
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2016-06-21/python-iterator-generator/" title="Python迭代器和生成器">http://zhengbomo.github.io/2016-06-21/python-iterator-generator/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
 
       <footer class="post-footer">
 
@@ -304,7 +327,6 @@
   
   
 
-  </div>
 
 
           </div>
@@ -312,7 +334,7 @@
 
 <script>
   window.addEventListener('tabs:register', () => {
-    let activeClass = CONFIG.comments.activeClass;
+    let { activeClass } = CONFIG.comments;
     if (CONFIG.comments.storage) {
       activeClass = localStorage.getItem('comments_active') || activeClass;
     }
@@ -361,6 +383,8 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="bomo"
+      src="/images/avatar.png">
   <p class="site-author-name" itemprop="name">bomo</p>
   <div class="site-description" itemprop="description">懒人</div>
 </div>
@@ -369,42 +393,42 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
       </span>
       <span class="links-of-author-item">
-        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
       </span>
   </div>
 
@@ -424,19 +448,18 @@
       <div class="footer-inner">
         
 
+        
+
 <div class="copyright">
   
-  &copy; 
+  &copy; 2016 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">bomo</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
-  </div>
-  <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         
@@ -454,6 +477,8 @@
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 <script src="/js/utils.js"></script><script src="/js/motion.js"></script>

@@ -14,24 +14,25 @@
 
 
 <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="iOS屏幕旋转控制，视频全屏，锁定屏幕">
+  <meta name="description" content="iOS屏幕旋转控制，自动旋转，手动旋转，锁定屏幕">
 <meta name="keywords" content="iOS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS旋转屏幕">
 <meta property="og:url" content="http://zhengbomo.github.io/2019-12-26/ios-orientation/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
-<meta property="og:description" content="iOS屏幕旋转控制，视频全屏，锁定屏幕">
+<meta property="og:description" content="iOS屏幕旋转控制，自动旋转，手动旋转，锁定屏幕">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2019-12-26T04:55:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS旋转屏幕">
-<meta name="twitter:description" content="iOS屏幕旋转控制，视频全屏，锁定屏幕">
+<meta name="twitter:description" content="iOS屏幕旋转控制，自动旋转，手动旋转，锁定屏幕">
 
 <link rel="canonical" href="http://zhengbomo.github.io/2019-12-26/ios-orientation/">
 
@@ -40,8 +41,8 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
-    isPost: true
+    isHome : false,
+    isPost : true
   };
 </script>
 
@@ -76,6 +77,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -127,17 +129,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">52</span></a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -237,30 +239,30 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>iOS屏幕旋转控制，视频全屏，锁定屏幕</p>
+        <p>iOS屏幕旋转控制，自动旋转，手动旋转，锁定屏幕</p>
 <a id="more"></a>
 
 <h2 id="1-设置App支持的旋转方向（2种方式）"><a href="#1-设置App支持的旋转方向（2种方式）" class="headerlink" title="1. 设置App支持的旋转方向（2种方式）"></a>1. 设置App支持的旋转方向（2种方式）</h2><h3 id="1-通过工程设置"><a href="#1-通过工程设置" class="headerlink" title="1. 通过工程设置"></a>1. 通过工程设置</h3><p><code>General</code>-&gt;<code>Deployment Info</code>-&gt;<code>Device Orientation</code>，勾选支持的方向</p>
-<h3 id="2-通过代码设置（AppDelegate）"><a href="#2-通过代码设置（AppDelegate）" class="headerlink" title="2. 通过代码设置（AppDelegate）"></a>2. 通过代码设置（AppDelegate）</h3><figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">application</span><span class="params">(<span class="number">_</span> application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?)</span></span> -&gt; <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> .allButUpsideDown</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-通过代码设置（AppDelegate）"><a href="#2-通过代码设置（AppDelegate）" class="headerlink" title="2. 通过代码设置（AppDelegate）"></a>2. 通过代码设置（AppDelegate）</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">application</span><span class="params">(<span class="number">_</span> application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?)</span></span> -&gt; <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> .allButUpsideDown</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p>方式1存在一个问题：如果勾选了多个方向，如果横屏进入App，会出现首页横屏的情况，即使设置了<code>VC</code>只支持竖屏，推荐使用方式2</p>
 </blockquote>
 <h2 id="2-ViewController旋转控制"><a href="#2-ViewController旋转控制" class="headerlink" title="2. ViewController旋转控制"></a>2. ViewController旋转控制</h2><p>通常在需要旋转的ViewController，重写下面三个方法即可</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// 控制是否支持自动旋转，回根据设备方向自动调整布局，例如视频横屏播放，微信公众号文章横屏阅读等</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> shouldAutorotate: <span class="type">Bool</span> &#123;    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 设置首次进入ViewController时的方向，之后再根据设备方向变动调整，例如可以保证无论设备是否横屏，首次进入一个ViewController的时候为竖屏</span></span><br><span class="line"><span class="comment">/// 注意：这里的设置仅对第二个页面有效，第一个页面无效</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> preferredInterfaceOrientationForPresentation: <span class="type">UIInterfaceOrientation</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> .portrait</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 设置支持旋转的方向</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> supportedInterfaceOrientations: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> .landscape</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 控制是否支持自动旋转，回根据设备方向自动调整布局，例如视频横屏播放，微信公众号文章横屏阅读等</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> shouldAutorotate: <span class="type">Bool</span> &#123;    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 设置首次进入ViewController时的方向，之后再根据设备方向变动调整，例如可以保证无论设备是否横屏，首次进入一个ViewController的时候为竖屏</span></span><br><span class="line"><span class="comment">/// 注意：这里的设置仅对第二个页面有效，第一个页面无效</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> preferredInterfaceOrientationForPresentation: <span class="type">UIInterfaceOrientation</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> .portrait</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 设置支持旋转的方向</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> supportedInterfaceOrientations: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> .landscape</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="3-容器"><a href="#3-容器" class="headerlink" title="3. 容器"></a>3. 容器</h2><p>如果ViewController在容器控制器里面的话（<code>UINavigationController</code>和<code>UITabBarController</code>）需要重写容器，让其指向子控制器</p>
 <p><code>TabBarController</code></p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> UIKit</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TabBarController</span>: <span class="title">UITabBarController</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> shouldAutorotate: <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.selectedViewController?.shouldAutorotate ?? <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> supportedInterfaceOrientations: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.selectedViewController?.supportedInterfaceOrientations ?? <span class="type">UIInterfaceOrientationMask</span>.portrait</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> preferredInterfaceOrientationForPresentation: <span class="type">UIInterfaceOrientation</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.selectedViewController?.preferredInterfaceOrientationForPresentation ?? .portrait</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> UIKit</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TabBarController</span>: <span class="title">UITabBarController</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> shouldAutorotate: <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.selectedViewController?.shouldAutorotate ?? <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> supportedInterfaceOrientations: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.selectedViewController?.supportedInterfaceOrientations ?? <span class="type">UIInterfaceOrientationMask</span>.portrait</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> preferredInterfaceOrientationForPresentation: <span class="type">UIInterfaceOrientation</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.selectedViewController?.preferredInterfaceOrientationForPresentation ?? .portrait</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><code>NavigationController</code></p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> UIKit</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NavigationController</span>: <span class="title">UINavigationController</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> shouldAutorotate: <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.topViewController?.shouldAutorotate ?? <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> supportedInterfaceOrientations: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.topViewController?.supportedInterfaceOrientations ?? <span class="type">UIInterfaceOrientationMask</span>.portrait</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> preferredInterfaceOrientationForPresentation: <span class="type">UIInterfaceOrientation</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.topViewController?.preferredInterfaceOrientationForPresentation ?? .portrait</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> UIKit</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NavigationController</span>: <span class="title">UINavigationController</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> shouldAutorotate: <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.topViewController?.shouldAutorotate ?? <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> supportedInterfaceOrientations: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.topViewController?.supportedInterfaceOrientations ?? <span class="type">UIInterfaceOrientationMask</span>.portrait</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> preferredInterfaceOrientationForPresentation: <span class="type">UIInterfaceOrientation</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.topViewController?.preferredInterfaceOrientationForPresentation ?? .portrait</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="4-强制旋转"><a href="#4-强制旋转" class="headerlink" title="4. 强制旋转"></a>4. 强制旋转</h2><p>iOS没有提供公开的API直接修改屏幕方向，通常我们用<code>kvc</code>的方式实现</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 强制竖屏</span></span><br><span class="line"><span class="type">UIDevice</span>.current.setValue(<span class="type">UIInterfaceOrientation</span>.portrait.rawValue, forKey: <span class="string">"orientation"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 强制左横屏</span></span><br><span class="line"><span class="type">UIDevice</span>.current.setValue(<span class="type">UIInterfaceOrientation</span>.landscapeLeft.rawValue, forKey: <span class="string">"orientation"</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 强制竖屏</span></span><br><span class="line"><span class="type">UIDevice</span>.current.setValue(<span class="type">UIInterfaceOrientation</span>.portrait.rawValue, forKey: <span class="string">"orientation"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 强制左横屏</span></span><br><span class="line"><span class="type">UIDevice</span>.current.setValue(<span class="type">UIInterfaceOrientation</span>.landscapeLeft.rawValue, forKey: <span class="string">"orientation"</span>)</span><br></pre></td></tr></table></figure>
 
 <h2 id="5-方向锁定"><a href="#5-方向锁定" class="headerlink" title="5. 方向锁定"></a>5. 方向锁定</h2><p>通过控制VC支持<code>supportedInterfaceOrientations</code>的方向，就可以控制锁定了，只返回一种方向，就能实现锁定的功能</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// 定义锁定的方向</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> lookOrientation: <span class="type">UIInterfaceOrientation?</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置当前的方向（锁定屏幕方向）</span></span><br><span class="line"><span class="keyword">self</span>.lookOrientation = <span class="type">UIApplication</span>.shared.statusBarOrientation</span><br><span class="line"><span class="comment">// 取消当前的方向（解锁）</span></span><br><span class="line"><span class="keyword">self</span>.lookOrientation = <span class="literal">nil</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/// 重载用于控制锁定</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> supportedInterfaceOrientations: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> orientation = <span class="keyword">self</span>.lookOrientation &#123;</span><br><span class="line">        <span class="comment">// 锁定方向</span></span><br><span class="line">        <span class="keyword">return</span> orientation.orientationMask</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 默认可选旋转</span></span><br><span class="line">        <span class="keyword">return</span> .allButUpsideDown</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">UIInterfaceOrientation</span> </span>&#123;</span><br><span class="line">    <span class="comment">// UIInterfaceOrientation转换为UIInterfaceOrientationMask</span></span><br><span class="line">    <span class="keyword">var</span> orientationMask: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">        <span class="keyword">switch</span> <span class="keyword">self</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> .unknown:</span><br><span class="line">            <span class="keyword">return</span> .allButUpsideDown</span><br><span class="line">        <span class="keyword">case</span> .portrait:</span><br><span class="line">            <span class="keyword">return</span> .portrait</span><br><span class="line">        <span class="keyword">case</span> .portraitUpsideDown:</span><br><span class="line">            <span class="keyword">return</span> .portraitUpsideDown</span><br><span class="line">        <span class="keyword">case</span> .landscapeLeft:</span><br><span class="line">            <span class="keyword">return</span> .landscapeLeft</span><br><span class="line">        <span class="keyword">case</span> .landscapeRight:</span><br><span class="line">            <span class="keyword">return</span> .landscapeRight</span><br><span class="line">        @unknown <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">return</span> .allButUpsideDown</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 定义锁定的方向</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> lookOrientation: <span class="type">UIInterfaceOrientation?</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置当前的方向（锁定屏幕方向）</span></span><br><span class="line"><span class="keyword">self</span>.lookOrientation = <span class="type">UIApplication</span>.shared.statusBarOrientation</span><br><span class="line"><span class="comment">// 取消当前的方向（解锁）</span></span><br><span class="line"><span class="keyword">self</span>.lookOrientation = <span class="literal">nil</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/// 重载用于控制锁定</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> supportedInterfaceOrientations: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> orientation = <span class="keyword">self</span>.lookOrientation &#123;</span><br><span class="line">        <span class="comment">// 锁定方向</span></span><br><span class="line">        <span class="keyword">return</span> orientation.orientationMask</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 默认可选旋转</span></span><br><span class="line">        <span class="keyword">return</span> .allButUpsideDown</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">UIInterfaceOrientation</span> </span>&#123;</span><br><span class="line">    <span class="comment">// UIInterfaceOrientation转换为UIInterfaceOrientationMask</span></span><br><span class="line">    <span class="keyword">var</span> orientationMask: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">        <span class="keyword">switch</span> <span class="keyword">self</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> .unknown:</span><br><span class="line">            <span class="keyword">return</span> .allButUpsideDown</span><br><span class="line">        <span class="keyword">case</span> .portrait:</span><br><span class="line">            <span class="keyword">return</span> .portrait</span><br><span class="line">        <span class="keyword">case</span> .portraitUpsideDown:</span><br><span class="line">            <span class="keyword">return</span> .portraitUpsideDown</span><br><span class="line">        <span class="keyword">case</span> .landscapeLeft:</span><br><span class="line">            <span class="keyword">return</span> .landscapeLeft</span><br><span class="line">        <span class="keyword">case</span> .landscapeRight:</span><br><span class="line">            <span class="keyword">return</span> .landscapeRight</span><br><span class="line">        @unknown <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">return</span> .allButUpsideDown</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
     </div>
@@ -268,6 +270,23 @@
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>bomo
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2019-12-26/ios-orientation/" title="iOS旋转屏幕">http://zhengbomo.github.io/2019-12-26/ios-orientation/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -280,13 +299,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2019-07-03/ios-cycript/" rel="prev" title="使用cycript调试应用">
-      <i class="fa fa-chevron-left"></i> 使用cycript调试应用
+    <a href="/2019-08-04/ios-entitlement/" rel="prev" title="iOS可执行文件权限签名">
+      <i class="fa fa-chevron-left"></i> iOS可执行文件权限签名
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020-02-04/ios-entitlement/" rel="next" title="iOS可执行文件权限签名">
-      iOS可执行文件权限签名 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -360,7 +376,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">52</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -373,7 +389,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -417,7 +433,7 @@
 
 <div class="copyright">
   
-  &copy; 
+  &copy; 2016 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
@@ -427,7 +443,7 @@
   <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
   </div>
   <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.2
   </div>
 
         
@@ -445,6 +461,8 @@
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 <script src="/js/utils.js"></script><script src="/js/motion.js"></script>

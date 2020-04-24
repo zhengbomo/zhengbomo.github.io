@@ -13,11 +13,12 @@
 <link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="前言最近在用flutter写一个小项目，在写主页面（底部导航栏+子页面）时遇到的一个问题：当点击底部item切换到另一页面, 再返回此页面时会重走它的initState方法（我们一般在initState中发起网络请求，或者初始化的操作），导致不必要的开销">
@@ -40,8 +41,9 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
-    isPost: true
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -76,6 +78,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -94,14 +97,12 @@
 
   <div class="site-meta">
 
-    <div>
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">bomo的开发随笔</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-        <p class="site-subtitle">记录工作学习点滴</p>
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
   </div>
 
   <div class="site-nav-right">
@@ -112,32 +113,33 @@
 </div>
 
 
+
+
 <nav class="site-nav">
-  
-  <ul id="menu" class="menu">
+  <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">9</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">60</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -145,16 +147,18 @@
         </a>
       </li>
   </ul>
-
 </nav>
-  <div class="site-search">
+
+
+
+  <div class="search-pop-overlay">
     <div class="popup search-popup">
-    <div class="search-header">
+        <div class="search-header">
   <span class="search-icon">
     <i class="fa fa-search"></i>
   </span>
   <div class="search-input-container">
-    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+    <input autocomplete="off" autocapitalize="off"
            placeholder="搜索..." spellcheck="false"
            type="search" class="search-input">
   </div>
@@ -162,12 +166,15 @@
     <i class="fa fa-times-circle"></i>
   </span>
 </div>
-<div id="search-result"></div>
-
-</div>
-<div class="search-pop-overlay"></div>
-
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
   </div>
+</div>
+
+    </div>
+  </div>
+
 </div>
     </header>
 
@@ -183,18 +190,17 @@
         <div class="content-wrap">
           
 
-          <div class="content">
+          <div class="content post posts-expand">
             
 
-  <div class="posts-expand">
-      
+    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-02-23/flutter-tab-keep-alive/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.png">
       <meta itemprop="name" content="bomo">
       <meta itemprop="description" content="懒人">
     </span>
@@ -210,7 +216,7 @@
         <div class="post-meta">
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
 
@@ -218,7 +224,7 @@
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
+                <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -241,31 +247,48 @@
 <a id="more"></a>
 
 <h2 id="根据Tab动态加载页面"><a href="#根据Tab动态加载页面" class="headerlink" title="根据Tab动态加载页面"></a>根据Tab动态加载页面</h2><p>我们先定义两个页面<code>PageA</code>和<code>PageB</code></p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PageA</span> <span class="keyword">extends</span> <span class="title">StatefulWidget</span> </span>&#123;</span><br><span class="line">  _PageAState createState() =&gt; _PageAState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_PageAState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">PageA</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> initState() &#123;</span><br><span class="line">    <span class="keyword">super</span>.initState();</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"pageA init state"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> Container(</span><br><span class="line">      color: Colors.orangeAccent,</span><br><span class="line">      child: Center(</span><br><span class="line">        child: Text(<span class="string">"page A"</span>),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PageB</span> <span class="keyword">extends</span> <span class="title">StatefulWidget</span> </span>&#123;</span><br><span class="line">  _PageBState createState() =&gt; _PageBState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_PageBState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">PageB</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> initState() &#123;</span><br><span class="line">    <span class="keyword">super</span>.initState();</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"pageB init state"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> Container(</span><br><span class="line">      color: Colors.blueAccent,</span><br><span class="line">      child: Center(</span><br><span class="line">        child: Text(<span class="string">"page B"</span>),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PageA</span> <span class="keyword">extends</span> <span class="title">StatefulWidget</span> </span>&#123;</span><br><span class="line">  _PageAState createState() =&gt; _PageAState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_PageAState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">PageA</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> initState() &#123;</span><br><span class="line">    <span class="keyword">super</span>.initState();</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"pageA init state"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> Container(</span><br><span class="line">      color: Colors.orangeAccent,</span><br><span class="line">      child: Center(</span><br><span class="line">        child: Text(<span class="string">"page A"</span>),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PageB</span> <span class="keyword">extends</span> <span class="title">StatefulWidget</span> </span>&#123;</span><br><span class="line">  _PageBState createState() =&gt; _PageBState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_PageBState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">PageB</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> initState() &#123;</span><br><span class="line">    <span class="keyword">super</span>.initState();</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"pageB init state"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> Container(</span><br><span class="line">      color: Colors.blueAccent,</span><br><span class="line">      child: Center(</span><br><span class="line">        child: Text(<span class="string">"page B"</span>),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>定义Tab主页面</p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> main() =&gt; runApp(MyApp());</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyApp</span> <span class="keyword">extends</span> <span class="title">StatefulWidget</span> </span>&#123;</span><br><span class="line">  _MyAppState createState() =&gt; _MyAppState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_MyAppState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">MyApp</span>&gt; </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> _tabIndex = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">List</span>&lt;Widget&gt; _tabWidget = [</span><br><span class="line">    PageA(),</span><br><span class="line">    PageB()</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> MaterialApp(</span><br><span class="line">      title: <span class="string">'tab demo'</span>,</span><br><span class="line">      home: Scaffold(</span><br><span class="line">        bottomNavigationBar: BottomNavigationBar(</span><br><span class="line">          items: _createBottomItems(),</span><br><span class="line">          currentIndex: <span class="keyword">this</span>._tabIndex,</span><br><span class="line">          onTap: (index) &#123;</span><br><span class="line">            setState(() &#123;</span><br><span class="line">              <span class="keyword">this</span>._tabIndex = index;</span><br><span class="line">            &#125;);</span><br><span class="line">          &#125;,</span><br><span class="line">        ),</span><br><span class="line">        body: <span class="keyword">this</span>._tabWidget.elementAt(<span class="keyword">this</span>._tabIndex),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建底部导航item</span></span><br><span class="line"><span class="built_in">List</span>&lt;BottomNavigationBarItem&gt; _createBottomItems() &#123;</span><br><span class="line">  <span class="keyword">return</span> [</span><br><span class="line">    BottomNavigationBarItem(</span><br><span class="line">      icon: Icon(Icons.home),</span><br><span class="line">      title: Text(<span class="string">"首页"</span>)</span><br><span class="line">    ),</span><br><span class="line">    BottomNavigationBarItem(</span><br><span class="line">      icon: Icon(Icons.insert_emoticon),</span><br><span class="line">      title: Text(<span class="string">"我的"</span>)</span><br><span class="line">    )</span><br><span class="line">  ];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> main() =&gt; runApp(MyApp());</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyApp</span> <span class="keyword">extends</span> <span class="title">StatefulWidget</span> </span>&#123;</span><br><span class="line">  _MyAppState createState() =&gt; _MyAppState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_MyAppState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">MyApp</span>&gt; </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> _tabIndex = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">List</span>&lt;Widget&gt; _tabWidget = [</span><br><span class="line">    PageA(),</span><br><span class="line">    PageB()</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> MaterialApp(</span><br><span class="line">      title: <span class="string">'tab demo'</span>,</span><br><span class="line">      home: Scaffold(</span><br><span class="line">        bottomNavigationBar: BottomNavigationBar(</span><br><span class="line">          items: _createBottomItems(),</span><br><span class="line">          currentIndex: <span class="keyword">this</span>._tabIndex,</span><br><span class="line">          onTap: (index) &#123;</span><br><span class="line">            setState(() &#123;</span><br><span class="line">              <span class="keyword">this</span>._tabIndex = index;</span><br><span class="line">            &#125;);</span><br><span class="line">          &#125;,</span><br><span class="line">        ),</span><br><span class="line">        body: <span class="keyword">this</span>._tabWidget.elementAt(<span class="keyword">this</span>._tabIndex),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建底部导航item</span></span><br><span class="line"><span class="built_in">List</span>&lt;BottomNavigationBarItem&gt; _createBottomItems() &#123;</span><br><span class="line">  <span class="keyword">return</span> [</span><br><span class="line">    BottomNavigationBarItem(</span><br><span class="line">      icon: Icon(Icons.home),</span><br><span class="line">      title: Text(<span class="string">"首页"</span>)</span><br><span class="line">    ),</span><br><span class="line">    BottomNavigationBarItem(</span><br><span class="line">      icon: Icon(Icons.insert_emoticon),</span><br><span class="line">      title: Text(<span class="string">"我的"</span>)</span><br><span class="line">    )</span><br><span class="line">  ];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>运行后发现，每次切换tab都会调用<code>initState</code>，这显然不符合我们的正常的需求，有下面两种解决方式</p>
 <h2 id="IndexedStack"><a href="#IndexedStack" class="headerlink" title="IndexedStack"></a>IndexedStack</h2><p><code>IndexedStack</code>可以控制子元素的显示和隐藏，并且会缓存所有的元素，不会每次都重新创建子元素</p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="meta">@override</span></span><br><span class="line">Widget build(BuildContext context) &#123;</span><br><span class="line">  <span class="keyword">return</span> MaterialApp(</span><br><span class="line">    title: <span class="string">'tab demo'</span>,</span><br><span class="line">    home: Scaffold(</span><br><span class="line">      bottomNavigationBar: BottomNavigationBar(</span><br><span class="line">        items: _createBottomItems(),</span><br><span class="line">        currentIndex: <span class="keyword">this</span>._tabIndex,</span><br><span class="line">        onTap: (index) &#123;</span><br><span class="line">          setState(() &#123;</span><br><span class="line">            <span class="keyword">this</span>._tabIndex = index;</span><br><span class="line">          &#125;);</span><br><span class="line">        &#125;,</span><br><span class="line">      ),</span><br><span class="line">      body: IndexedStack(</span><br><span class="line">        children: <span class="keyword">this</span>._tabWidget,</span><br><span class="line">        index: <span class="keyword">this</span>._tabIndex,</span><br><span class="line">      )</span><br><span class="line">    ),</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@override</span></span><br><span class="line">Widget build(BuildContext context) &#123;</span><br><span class="line">  <span class="keyword">return</span> MaterialApp(</span><br><span class="line">    title: <span class="string">'tab demo'</span>,</span><br><span class="line">    home: Scaffold(</span><br><span class="line">      bottomNavigationBar: BottomNavigationBar(</span><br><span class="line">        items: _createBottomItems(),</span><br><span class="line">        currentIndex: <span class="keyword">this</span>._tabIndex,</span><br><span class="line">        onTap: (index) &#123;</span><br><span class="line">          setState(() &#123;</span><br><span class="line">            <span class="keyword">this</span>._tabIndex = index;</span><br><span class="line">          &#125;);</span><br><span class="line">        &#125;,</span><br><span class="line">      ),</span><br><span class="line">      body: IndexedStack(</span><br><span class="line">        children: <span class="keyword">this</span>._tabWidget,</span><br><span class="line">        index: <span class="keyword">this</span>._tabIndex,</span><br><span class="line">      )</span><br><span class="line">    ),</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>运行后发现还是有个问题，IndexedStack在初始化的时候会初始化所有的子元素，pageA和pageB的<code>initState</code>会同时调用，这明显还是不符合我们的需求</p>
 <p>正确来说应该是切换到具体页面的时候才进行初始化，而不是一开始就加载所有的页面的数据，避免资源浪费</p>
 <h2 id="PageView-AutomaticKeepAliveClientMixin"><a href="#PageView-AutomaticKeepAliveClientMixin" class="headerlink" title="PageView + AutomaticKeepAliveClientMixin"></a>PageView + AutomaticKeepAliveClientMixin</h2><p>使用PageView支持多个view切换，并且不会一次加载完所有的页面</p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line">  PageController _pageController;</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> initState() &#123;</span><br><span class="line">    <span class="keyword">super</span>.initState();</span><br><span class="line">    <span class="keyword">this</span>._pageController =PageController(initialPage: <span class="keyword">this</span>._tabIndex, keepPage: <span class="keyword">true</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> MaterialApp(</span><br><span class="line">      title: <span class="string">'tab demo'</span>,</span><br><span class="line">      home: Scaffold(</span><br><span class="line">        bottomNavigationBar: BottomNavigationBar(</span><br><span class="line">          items: _createBottomItems(),</span><br><span class="line">          currentIndex: <span class="keyword">this</span>._tabIndex,</span><br><span class="line">          onTap: (index) &#123;</span><br><span class="line">            setState(() &#123;</span><br><span class="line">              <span class="keyword">this</span>._tabIndex = index;</span><br><span class="line">              _pageController.jumpToPage(index);</span><br><span class="line">            &#125;);</span><br><span class="line">          &#125;,</span><br><span class="line">        ),</span><br><span class="line">        body: PageView(</span><br><span class="line">          children: <span class="keyword">this</span>._tabWidget,</span><br><span class="line">          controller: _pageController,</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">  PageController _pageController;</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> initState() &#123;</span><br><span class="line">    <span class="keyword">super</span>.initState();</span><br><span class="line">    <span class="keyword">this</span>._pageController =PageController(initialPage: <span class="keyword">this</span>._tabIndex, keepPage: <span class="keyword">true</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> MaterialApp(</span><br><span class="line">      title: <span class="string">'tab demo'</span>,</span><br><span class="line">      home: Scaffold(</span><br><span class="line">        bottomNavigationBar: BottomNavigationBar(</span><br><span class="line">          items: _createBottomItems(),</span><br><span class="line">          currentIndex: <span class="keyword">this</span>._tabIndex,</span><br><span class="line">          onTap: (index) &#123;</span><br><span class="line">            setState(() &#123;</span><br><span class="line">              <span class="keyword">this</span>._tabIndex = index;</span><br><span class="line">              _pageController.jumpToPage(index);</span><br><span class="line">            &#125;);</span><br><span class="line">          &#125;,</span><br><span class="line">        ),</span><br><span class="line">        body: PageView(</span><br><span class="line">          children: <span class="keyword">this</span>._tabWidget,</span><br><span class="line">          controller: _pageController,</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>使用PageView可以正常切换，但是每次切换Tab的时候还是会重复调用<code>initState</code>，我们还需要在子页面实现<code>AutomaticKeepAliveClientMixin</code></p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_PageAState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">PageA</span>&gt; <span class="title">with</span> <span class="title">AutomaticKeepAliveClientMixin</span> </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="built_in">bool</span> <span class="keyword">get</span> wantKeepAlive =&gt; <span class="keyword">true</span>;</span><br><span class="line">  </span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_PageBState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">PageB</span>&gt; <span class="title">with</span> <span class="title">AutomaticKeepAliveClientMixin</span> </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="built_in">bool</span> <span class="keyword">get</span> wantKeepAlive =&gt; <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_PageAState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">PageA</span>&gt; <span class="title">with</span> <span class="title">AutomaticKeepAliveClientMixin</span> </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="built_in">bool</span> <span class="keyword">get</span> wantKeepAlive =&gt; <span class="keyword">true</span>;</span><br><span class="line">  </span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_PageBState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">PageB</span>&gt; <span class="title">with</span> <span class="title">AutomaticKeepAliveClientMixin</span> </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="built_in">bool</span> <span class="keyword">get</span> wantKeepAlive =&gt; <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>实现了<code>AutomaticKeepAliveClientMixin</code>就不会每次切换Tab都调用<code>initState</code>了，这也是google推荐的方式</p>
 <p>最后发现<code>PageView</code>可以左右滑动切换，这个可以通过设置<code>physics</code>为<code>NeverScrollableScrollPhysics()</code>来禁止滑动</p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line">PageView(</span><br><span class="line">  children: <span class="keyword">this</span>._tabWidget,</span><br><span class="line">  controller: _pageController,</span><br><span class="line">  physics: NeverScrollableScrollPhysics(),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PageView(</span><br><span class="line">  children: <span class="keyword">this</span>._tabWidget,</span><br><span class="line">  controller: _pageController,</span><br><span class="line">  physics: NeverScrollableScrollPhysics(),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
     </div>
 
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>bomo
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2019-02-23/flutter-tab-keep-alive/" title="flutter切换tab后保留tab状态">http://zhengbomo.github.io/2019-02-23/flutter-tab-keep-alive/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -282,8 +305,8 @@
       <i class="fa fa-chevron-left"></i> flutter给控件设置圆角
     </a></div>
       <div class="post-nav-item">
-    <a href="/2019-04-24/flutter-hud/" rel="next" title="flutter实现一个ProgressHUD">
-      flutter实现一个ProgressHUD <i class="fa fa-chevron-right"></i>
+    <a href="/2019-04-08/ios-sign/" rel="next" title="iOS 签名机制">
+      iOS 签名机制 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -293,7 +316,6 @@
   
   
 
-  </div>
 
 
           </div>
@@ -301,7 +323,7 @@
 
 <script>
   window.addEventListener('tabs:register', () => {
-    let activeClass = CONFIG.comments.activeClass;
+    let { activeClass } = CONFIG.comments;
     if (CONFIG.comments.storage) {
       activeClass = localStorage.getItem('comments_active') || activeClass;
     }
@@ -350,6 +372,8 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="bomo"
+      src="/images/avatar.png">
   <p class="site-author-name" itemprop="name">bomo</p>
   <div class="site-description" itemprop="description">懒人</div>
 </div>
@@ -358,42 +382,42 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
       </span>
       <span class="links-of-author-item">
-        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
       </span>
   </div>
 
@@ -413,19 +437,18 @@
       <div class="footer-inner">
         
 
+        
+
 <div class="copyright">
   
-  &copy; 
+  &copy; 2016 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">bomo</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
-  </div>
-  <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         
@@ -443,6 +466,8 @@
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 <script src="/js/utils.js"></script><script src="/js/motion.js"></script>

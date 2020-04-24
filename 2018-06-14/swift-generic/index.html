@@ -13,11 +13,12 @@
 <link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="泛型可以让代码处理类型更加灵活，在某些场景下可以很大程度的重用代码，泛型是什么，使用泛型的好处，这里不多说，网上有很多文章介绍的很详细，这里只讨论用法，Swift的泛型与其他语言有些类型，又有些不一样，搜了一下发现，网上的文章只描述了一点，并不全面，看完后依然没能很全面的说明泛型的用法，在这里记录完整的用法">
@@ -40,8 +41,9 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
-    isPost: true
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -76,6 +78,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -94,14 +97,12 @@
 
   <div class="site-meta">
 
-    <div>
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">bomo的开发随笔</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-        <p class="site-subtitle">记录工作学习点滴</p>
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
   </div>
 
   <div class="site-nav-right">
@@ -112,32 +113,33 @@
 </div>
 
 
+
+
 <nav class="site-nav">
-  
-  <ul id="menu" class="menu">
+  <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">9</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">60</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -145,16 +147,18 @@
         </a>
       </li>
   </ul>
-
 </nav>
-  <div class="site-search">
+
+
+
+  <div class="search-pop-overlay">
     <div class="popup search-popup">
-    <div class="search-header">
+        <div class="search-header">
   <span class="search-icon">
     <i class="fa fa-search"></i>
   </span>
   <div class="search-input-container">
-    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+    <input autocomplete="off" autocapitalize="off"
            placeholder="搜索..." spellcheck="false"
            type="search" class="search-input">
   </div>
@@ -162,12 +166,15 @@
     <i class="fa fa-times-circle"></i>
   </span>
 </div>
-<div id="search-result"></div>
-
-</div>
-<div class="search-pop-overlay"></div>
-
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
   </div>
+</div>
+
+    </div>
+  </div>
+
 </div>
     </header>
 
@@ -183,18 +190,17 @@
         <div class="content-wrap">
           
 
-          <div class="content">
+          <div class="content post posts-expand">
             
 
-  <div class="posts-expand">
-      
+    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2018-06-14/swift-generic/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.png">
       <meta itemprop="name" content="bomo">
       <meta itemprop="description" content="懒人">
     </span>
@@ -210,7 +216,7 @@
         <div class="post-meta">
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
 
@@ -218,7 +224,7 @@
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
+                <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -241,46 +247,46 @@
 <a id="more"></a>
 
 <h2 id="定义泛型"><a href="#定义泛型" class="headerlink" title="定义泛型"></a>定义泛型</h2><p>swift的泛型定义方式有两种，一种通过<code>&lt;T&gt;</code>指定泛型参数，而在属性或方法，使用指定的泛型类型，下面是一个泛型方法的声明</p>
-<h3 id="泛型方法"><a href="#泛型方法" class="headerlink" title="泛型方法"></a>泛型方法</h3><figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// 交换两个同类型的变量</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">swap</span>&lt;T&gt;<span class="params">(a: <span class="keyword">inout</span> T, b: <span class="keyword">inout</span> T)</span></span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="built_in">c</span> = a</span><br><span class="line">    a = b</span><br><span class="line">    b = <span class="built_in">c</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> (a, b) = (<span class="number">2</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">swap</span>(&amp;a, &amp;b)</span><br><span class="line"><span class="built_in">print</span>(a, b)			<span class="comment">// 1, 2</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">swap</span>(&amp;a, &amp;b)        </span><br><span class="line"><span class="built_in">print</span>(a, b)			<span class="comment">// 2, 1</span></span><br></pre></td></tr></table></figure>
+<h3 id="泛型方法"><a href="#泛型方法" class="headerlink" title="泛型方法"></a>泛型方法</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 交换两个同类型的变量</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">swap</span>&lt;T&gt;<span class="params">(a: <span class="keyword">inout</span> T, b: <span class="keyword">inout</span> T)</span></span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="built_in">c</span> = a</span><br><span class="line">    a = b</span><br><span class="line">    b = <span class="built_in">c</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> (a, b) = (<span class="number">2</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">swap</span>(&amp;a, &amp;b)</span><br><span class="line"><span class="built_in">print</span>(a, b)			<span class="comment">// 1, 2</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">swap</span>(&amp;a, &amp;b)        </span><br><span class="line"><span class="built_in">print</span>(a, b)			<span class="comment">// 2, 1</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="泛型类"><a href="#泛型类" class="headerlink" title="泛型类"></a>泛型类</h3><p>上面是泛型方法的定义，如果在类里面，可以对类声明泛型</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">/// 泛型属性</span></span><br><span class="line">    <span class="keyword">var</span> testObj: <span class="type">T?</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/// 泛型方法，可以直接使用类的泛型参数T</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">swap</span>&lt;T&gt;<span class="params">(a: <span class="keyword">inout</span> T, b: <span class="keyword">inout</span> T)</span></span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="built_in">c</span> = a</span><br><span class="line">        a = b</span><br><span class="line">        b = <span class="built_in">c</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// 方法的泛型定义可以不依赖于类的泛型参数</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">swap2</span>&lt;TK&gt;<span class="params">(a: <span class="keyword">inout</span> TK, b: <span class="keyword">inout</span> TK)</span></span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="built_in">c</span> = a</span><br><span class="line">        a = b</span><br><span class="line">        b = <span class="built_in">c</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 属性</span></span><br><span class="line"><span class="keyword">let</span> t = <span class="type">Test</span>&lt;<span class="type">Int</span>&gt;()</span><br><span class="line">t.testObj = <span class="number">12</span></span><br><span class="line"><span class="built_in">print</span>(t.testObj)        <span class="comment">// 12</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> a: <span class="type">Int?</span> = <span class="number">2</span></span><br><span class="line"><span class="keyword">var</span> b: <span class="type">Int?</span> = <span class="number">1</span></span><br><span class="line">t.<span class="built_in">swap</span>(a: &amp;a, b: &amp;b)</span><br><span class="line"><span class="built_in">print</span>(a, b)            <span class="comment">// 1, 2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> s1: <span class="type">String?</span> = <span class="string">"a"</span></span><br><span class="line"><span class="keyword">var</span> s2: <span class="type">String?</span> = <span class="string">"b"</span></span><br><span class="line">t.swap2(a: &amp;s1, b: &amp;s2)</span><br><span class="line"><span class="built_in">print</span>(s1, s2)            <span class="comment">// b, a</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">/// 泛型属性</span></span><br><span class="line">    <span class="keyword">var</span> testObj: <span class="type">T?</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/// 泛型方法，可以直接使用类的泛型参数T</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">swap</span>&lt;T&gt;<span class="params">(a: <span class="keyword">inout</span> T, b: <span class="keyword">inout</span> T)</span></span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="built_in">c</span> = a</span><br><span class="line">        a = b</span><br><span class="line">        b = <span class="built_in">c</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// 方法的泛型定义可以不依赖于类的泛型参数</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">swap2</span>&lt;TK&gt;<span class="params">(a: <span class="keyword">inout</span> TK, b: <span class="keyword">inout</span> TK)</span></span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="built_in">c</span> = a</span><br><span class="line">        a = b</span><br><span class="line">        b = <span class="built_in">c</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 属性</span></span><br><span class="line"><span class="keyword">let</span> t = <span class="type">Test</span>&lt;<span class="type">Int</span>&gt;()</span><br><span class="line">t.testObj = <span class="number">12</span></span><br><span class="line"><span class="built_in">print</span>(t.testObj)        <span class="comment">// 12</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> a: <span class="type">Int?</span> = <span class="number">2</span></span><br><span class="line"><span class="keyword">var</span> b: <span class="type">Int?</span> = <span class="number">1</span></span><br><span class="line">t.<span class="built_in">swap</span>(a: &amp;a, b: &amp;b)</span><br><span class="line"><span class="built_in">print</span>(a, b)            <span class="comment">// 1, 2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> s1: <span class="type">String?</span> = <span class="string">"a"</span></span><br><span class="line"><span class="keyword">var</span> s2: <span class="type">String?</span> = <span class="string">"b"</span></span><br><span class="line">t.swap2(a: &amp;s1, b: &amp;s2)</span><br><span class="line"><span class="built_in">print</span>(s1, s2)            <span class="comment">// b, a</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="泛型参数"><a href="#泛型参数" class="headerlink" title="泛型参数"></a>泛型参数</h3><p>泛型可以支持多个类型参数，在声明处用逗号分开</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">	<span class="comment">/// 多个泛型参数</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">test</span>&lt;T1, T2&gt;<span class="params">(t1: T1, t2: T2)</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"t1: \(t1), t2: \(t2)"</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> t = <span class="type">Test</span>()</span><br><span class="line"><span class="keyword">let</span> result = t.test(t1: <span class="type">NSObject</span>(), t2: <span class="string">"abc"</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">	<span class="comment">/// 多个泛型参数</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">test</span>&lt;T1, T2&gt;<span class="params">(t1: T1, t2: T2)</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"t1: \(t1), t2: \(t2)"</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> t = <span class="type">Test</span>()</span><br><span class="line"><span class="keyword">let</span> result = t.test(t1: <span class="type">NSObject</span>(), t2: <span class="string">"abc"</span>)</span><br></pre></td></tr></table></figure>
 
 <h2 id="泛型约束"><a href="#泛型约束" class="headerlink" title="泛型约束"></a>泛型约束</h2><p>类型约束定义在泛型声明处，支持类约束和<code>protocol</code>约束，如下</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Run</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">run</span><span class="params">()</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Fly</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">fly</span><span class="params">()</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 单协议约束</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">test</span>&lt;T: Run&gt;<span class="params">(animal: T)</span></span> &#123;</span><br><span class="line">    animal.run()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 类型和多协议约束</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">test</span>&lt;T: NSObject &amp; Fly &amp; Run&gt;<span class="params">(bird: T)</span></span> &#123;</span><br><span class="line">    bird.fly()</span><br><span class="line">    bird.run()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Run</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">run</span><span class="params">()</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Fly</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">fly</span><span class="params">()</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 单协议约束</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">test</span>&lt;T: Run&gt;<span class="params">(animal: T)</span></span> &#123;</span><br><span class="line">    animal.run()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 类型和多协议约束</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">test</span>&lt;T: NSObject &amp; Fly &amp; Run&gt;<span class="params">(bird: T)</span></span> &#123;</span><br><span class="line">    bird.fly()</span><br><span class="line">    bird.run()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>泛型可以用在方法参数，方法返回值，属性上</p>
 <h2 id="协议泛型"><a href="#协议泛型" class="headerlink" title="协议泛型"></a>协议泛型</h2><p>除了类，结构体和枚举也支持泛型，用法与类一样，但是协议protocol不能像上面一样使用<br>协议只能通过关联类型<code>associatedtype</code>来实现泛型的功能，相当于泛型声明为协议的成员，而泛型的成员在实现的时候指定</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="comment">/// 关联类型Element，相当于上面的T</span></span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(<span class="number">_</span> element: Element)</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">File</span>: <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 在实现关联类型的协议的时候，需要指定关联类型</span></span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Element</span> = <span class="type">String</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 实现协议方法</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(<span class="number">_</span> element: File.Element)</span></span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(element)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="comment">/// 关联类型Element，相当于上面的T</span></span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(<span class="number">_</span> element: Element)</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">File</span>: <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 在实现关联类型的协议的时候，需要指定关联类型</span></span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Element</span> = <span class="type">String</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 实现协议方法</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(<span class="number">_</span> element: File.Element)</span></span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(element)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="关联类型的约束"><a href="#关联类型的约束" class="headerlink" title="关联类型的约束"></a>关联类型的约束</h3><p>关联类型的约束与普通泛型约束一样，在声明的地方后面添加，通过逗号隔开</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"> <span class="class"><span class="keyword">protocol</span> <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span>: <span class="type">NSObject</span>, <span class="type">Encodable</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(<span class="number">_</span> element: Element)</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="class"><span class="keyword">protocol</span> <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span>: <span class="type">NSObject</span>, <span class="type">Encodable</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(<span class="number">_</span> element: Element)</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="关联自身类型"><a href="#关联自身类型" class="headerlink" title="关联自身类型"></a>关联自身类型</h3><p>protocol利用<code>associatedtype</code>关联自身类型</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Equalable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">equal</span><span class="params">(<span class="number">_</span> a: <span class="keyword">Self</span>)</span></span> -&gt; <span class="type">Bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span>: <span class="title">Equalable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> id: <span class="type">Int</span> = <span class="number">0</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(id: <span class="type">Int</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.id = id</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">equal</span><span class="params">(<span class="number">_</span> a: Test)</span></span> -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.id == a.id</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> a = <span class="type">Test</span>(id: <span class="number">1</span>)</span><br><span class="line"><span class="keyword">let</span> b = <span class="type">Test</span>(id: <span class="number">2</span>)</span><br><span class="line">a.<span class="built_in">equal</span>(b)              <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Equalable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">equal</span><span class="params">(<span class="number">_</span> a: <span class="keyword">Self</span>)</span></span> -&gt; <span class="type">Bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span>: <span class="title">Equalable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> id: <span class="type">Int</span> = <span class="number">0</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(id: <span class="type">Int</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.id = id</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">equal</span><span class="params">(<span class="number">_</span> a: Test)</span></span> -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.id == a.id</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> a = <span class="type">Test</span>(id: <span class="number">1</span>)</span><br><span class="line"><span class="keyword">let</span> b = <span class="type">Test</span>(id: <span class="number">2</span>)</span><br><span class="line">a.<span class="built_in">equal</span>(b)              <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="associatedtype冲突"><a href="#associatedtype冲突" class="headerlink" title="associatedtype冲突"></a>associatedtype冲突</h3><p>associatedtype有另一个问题没有解决，就是类型冲突，如下</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Read</span> </span>&#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">read</span><span class="params">()</span></span> -&gt; <span class="type">Element</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(a: Element)</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 两个Element名字相同，无法指定</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReadWrite</span>: <span class="title">Read</span>, <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">read</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">5</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(a: String)</span></span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"writing \(a)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Read</span> </span>&#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">read</span><span class="params">()</span></span> -&gt; <span class="type">Element</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(a: Element)</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 两个Element名字相同，无法指定</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReadWrite</span>: <span class="title">Read</span>, <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">read</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">5</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(a: String)</span></span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"writing \(a)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>在stackoverflow上有个不完美的解决方案:<br><a href="https://stackoverflow.com/questions/37736457/protocol-with-same-associated-type-name" target="_blank" rel="noopener">https://stackoverflow.com/questions/37736457/protocol-with-same-associated-type-name </a></p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">ReadInt</span>: <span class="title">Read</span> </span>&#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span> = <span class="type">Int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">WriteString</span>: <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span> = <span class="type">String</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReadWrite</span>: <span class="title">ReadInt</span>, <span class="title">WriteString</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">read</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">5</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(a: String)</span></span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"writing \(a)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">ReadInt</span>: <span class="title">Read</span> </span>&#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span> = <span class="type">Int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">WriteString</span>: <span class="title">Write</span> </span>&#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span> = <span class="type">String</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReadWrite</span>: <span class="title">ReadInt</span>, <span class="title">WriteString</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">read</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">5</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(a: String)</span></span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"writing \(a)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="关于associatedtype"><a href="#关于associatedtype" class="headerlink" title="关于associatedtype"></a>关于associatedtype</h3><p>对于其他语言大多都使用直接指定类型<code>&lt;T&gt;</code>的方式声明泛型，而swift为什么还要搞出一个<code>associatedtype</code>呢，这篇文章有分析：<a href="http://www.cocoachina.com/swift/20160726/17188.html" target="_blank" rel="noopener">http://www.cocoachina.com/swift/20160726/17188.html</a></p>
 <p>使用关联类型，类似于类型当成成员属性使用，可以解耦依赖，如果需要使用对象的关联的类型，而类型与当前对象并没有直接关系，则通过成员的关联类型引用可以避免直接依赖对象类型，如下例子：机动车(Automobile)、燃料(Fuel)、尾气(Exhaust)</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// 机动车</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">Automobile</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">associatedtype</span> <span class="type">FuelType</span></span><br><span class="line">  	<span class="keyword">associatedtype</span> <span class="type">ExhaustType</span></span><br><span class="line">  	<span class="function"><span class="keyword">func</span> <span class="title">drive</span><span class="params">(fuel: FuelType)</span></span> -&gt; <span class="type">ExhaustType</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 燃料</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">Fuel</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">associatedtype</span> <span class="type">ExhaustType</span></span><br><span class="line">  	<span class="function"><span class="keyword">func</span> <span class="title">consume</span><span class="params">()</span></span> -&gt; <span class="type">ExhaustType</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 尾气</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">Exhaust</span> </span>&#123;  </span><br><span class="line">	<span class="function"><span class="keyword">func</span> <span class="title">emit</span><span class="params">()</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 机动车</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">Automobile</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">associatedtype</span> <span class="type">FuelType</span></span><br><span class="line">  	<span class="keyword">associatedtype</span> <span class="type">ExhaustType</span></span><br><span class="line">  	<span class="function"><span class="keyword">func</span> <span class="title">drive</span><span class="params">(fuel: FuelType)</span></span> -&gt; <span class="type">ExhaustType</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 燃料</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">Fuel</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">associatedtype</span> <span class="type">ExhaustType</span></span><br><span class="line">  	<span class="function"><span class="keyword">func</span> <span class="title">consume</span><span class="params">()</span></span> -&gt; <span class="type">ExhaustType</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 尾气</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">Exhaust</span> </span>&#123;  </span><br><span class="line">	<span class="function"><span class="keyword">func</span> <span class="title">emit</span><span class="params">()</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>实现</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">struct</span> <span class="title">UnleadedGasoline</span>: <span class="title">Fuel</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">consume</span><span class="params">()</span></span> -&gt; <span class="type">E</span> &#123;    </span><br><span class="line">  		<span class="built_in">print</span>(<span class="string">"consuming unleaded gas..."</span>)  </span><br><span class="line">  		<span class="keyword">return</span> <span class="type">E</span>()</span><br><span class="line">  	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">struct</span> <span class="title">CleanExhaust</span>: <span class="title">Exhaust</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">emit</span><span class="params">()</span></span> &#123;  </span><br><span class="line">  		<span class="built_in">print</span>(<span class="string">"this is some clean exhaust..."</span>)</span><br><span class="line">  	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Car</span>: <span class="title">Automobile</span> </span>&#123;</span><br><span class="line"> 	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">drive</span><span class="params">(fuel: F)</span></span> -&gt; <span class="type">E</span> &#123;    </span><br><span class="line"> 		<span class="keyword">return</span> fuel.consume()</span><br><span class="line">  	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">struct</span> <span class="title">UnleadedGasoline</span>: <span class="title">Fuel</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">consume</span><span class="params">()</span></span> -&gt; <span class="type">E</span> &#123;    </span><br><span class="line">  		<span class="built_in">print</span>(<span class="string">"consuming unleaded gas..."</span>)  </span><br><span class="line">  		<span class="keyword">return</span> <span class="type">E</span>()</span><br><span class="line">  	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">struct</span> <span class="title">CleanExhaust</span>: <span class="title">Exhaust</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">emit</span><span class="params">()</span></span> &#123;  </span><br><span class="line">  		<span class="built_in">print</span>(<span class="string">"this is some clean exhaust..."</span>)</span><br><span class="line">  	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Car</span>: <span class="title">Automobile</span> </span>&#123;</span><br><span class="line"> 	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">drive</span><span class="params">(fuel: F)</span></span> -&gt; <span class="type">E</span> &#123;    </span><br><span class="line"> 		<span class="keyword">return</span> fuel.consume()</span><br><span class="line">  	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>实际依赖关系：<br>机动车 -&gt; 燃料<br>燃料 -&gt; 尾气  </p>
 <p>但是代码有个问题是在定义Car的时候，必须声明尾气的类型E，而实际上机动车是不依赖于尾气的类型的，尾气的类型取决于燃料，如果Car支持两种燃料FuelA和FuelB，而两种燃料产生的尾气E1和E2，<code>drive</code>方法无法同时满足，只能定义两个方法</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Car</span>: <span class="title">Automobile</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"> 	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">drive</span><span class="params">(fuel: F1)</span></span> -&gt; <span class="type">E1</span> &#123;    </span><br><span class="line"> 		<span class="keyword">return</span> fuel.consume()</span><br><span class="line">  	&#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">drive</span><span class="params">(fuel: F2)</span></span> -&gt; <span class="type">E2</span> &#123;    </span><br><span class="line"> 		<span class="keyword">return</span> fuel.consume()</span><br><span class="line">  	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Car</span>: <span class="title">Automobile</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"> 	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">drive</span><span class="params">(fuel: F1)</span></span> -&gt; <span class="type">E1</span> &#123;    </span><br><span class="line"> 		<span class="keyword">return</span> fuel.consume()</span><br><span class="line">  	&#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">drive</span><span class="params">(fuel: F2)</span></span> -&gt; <span class="type">E2</span> &#123;    </span><br><span class="line"> 		<span class="keyword">return</span> fuel.consume()</span><br><span class="line">  	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>如果使用关联类型的话可以解决这个问题，把尾气关联到燃料上</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Car</span>: <span class="title">Automobile</span> </span>&#123;</span><br><span class="line"> 	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">drive</span><span class="params">(fuel: F)</span></span> -&gt; <span class="type">F</span>.<span class="type">ExhaustType</span> &#123;    </span><br><span class="line"> 		<span class="keyword">return</span> fuel.consume()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Car</span>: <span class="title">Automobile</span> </span>&#123;</span><br><span class="line"> 	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">drive</span><span class="params">(fuel: F)</span></span> -&gt; <span class="type">F</span>.<span class="type">ExhaustType</span> &#123;    </span><br><span class="line"> 		<span class="keyword">return</span> fuel.consume()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>以上就是Swift泛型的全部要点</p>
 
@@ -289,6 +295,23 @@
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>bomo
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2018-06-14/swift-generic/" title="swift泛型笔记">http://zhengbomo.github.io/2018-06-14/swift-generic/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -317,7 +340,6 @@
   
   
 
-  </div>
 
 
           </div>
@@ -325,7 +347,7 @@
 
 <script>
   window.addEventListener('tabs:register', () => {
-    let activeClass = CONFIG.comments.activeClass;
+    let { activeClass } = CONFIG.comments;
     if (CONFIG.comments.storage) {
       activeClass = localStorage.getItem('comments_active') || activeClass;
     }
@@ -374,6 +396,8 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="bomo"
+      src="/images/avatar.png">
   <p class="site-author-name" itemprop="name">bomo</p>
   <div class="site-description" itemprop="description">懒人</div>
 </div>
@@ -382,42 +406,42 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
       </span>
       <span class="links-of-author-item">
-        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
       </span>
   </div>
 
@@ -437,19 +461,18 @@
       <div class="footer-inner">
         
 
+        
+
 <div class="copyright">
   
-  &copy; 
+  &copy; 2016 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">bomo</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
-  </div>
-  <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         
@@ -467,6 +490,8 @@
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 <script src="/js/utils.js"></script><script src="/js/motion.js"></script>

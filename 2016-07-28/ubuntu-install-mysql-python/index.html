@@ -13,11 +13,12 @@
 <link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="前几天弄了一年免费亚马逊VPS服务器，这里记录一下配置python的环境和安装一些常用的工具">
@@ -48,8 +49,9 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
-    isPost: true
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -84,6 +86,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -102,14 +105,12 @@
 
   <div class="site-meta">
 
-    <div>
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">bomo的开发随笔</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-        <p class="site-subtitle">记录工作学习点滴</p>
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
   </div>
 
   <div class="site-nav-right">
@@ -120,32 +121,33 @@
 </div>
 
 
+
+
 <nav class="site-nav">
-  
-  <ul id="menu" class="menu">
+  <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">9</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">60</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -153,16 +155,18 @@
         </a>
       </li>
   </ul>
-
 </nav>
-  <div class="site-search">
+
+
+
+  <div class="search-pop-overlay">
     <div class="popup search-popup">
-    <div class="search-header">
+        <div class="search-header">
   <span class="search-icon">
     <i class="fa fa-search"></i>
   </span>
   <div class="search-input-container">
-    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+    <input autocomplete="off" autocapitalize="off"
            placeholder="搜索..." spellcheck="false"
            type="search" class="search-input">
   </div>
@@ -170,12 +174,15 @@
     <i class="fa fa-times-circle"></i>
   </span>
 </div>
-<div id="search-result"></div>
-
-</div>
-<div class="search-pop-overlay"></div>
-
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
   </div>
+</div>
+
+    </div>
+  </div>
+
 </div>
     </header>
 
@@ -191,18 +198,17 @@
         <div class="content-wrap">
           
 
-          <div class="content">
+          <div class="content post posts-expand">
             
 
-  <div class="posts-expand">
-      
+    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-07-28/ubuntu-install-mysql-python/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.png">
       <meta itemprop="name" content="bomo">
       <meta itemprop="description" content="懒人">
     </span>
@@ -218,7 +224,7 @@
         <div class="post-meta">
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
 
@@ -226,7 +232,7 @@
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
+                <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -248,104 +254,104 @@
         <p>前几天弄了一年免费亚马逊VPS服务器，这里记录一下配置python的环境和安装一些常用的工具</p>
 <a id="more"></a>
 
-<h2 id="升级apt-get源"><a href="#升级apt-get源" class="headerlink" title="升级apt-get源"></a>升级apt-get源</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo apt-get update</span><br><span class="line">$ sudo apt-get upgrade</span><br></pre></td></tr></table></figure>
+<h2 id="升级apt-get源"><a href="#升级apt-get源" class="headerlink" title="升级apt-get源"></a>升级apt-get源</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get update</span><br><span class="line">$ sudo apt-get upgrade</span><br></pre></td></tr></table></figure>
 
 <h2 id="升级python"><a href="#升级python" class="headerlink" title="升级python"></a>升级python</h2><p>先看一下ubuntu自带的python的版本<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/56975859.jpg" alt><br>也可以通过<code>python --version</code>查看版本<br>自带的python版本为<code>2.7.6</code>，我们手动升级一下</p>
 <p>升级前可能需要安装<code>gcc</code>, <code>make</code>, <code>zlib</code>, <code>ssl</code></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 先更新一下源</span></span><br><span class="line">$ sudo apt-get update</span><br><span class="line">$ sudo apt-get install gcc</span><br><span class="line">$ sudo apt-get install make</span><br><span class="line">$ sudo apt-get install zlibc zlib1g-dev</span><br><span class="line">$ sudo apt-get install libssl-dev</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先更新一下源</span></span><br><span class="line">$ sudo apt-get update</span><br><span class="line">$ sudo apt-get install gcc</span><br><span class="line">$ sudo apt-get install make</span><br><span class="line">$ sudo apt-get install zlibc zlib1g-dev</span><br><span class="line">$ sudo apt-get install libssl-dev</span><br></pre></td></tr></table></figure>
 
 <p>升级python（安装到<code>/usr/local/lib/python2.7.12</code>）</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 下载最新版</span></span><br><span class="line">$ wget https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz</span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">$ tar zxvf Python-2.7.12.tgz</span><br><span class="line"><span class="comment"># 进入目录</span></span><br><span class="line">$ <span class="built_in">cd</span> Python-2.7.12/</span><br><span class="line"><span class="comment"># 配置，注意带zlib，否则zlib要自己独立安装</span></span><br><span class="line">$ sudo ./configure --prefix=/usr/<span class="built_in">local</span>/lib/python2.7.12 --with-zlib-dir=/usr/<span class="built_in">local</span>/lib</span><br><span class="line"><span class="comment"># 编译</span></span><br><span class="line">$ make</span><br><span class="line"><span class="comment"># 执行安装</span></span><br><span class="line">$ sudo make install</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载最新版</span></span><br><span class="line">$ wget https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz</span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">$ tar zxvf Python-2.7.12.tgz</span><br><span class="line"><span class="comment"># 进入目录</span></span><br><span class="line">$ <span class="built_in">cd</span> Python-2.7.12/</span><br><span class="line"><span class="comment"># 配置，注意带zlib，否则zlib要自己独立安装</span></span><br><span class="line">$ sudo ./configure --prefix=/usr/<span class="built_in">local</span>/lib/python2.7.12 --with-zlib-dir=/usr/<span class="built_in">local</span>/lib</span><br><span class="line"><span class="comment"># 编译</span></span><br><span class="line">$ make</span><br><span class="line"><span class="comment"># 执行安装</span></span><br><span class="line">$ sudo make install</span><br></pre></td></tr></table></figure>
 
 <p>linux中安装程序基本上是<code>./configure</code>-&gt;<code>make</code>-&gt;<code>make install</code>三部曲，安装后的文件存放在<code>/usr/local/bin/python2.7.12</code>，需要链接到执行文件，安装完后发现python还是原来的版本，通过<code>which</code>命令看一下python的路径</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">which</span> python</span><br><span class="line">/usr/bin/python</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">which</span> python</span><br><span class="line">/usr/bin/python</span><br></pre></td></tr></table></figure>
 
 <p>进入<code>/usr/bin/</code>目录我们修改一下python文件换成我们新的python执行文件，在终端输入<code>python2.7.9</code>可以进入刚安装的版本，但是太麻烦了，这个时候改一下默认版本（有些版本安装后会自动改）</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#  //对系统默认版本python进行操作，改名</span></span><br><span class="line">$ sudo mv /usr/bin/python /usr/bin/python_old</span><br><span class="line">$ sudo ln -s /usr/<span class="built_in">local</span>/lib/python2.7.12/bin/python /usr/bin/python</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#  //对系统默认版本python进行操作，改名</span></span><br><span class="line">$ sudo mv /usr/bin/python /usr/bin/python_old</span><br><span class="line">$ sudo ln -s /usr/<span class="built_in">local</span>/lib/python2.7.12/bin/python /usr/bin/python</span><br></pre></td></tr></table></figure>
 
 <p>到这里，我们就完成了python的升级，python安装在<code>/usr/local/lib/python2.7.12</code>目录下，python命令指向新的路径<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/66165983.jpg" alt></p>
 <h2 id="安装pip和easy-install"><a href="#安装pip和easy-install" class="headerlink" title="安装pip和easy_install"></a>安装pip和easy_install</h2><p><code>easy_install</code>和<code>pip</code>是python最常用的两个包管理工具，通过源码编译安装时，并不会没有带这两个工具（windows和mac通过安装包安装时会自动安装pip和easy_install）<br>安装<a href>easy_install</a></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ wget https://pypi.python.org/packages/1b/4f/e52b81c47396668deb139b628f4ebb499b3cd39fc05382851fa985d0b642/setuptools-24.3.0.tar.gz#md5=55d77ca2b1f783a71e330b0878da29ec</span><br><span class="line">$ tar zxvf setuptools-24.3.0.tar.gz</span><br><span class="line">$ cd setuptools-24.3.0</span><br><span class="line">$ python setup.py build</span><br><span class="line">$ sudo python setup.py install</span><br></pre></td></tr></table></figure>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>wget <span class="symbol">https:</span>/<span class="regexp">/pypi.python.org/packages</span><span class="regexp">/1b/</span><span class="number">4</span>f/e52b81c47396668deb139b628f4ebb499b3cd39fc05382851fa985d0b642/setuptools-<span class="number">24.3</span>.<span class="number">0</span>.tar.gz<span class="comment">#md5=55d77ca2b1f783a71e330b0878da29ec</span></span><br><span class="line"><span class="variable">$ </span>tar zxvf setuptools-<span class="number">24.3</span>.<span class="number">0</span>.tar.gz</span><br><span class="line"><span class="variable">$ </span>cd setuptools-<span class="number">24.3</span>.<span class="number">0</span></span><br><span class="line"><span class="variable">$ </span>python setup.py build</span><br><span class="line"><span class="variable">$ </span>sudo python setup.py install</span><br></pre></td></tr></table></figure>
 
 <p>安装pip</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ wget https://pypi.python.org/packages/e7/a8/7556133689add8d1a54c0b14aeff0acb03c64707ce100ecd53934da1aa13/pip-8.1.2.tar.gz<span class="comment">#md5=87083c0b9867963b29f7aba3613e8f4a</span></span><br><span class="line">$ tar zxvf pip-8.1.2.tar.gz</span><br><span class="line">$ <span class="built_in">cd</span> pip-8.1.2</span><br><span class="line">$ sudo python setup.py install</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://pypi.python.org/packages/e7/a8/7556133689add8d1a54c0b14aeff0acb03c64707ce100ecd53934da1aa13/pip-8.1.2.tar.gz<span class="comment">#md5=87083c0b9867963b29f7aba3613e8f4a</span></span><br><span class="line">$ tar zxvf pip-8.1.2.tar.gz</span><br><span class="line">$ <span class="built_in">cd</span> pip-8.1.2</span><br><span class="line">$ sudo python setup.py install</span><br></pre></td></tr></table></figure>
 
 <p>默认安装在<code>/usr/local/lib/python2.7.12/bin</code></p>
 <p>这个时候不能直接用<code>easy_install</code>和<code>pip</code>命令，我们创建一下链接</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo ln -s /usr/<span class="built_in">local</span>/lib/python2.7.12/bin/easy_install /usr/bin/easy_install</span><br><span class="line">$ sudo ln -s /usr/<span class="built_in">local</span>/lib/python2.7.12/bin/pip /usr/bin/pip</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo ln -s /usr/<span class="built_in">local</span>/lib/python2.7.12/bin/easy_install /usr/bin/easy_install</span><br><span class="line">$ sudo ln -s /usr/<span class="built_in">local</span>/lib/python2.7.12/bin/pip /usr/bin/pip</span><br></pre></td></tr></table></figure>
 
 <p>如果系统已经有了pip和easy_install，我们需要改成新版本的pip和easy_install，通过which查看当前的路径，处理方法与python一样</p>
 <p>删除原来的pip程序并链接新的pip程序</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># pip</span></span><br><span class="line">$ sudo mv /usr/bin/pip /usr/bin/pip_old</span><br><span class="line">$ sudo ln -s /usr/<span class="built_in">local</span>/python2.7.12/bin/pip /usr/bin/pip</span><br><span class="line"></span><br><span class="line"><span class="comment"># easy_install</span></span><br><span class="line">$ sudo mv /usr/bin/easy_install /usr/bin/easy_install_old</span><br><span class="line">$ sudo ln -s /usr/<span class="built_in">local</span>/lib/python2.7.12/bin/easy_install /usr/bin/easy_install</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pip</span></span><br><span class="line">$ sudo mv /usr/bin/pip /usr/bin/pip_old</span><br><span class="line">$ sudo ln -s /usr/<span class="built_in">local</span>/python2.7.12/bin/pip /usr/bin/pip</span><br><span class="line"></span><br><span class="line"><span class="comment"># easy_install</span></span><br><span class="line">$ sudo mv /usr/bin/easy_install /usr/bin/easy_install_old</span><br><span class="line">$ sudo ln -s /usr/<span class="built_in">local</span>/lib/python2.7.12/bin/easy_install /usr/bin/easy_install</span><br></pre></td></tr></table></figure>
 
-<h2 id="安装virtualenv"><a href="#安装virtualenv" class="headerlink" title="安装virtualenv"></a>安装virtualenv</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo pip install virtualenv</span><br></pre></td></tr></table></figure>
+<h2 id="安装virtualenv"><a href="#安装virtualenv" class="headerlink" title="安装virtualenv"></a>安装virtualenv</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pip install virtualenv</span><br></pre></td></tr></table></figure>
 
-<h2 id="安装flask"><a href="#安装flask" class="headerlink" title="安装flask"></a>安装flask</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># flask依赖ssl库，需要先安装下面两个工具</span><br><span class="line">$ sudo apt-get install openssl</span><br><span class="line">$ sudo apt-get install libssl-dev</span><br><span class="line"></span><br><span class="line">$ sudo pip install flask</span><br></pre></td></tr></table></figure>
+<h2 id="安装flask"><a href="#安装flask" class="headerlink" title="安装flask"></a>安装flask</h2><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># flask依赖ssl库，需要先安装下面两个工具</span></span><br><span class="line">$ sudo apt-<span class="builtin-name">get</span> install openssl</span><br><span class="line">$ sudo apt-<span class="builtin-name">get</span> install libssl-dev</span><br><span class="line"></span><br><span class="line">$ sudo pip install flask</span><br></pre></td></tr></table></figure>
 
 <h2 id="安装mysql"><a href="#安装mysql" class="headerlink" title="安装mysql"></a>安装mysql</h2><p>使用下面命令检查是否安装过，如果没有任何输出，说明没有安装</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo netstat -tap | grep mysql</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo netstat -tap | grep mysql</span><br></pre></td></tr></table></figure>
 
 <p>安装<code>mysql-server</code>, <code>mysql-client</code></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo apt-get install mysql-server mysql-client</span><br><span class="line">$ sudo apt-get install libmysqlclient-dev</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install mysql-server mysql-client</span><br><span class="line">$ sudo apt-get install libmysqlclient-dev</span><br></pre></td></tr></table></figure>
 
 <p>安装过程会让你输入<code>root</code>用户的密码，输入后按<code>Tap</code>键下一步<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/17932531.jpg" alt></p>
 <p>安装完成，测试是否成功安装（成功）<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/41329824.jpg" alt></p>
 <p>登陆看看</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ mysql -u root -p</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -u root -p</span><br></pre></td></tr></table></figure>
 
 <p>然后输入密码，ok<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/96881626.jpg" alt></p>
 <p>创建数据库</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">CREATE DATABASE IF NOT EXISTS TestDb DEFAULT CHARSET utf8 COLLATE utf8_general_ci;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE DATABASE IF NOT EXISTS TestDb DEFAULT CHARSET utf8 COLLATE utf8_general_ci;</span><br></pre></td></tr></table></figure>
 
 <p><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-7-28/44504183.jpg" alt></p>
 <p>查看所有数据库</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mysql&gt; show databases;</span><br><span class="line">+--------------------+</span><br><span class="line">| Database           |</span><br><span class="line">+--------------------+</span><br><span class="line">| information_schema |</span><br><span class="line">| TestDb             |</span><br><span class="line">| mysql              |</span><br><span class="line">| performance_schema |</span><br><span class="line">+--------------------+</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show databases;</span><br><span class="line">+--------------------+</span><br><span class="line">| Database           |</span><br><span class="line">+--------------------+</span><br><span class="line">| information_schema |</span><br><span class="line">| TestDb             |</span><br><span class="line">| mysql              |</span><br><span class="line">| performance_schema |</span><br><span class="line">+--------------------+</span><br></pre></td></tr></table></figure>
 
 <p>使用数据库</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mysql&gt; use TestDb</span><br><span class="line">Database changed</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; use TestDb</span><br><span class="line">Database changed</span><br></pre></td></tr></table></figure>
 
-<h2 id="安装MySQL-python库"><a href="#安装MySQL-python库" class="headerlink" title="安装MySQL-python库"></a>安装MySQL-python库</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo pip install MySQL-python</span><br></pre></td></tr></table></figure>
+<h2 id="安装MySQL-python库"><a href="#安装MySQL-python库" class="headerlink" title="安装MySQL-python库"></a>安装MySQL-python库</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pip install MySQL-python</span><br></pre></td></tr></table></figure>
 
 <p>使用</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> MySQLdb</span><br><span class="line"></span><br><span class="line">conn = MySQLdb.connect(host=<span class="string">"127.0.0.1"</span>, user=<span class="string">"root"</span>, passwd=<span class="string">"111111"</span>, db=<span class="string">"PaiPaiDai"</span>, charset=<span class="string">"utf8"</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> MySQLdb</span><br><span class="line"></span><br><span class="line">conn = MySQLdb.connect(host=<span class="string">"127.0.0.1"</span>, user=<span class="string">"root"</span>, passwd=<span class="string">"111111"</span>, db=<span class="string">"PaiPaiDai"</span>, charset=<span class="string">"utf8"</span>)</span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p>如果没有安装<code>libmysqlclient-dev</code>，安装过程中可能会出现下面错误</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sh: 1: mysql_config: not found</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;string&gt;"</span>, line 1, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">  File <span class="string">"/tmp/pip-build-IMiD72/MySQL-python/setup.py"</span>, line 17, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    metadata, options = get_config()</span><br><span class="line">  File <span class="string">"/tmp/pip-build-IMiD72/MySQL-python/setup_posix.py"</span>, line 43, <span class="keyword">in</span> get_config</span><br><span class="line">    libs = mysql_config(<span class="string">"libs_r"</span>)</span><br><span class="line">  File <span class="string">"/tmp/pip-build-IMiD72/MySQL-python/setup_posix.py"</span>, line 25, <span class="keyword">in</span> mysql_config</span><br><span class="line">    raise EnvironmentError(<span class="string">"%s not found"</span> % (mysql_config.path,))</span><br><span class="line">EnvironmentError: mysql_config not found</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sh: 1: mysql_config: not found</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;string&gt;"</span>, line 1, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">  File <span class="string">"/tmp/pip-build-IMiD72/MySQL-python/setup.py"</span>, line 17, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    metadata, options = get_config()</span><br><span class="line">  File <span class="string">"/tmp/pip-build-IMiD72/MySQL-python/setup_posix.py"</span>, line 43, <span class="keyword">in</span> get_config</span><br><span class="line">    libs = mysql_config(<span class="string">"libs_r"</span>)</span><br><span class="line">  File <span class="string">"/tmp/pip-build-IMiD72/MySQL-python/setup_posix.py"</span>, line 25, <span class="keyword">in</span> mysql_config</span><br><span class="line">    raise EnvironmentError(<span class="string">"%s not found"</span> % (mysql_config.path,))</span><br><span class="line">EnvironmentError: mysql_config not found</span><br></pre></td></tr></table></figure>
 
 <h2 id="安装lxml"><a href="#安装lxml" class="headerlink" title="安装lxml"></a>安装lxml</h2><p>安装前需要先安装几个依赖包</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo apt-get install libxml2 libxml2-dev</span><br><span class="line">$ sudo apt-get install libxslt1-dev</span><br><span class="line">$ sudo apt-get install python-libxml2</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install libxml2 libxml2-dev</span><br><span class="line">$ sudo apt-get install libxslt1-dev</span><br><span class="line">$ sudo apt-get install python-libxml2</span><br></pre></td></tr></table></figure>
 
 <p>安装lxml（安装可能需要几分钟）</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo pip install lxml</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pip install lxml</span><br></pre></td></tr></table></figure>
 
 <p>参考：<a href="http://lxml.de/installation.html" target="_blank" rel="noopener">http://lxml.de/installation.html</a></p>
 <h2 id="安装scrapy"><a href="#安装scrapy" class="headerlink" title="安装scrapy"></a>安装scrapy</h2><p>安装scrapy前需要安装依赖<code>Twisted</code></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ wget https://pypi.python.org/packages/c0/7c/c1e5b61e30b7ffc96576d2a922615c8068e6996a622be813fc626cef07aa/Twisted-16.3.0.tar.bz2<span class="comment">#md5=e044af844623e9fbcbe29f578db6053a</span></span><br><span class="line">$ tar xjf Twisted-16.3.0.tar.bz2</span><br><span class="line">$ <span class="built_in">cd</span> Twisted-16.3.0</span><br><span class="line">$ sudo python setup.py install</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://pypi.python.org/packages/c0/7c/c1e5b61e30b7ffc96576d2a922615c8068e6996a622be813fc626cef07aa/Twisted-16.3.0.tar.bz2<span class="comment">#md5=e044af844623e9fbcbe29f578db6053a</span></span><br><span class="line">$ tar xjf Twisted-16.3.0.tar.bz2</span><br><span class="line">$ <span class="built_in">cd</span> Twisted-16.3.0</span><br><span class="line">$ sudo python setup.py install</span><br></pre></td></tr></table></figure>
 
 <p>安装完成后再安装scrapy</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo pip install scrapy</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pip install scrapy</span><br></pre></td></tr></table></figure>
 
 <p>入门教程：<a href="https://scrapy-chs.readthedocs.io/zh_CN/0.24/intro/tutorial.html" target="_blank" rel="noopener">https://scrapy-chs.readthedocs.io/zh_CN/0.24/intro/tutorial.html</a></p>
 <h2 id="安装requests库"><a href="#安装requests库" class="headerlink" title="安装requests库"></a>安装requests库</h2><p>让你从痛苦的<code>urllib</code>中解脱</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo pip install requests</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pip install requests</span><br></pre></td></tr></table></figure>
 
 <p>详细介绍：<a href="http://cn.python-requests.org/zh_CN/latest/" target="_blank" rel="noopener">http://cn.python-requests.org/zh_CN/latest/</a></p>
-<h2 id="安装git"><a href="#安装git" class="headerlink" title="安装git"></a>安装git</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo apt-get install git</span><br></pre></td></tr></table></figure>
+<h2 id="安装git"><a href="#安装git" class="headerlink" title="安装git"></a>安装git</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install git</span><br></pre></td></tr></table></figure>
 
-<h2 id="安装nginx"><a href="#安装nginx" class="headerlink" title="安装nginx"></a>安装nginx</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 添加Nginx库到apt-get source中</span></span><br><span class="line">$ sudo add-apt-repository ppa:nginx/stable</span><br><span class="line"><span class="comment"># 更新apt源</span></span><br><span class="line">$ sudo apt-get update &amp;&amp; sudo apt-get upgrade</span><br><span class="line"><span class="comment"># 安装nginx</span></span><br><span class="line">$ sudo apt-get install nginx</span><br></pre></td></tr></table></figure>
+<h2 id="安装nginx"><a href="#安装nginx" class="headerlink" title="安装nginx"></a>安装nginx</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加Nginx库到apt-get source中</span></span><br><span class="line">$ sudo add-apt-repository ppa:nginx/stable</span><br><span class="line"><span class="comment"># 更新apt源</span></span><br><span class="line">$ sudo apt-get update &amp;&amp; sudo apt-get upgrade</span><br><span class="line"><span class="comment"># 安装nginx</span></span><br><span class="line">$ sudo apt-get install nginx</span><br></pre></td></tr></table></figure>
 
 <p>启动</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo /etc/init.d/nginx start</span><br><span class="line">start: Job is already running: nginx</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo /etc/init.d/nginx start</span><br><span class="line">start: Job is already running: nginx</span><br></pre></td></tr></table></figure>
 
 <p>启动后可以通过ip可以正常访问<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-11-1/68380067.jpg" alt="nginx"></p>
 <h2 id="ubuntu使用技巧"><a href="#ubuntu使用技巧" class="headerlink" title="ubuntu使用技巧"></a>ubuntu使用技巧</h2><h3 id="1-vim退出不保存"><a href="#1-vim退出不保存" class="headerlink" title="1. vim退出不保存"></a>1. vim退出不保存</h3><p>有时候使用vim编辑系统文件的时候，由于没有权限无法保存，又无法退出，只用<code>:q!</code>可以不保存退出</p>
 <h3 id="2-开启crontab日志"><a href="#2-开启crontab日志" class="headerlink" title="2. 开启crontab日志"></a>2. 开启crontab日志</h3><p>默认定时任务crontab是不开启日志的，需要修改<code>/etc/rsyslog.d/50-default.conf</code>并将下面一行的前面的注释<code>#</code>去掉（编辑的时候需要<code>sudo</code>权限）</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># cron.*                          /var/log/cron.log</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># cron.*                          /var/log/cron.log</span><br></pre></td></tr></table></figure>
 
 <p>然后重启<code>rsyslog</code>和<code>cron</code>服务</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ service rsyslog restart;</span><br><span class="line">$ service cron restart;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ service rsyslog restart;</span><br><span class="line">$ service cron restart;</span><br></pre></td></tr></table></figure>
 
 <!-- ##
 
@@ -361,7 +367,7 @@ sudo add-apt-repository ppa:nginx/stable
 
 升级已有的包，确保系统上有uWSGI所需的编译器和工具：
 
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo apt-get update &amp;&amp; sudo apt-get upgrade</span><br><span class="line">$ sudo apt-get install build-essential python python-dev</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get update &amp;&amp; sudo apt-get upgrade</span><br><span class="line">$ sudo apt-get install build-essential python python-dev</span><br></pre></td></tr></table></figure>
 
 <p>安装Yum<br>$ sudo apt-get yum<br>$ yum -y install vixie-cron –&gt;</p>
 -->
@@ -370,6 +376,23 @@ sudo add-apt-repository ppa:nginx/stable
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>bomo
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2016-07-28/ubuntu-install-mysql-python/" title="ubuntu安装mysql和python">http://zhengbomo.github.io/2016-07-28/ubuntu-install-mysql-python/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -397,7 +420,6 @@ sudo add-apt-repository ppa:nginx/stable
   
   
 
-  </div>
 
 
           </div>
@@ -405,7 +427,7 @@ sudo add-apt-repository ppa:nginx/stable
 
 <script>
   window.addEventListener('tabs:register', () => {
-    let activeClass = CONFIG.comments.activeClass;
+    let { activeClass } = CONFIG.comments;
     if (CONFIG.comments.storage) {
       activeClass = localStorage.getItem('comments_active') || activeClass;
     }
@@ -454,6 +476,8 @@ sudo add-apt-repository ppa:nginx/stable
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="bomo"
+      src="/images/avatar.png">
   <p class="site-author-name" itemprop="name">bomo</p>
   <div class="site-description" itemprop="description">懒人</div>
 </div>
@@ -462,42 +486,42 @@ sudo add-apt-repository ppa:nginx/stable
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
       </span>
       <span class="links-of-author-item">
-        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
       </span>
   </div>
 
@@ -517,19 +541,18 @@ sudo add-apt-repository ppa:nginx/stable
       <div class="footer-inner">
         
 
+        
+
 <div class="copyright">
   
-  &copy; 
+  &copy; 2016 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">bomo</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
-  </div>
-  <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         
@@ -547,6 +570,8 @@ sudo add-apt-repository ppa:nginx/stable
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 <script src="/js/utils.js"></script><script src="/js/motion.js"></script>

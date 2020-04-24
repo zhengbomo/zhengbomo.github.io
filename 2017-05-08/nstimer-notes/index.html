@@ -13,11 +13,12 @@
 <link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="NSTimer是iOS最常用的定时器工具之一，在使用的时候常常会遇到各种各样的问题，最常见的是内存泄漏，通常我们使用NSTimer的一般流程是这样的  在ViewController初始化或加载的地方创建NSTimer，并且通过属性持有（为了关闭） 在ViewController的dealloc方法关闭定时器（invalidate），并且把NSTimer置为nil  上面做法可能会造成内存泄漏，i">
@@ -40,8 +41,9 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
-    isPost: true
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -76,6 +78,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -94,14 +97,12 @@
 
   <div class="site-meta">
 
-    <div>
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">bomo的开发随笔</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-        <p class="site-subtitle">记录工作学习点滴</p>
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
   </div>
 
   <div class="site-nav-right">
@@ -112,32 +113,33 @@
 </div>
 
 
+
+
 <nav class="site-nav">
-  
-  <ul id="menu" class="menu">
+  <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">9</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">60</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -145,16 +147,18 @@
         </a>
       </li>
   </ul>
-
 </nav>
-  <div class="site-search">
+
+
+
+  <div class="search-pop-overlay">
     <div class="popup search-popup">
-    <div class="search-header">
+        <div class="search-header">
   <span class="search-icon">
     <i class="fa fa-search"></i>
   </span>
   <div class="search-input-container">
-    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+    <input autocomplete="off" autocapitalize="off"
            placeholder="搜索..." spellcheck="false"
            type="search" class="search-input">
   </div>
@@ -162,12 +166,15 @@
     <i class="fa fa-times-circle"></i>
   </span>
 </div>
-<div id="search-result"></div>
-
-</div>
-<div class="search-pop-overlay"></div>
-
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
   </div>
+</div>
+
+    </div>
+  </div>
+
 </div>
     </header>
 
@@ -183,18 +190,17 @@
         <div class="content-wrap">
           
 
-          <div class="content">
+          <div class="content post posts-expand">
             
 
-  <div class="posts-expand">
-      
+    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2017-05-08/nstimer-notes/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.png">
       <meta itemprop="name" content="bomo">
       <meta itemprop="description" content="懒人">
     </span>
@@ -210,7 +216,7 @@
         <div class="post-meta">
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
 
@@ -218,7 +224,7 @@
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
+                <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -254,10 +260,10 @@
 <p><code>scheduledTimerWithTimeInterval</code>除了构造timer，还会把timer添加到当前线程的runloop，所以我们通常使用<code>scheduledTimerWithTimeInterval</code>构造NSTimer而不是<code>timerWithTimeInterval</code></p>
 <ol>
 <li><p>没有添加到runloop的timer，调用fire的时候会直接触发，并且只触发一次（如果repeat:YES）</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line"></span><br><span class="line">    [<span class="keyword">self</span> timer1];</span><br><span class="line">    <span class="comment">//[self timer2];</span></span><br><span class="line">    <span class="comment">//[self timer3];</span></span><br><span class="line">    <span class="comment">//[self timer4];</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)timer1 &#123;</span><br><span class="line">    <span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">    <span class="comment">// 不会触发</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)timer2 &#123;</span><br><span class="line">    <span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">    <span class="comment">// 正常触发</span></span><br><span class="line">    [[<span class="built_in">NSRunLoop</span> currentRunLoop] addTimer:<span class="keyword">self</span>.timer forMode:<span class="built_in">NSDefaultRunLoopMode</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">IBAction</span>)invalidate:(<span class="keyword">id</span>)sender &#123;</span><br><span class="line">    [<span class="keyword">self</span>.timer invalidate];</span><br><span class="line">    <span class="keyword">self</span>.timer = <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)timerTest:(<span class="built_in">NSObject</span> *)obj &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"time fire"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line"></span><br><span class="line">    [<span class="keyword">self</span> timer1];</span><br><span class="line">    <span class="comment">//[self timer2];</span></span><br><span class="line">    <span class="comment">//[self timer3];</span></span><br><span class="line">    <span class="comment">//[self timer4];</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)timer1 &#123;</span><br><span class="line">    <span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">    <span class="comment">// 不会触发</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)timer2 &#123;</span><br><span class="line">    <span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">    <span class="comment">// 正常触发</span></span><br><span class="line">    [[<span class="built_in">NSRunLoop</span> currentRunLoop] addTimer:<span class="keyword">self</span>.timer forMode:<span class="built_in">NSDefaultRunLoopMode</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">IBAction</span>)invalidate:(<span class="keyword">id</span>)sender &#123;</span><br><span class="line">    [<span class="keyword">self</span>.timer invalidate];</span><br><span class="line">    <span class="keyword">self</span>.timer = <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)timerTest:(<span class="built_in">NSObject</span> *)obj &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"time fire"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>如果使用<code>timerWithTimeInterval</code>或<code>initWithFireDate</code>构造，需要手动添加到runloop上，使用<code>scheduledTimerWithTimeInterval</code>则不需要</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)timer3 &#123;</span><br><span class="line">    <span class="keyword">self</span>.timer = [[<span class="built_in">NSTimer</span> alloc] initWithFireDate:[<span class="built_in">NSDate</span> dateWithTimeIntervalSinceNow:<span class="number">3</span>] interval:<span class="number">3</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">    <span class="comment">// 需要添加到runloop才能触发</span></span><br><span class="line">    [[<span class="built_in">NSRunLoop</span> currentRunLoop] addTimer:<span class="keyword">self</span>.timer forMode:<span class="built_in">NSDefaultRunLoopMode</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)timer4 &#123;</span><br><span class="line">    <span class="comment">// 自动添加到runloop</span></span><br><span class="line">    <span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> scheduledTimerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)timer3 &#123;</span><br><span class="line">    <span class="keyword">self</span>.timer = [[<span class="built_in">NSTimer</span> alloc] initWithFireDate:[<span class="built_in">NSDate</span> dateWithTimeIntervalSinceNow:<span class="number">3</span>] interval:<span class="number">3</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">    <span class="comment">// 需要添加到runloop才能触发</span></span><br><span class="line">    [[<span class="built_in">NSRunLoop</span> currentRunLoop] addTimer:<span class="keyword">self</span>.timer forMode:<span class="built_in">NSDefaultRunLoopMode</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)timer4 &#123;</span><br><span class="line">    <span class="comment">// 自动添加到runloop</span></span><br><span class="line">    <span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> scheduledTimerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 </li>
 </ol>
@@ -279,38 +285,38 @@
 </ul>
 <p>当timer添加到主线程的runloop时，某些UI事件（如：UIScrollView的拖动操作）会将runloop切换到<code>NSEventTrackingRunLoopMode</code>模式下，在这个模式下，<code>NSDefaultRunLoopMode</code>模式注册的事件是不会被执行的，也就是通过<code>scheduledTimerWithTimeInterval</code>方法添加到runloop的NSTimer这时候是不会被执行的</p>
 <p>为了让NSTimer不被UI事件干扰，我们需要将注册到runloop的timer的mode设为<code>NSRunLoopCommonModes</code>，这个模式等效于NSDefaultRunLoopMode和NSEventTrackingRunLoopMode的结合</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 主线程</span></span><br><span class="line"><span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">[[<span class="built_in">NSRunLoop</span> currentRunLoop] addTimer:<span class="keyword">self</span>.timer forMode:<span class="built_in">NSRunLoopCommonModes</span>];</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 主线程</span></span><br><span class="line"><span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">[[<span class="built_in">NSRunLoop</span> currentRunLoop] addTimer:<span class="keyword">self</span>.timer forMode:<span class="built_in">NSRunLoopCommonModes</span>];</span><br></pre></td></tr></table></figure>
 
 <h2 id="4-循环引用"><a href="#4-循环引用" class="headerlink" title="4. 循环引用"></a>4. 循环引用</h2><p>循环引用是最经常遇到的问题之一</p>
 <ul>
 <li><p>NSTimer在构造函数会对target强引用，在调用<code>invalidate</code>时，会移除去target的强引用</p>
-  <figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)<span class="keyword">self</span>));</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSTimer</span> *timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="string">@"ghi"</span> repeats:<span class="literal">YES</span>];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)<span class="keyword">self</span>));</span><br><span class="line"></span><br><span class="line">[timer invalidate];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)<span class="keyword">self</span>));</span><br></pre></td></tr></table></figure>
+  <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)<span class="keyword">self</span>));</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSTimer</span> *timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="string">@"ghi"</span> repeats:<span class="literal">YES</span>];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)<span class="keyword">self</span>));</span><br><span class="line"></span><br><span class="line">[timer invalidate];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)<span class="keyword">self</span>));</span><br></pre></td></tr></table></figure>
 
 <p>  输出如下</p>
-  <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">2017-05-09 10:41:45.071 NSTimerTest[6861:914021] Retain count is 6</span><br><span class="line">2017-05-09 10:41:46.056 NSTimerTest[6861:914021] Retain count is 7</span><br><span class="line">2017-05-09 10:41:47.848 NSTimerTest[6861:914021] Retain count is 6</span><br></pre></td></tr></table></figure>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2017-05-09 10:41:45.071 NSTimerTest[6861:914021] Retain count is 6</span><br><span class="line">2017-05-09 10:41:46.056 NSTimerTest[6861:914021] Retain count is 7</span><br><span class="line">2017-05-09 10:41:47.848 NSTimerTest[6861:914021] Retain count is 6</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>NSTimer被加到Runloop的时候，会被runloop强引用持有，在调用invalidate的时候，会从runloop删除</p>
-  <figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSTimer</span> *timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="string">@"ghi"</span> repeats:<span class="literal">YES</span>];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)timer));</span><br><span class="line"></span><br><span class="line">[[<span class="built_in">NSRunLoop</span> currentRunLoop] addTimer:timer forMode:<span class="built_in">NSDefaultRunLoopMode</span>];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)timer));</span><br><span class="line"></span><br><span class="line">[timer invalidate];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)timer));</span><br></pre></td></tr></table></figure>
+  <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSTimer</span> *timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="string">@"ghi"</span> repeats:<span class="literal">YES</span>];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)timer));</span><br><span class="line"></span><br><span class="line">[[<span class="built_in">NSRunLoop</span> currentRunLoop] addTimer:timer forMode:<span class="built_in">NSDefaultRunLoopMode</span>];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)timer));</span><br><span class="line"></span><br><span class="line">[timer invalidate];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"Retain count is %ld"</span>, <span class="built_in">CFGetRetainCount</span>((__bridge <span class="built_in">CFTypeRef</span>)timer));</span><br></pre></td></tr></table></figure>
 
 <p>  输出如下</p>
-  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">2017-05-09 09:37:30.573 NSTimerTest[6505:883666] Retain count is 1</span><br><span class="line">2017-05-09 09:37:33.177 NSTimerTest[6505:883666] Retain count is 2</span><br><span class="line">2017-05-09 09:38:19.111 NSTimerTest[6505:883666] Retain count is 1</span><br></pre></td></tr></table></figure>
+  <figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2017</span><span class="number">-05</span><span class="number">-09</span> <span class="number">09</span>:<span class="number">37</span>:<span class="number">30.573</span> NSTimerTest[<span class="number">6505</span>:<span class="number">883666</span>] Retain count <span class="keyword">is</span> <span class="number">1</span></span><br><span class="line"><span class="number">2017</span><span class="number">-05</span><span class="number">-09</span> <span class="number">09</span>:<span class="number">37</span>:<span class="number">33.177</span> NSTimerTest[<span class="number">6505</span>:<span class="number">883666</span>] Retain count <span class="keyword">is</span> <span class="number">2</span></span><br><span class="line"><span class="number">2017</span><span class="number">-05</span><span class="number">-09</span> <span class="number">09</span>:<span class="number">38</span>:<span class="number">19.111</span> NSTimerTest[<span class="number">6505</span>:<span class="number">883666</span>] Retain count <span class="keyword">is</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>当定时器是不重复的（repeat=NO），在<strong>执行完</strong>触发函数后，会自动调用<code>invalidate</code>解除runloop的注册和接触对target的强引用</p>
 </li>
 </ul>
 <p>由于NSTimer被加到runloop的时候会被runloop强引用，故如果使用<code>scheduledTimerWithTimeInterval</code>构造函数时，我们可以在viewcontroller使用<code>weak</code>引用NSTimer</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">weak</span>) <span class="built_in">NSTimer</span> *timer;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 由于timer会被当前线程的runloop持有，故可以使用weak引用，而当调用invalidate时，self.timer会被自动置为nil</span></span><br><span class="line">    <span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> scheduledTimerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 或者</span></span><br><span class="line">    <span class="built_in">NSTimer</span> *timer2 = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">    [[<span class="built_in">NSRunLoop</span> currentRunLoop] addTimer:timer2 forMode:<span class="built_in">NSDefaultRunLoopMode</span>];</span><br><span class="line">    <span class="keyword">self</span>.timer = timer;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">weak</span>) <span class="built_in">NSTimer</span> *timer;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 由于timer会被当前线程的runloop持有，故可以使用weak引用，而当调用invalidate时，self.timer会被自动置为nil</span></span><br><span class="line">    <span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> scheduledTimerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 或者</span></span><br><span class="line">    <span class="built_in">NSTimer</span> *timer2 = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line">    [[<span class="built_in">NSRunLoop</span> currentRunLoop] addTimer:timer2 forMode:<span class="built_in">NSDefaultRunLoopMode</span>];</span><br><span class="line">    <span class="keyword">self</span>.timer = timer;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>所以通常我们不能在<code>dealloc</code>方法让<code>[timer invalidate]</code>, 因为timer在invalidate之前，会引用self（通常是ViewController），导致self无法释放，可以在<code>viewDidDisappear</code>或显式调用timer的<code>invalidate</code>方法</p>
 <blockquote>
 <p>invalidate是唯一让timer从runloop删除的方法，也是唯一去除对target强引用的方法</p>
 </blockquote>
 <h2 id="5-多线程"><a href="#5-多线程" class="headerlink" title="5. 多线程"></a>5. 多线程</h2><p>如果我们不在主线程使用Timer的时候，即使我们把timer添加到runloop，也不能被触发，因为主线程的runloop默认是开启的，而其他线程的runloop默认没有实现runloop，并且在后台线程使用NSTimer不能通过fire启动定时器，只能通过runloop不断的运行下去</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用新线程</span></span><br><span class="line">    [<span class="built_in">NSThread</span> detachNewThreadSelector:<span class="keyword">@selector</span>(startNewThread) toTarget:<span class="keyword">self</span> withObject:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)startNewThread &#123;</span><br><span class="line">    <span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加到runloop</span></span><br><span class="line">    <span class="built_in">NSRunLoop</span> *runLoop = [<span class="built_in">NSRunLoop</span> currentRunLoop];</span><br><span class="line">    [runLoop addTimer:<span class="keyword">self</span>.timer forMode:<span class="built_in">NSDefaultRunLoopMode</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 非主线程需要手动运行runloop，run方法会阻塞，直到没有输入源的时候返回（例如：timer从runloop中移除，invalidate）</span></span><br><span class="line">    [runLoop run]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用新线程</span></span><br><span class="line">    [<span class="built_in">NSThread</span> detachNewThreadSelector:<span class="keyword">@selector</span>(startNewThread) toTarget:<span class="keyword">self</span> withObject:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)startNewThread &#123;</span><br><span class="line">    <span class="keyword">self</span>.timer = [<span class="built_in">NSTimer</span> timerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加到runloop</span></span><br><span class="line">    <span class="built_in">NSRunLoop</span> *runLoop = [<span class="built_in">NSRunLoop</span> currentRunLoop];</span><br><span class="line">    [runLoop addTimer:<span class="keyword">self</span>.timer forMode:<span class="built_in">NSDefaultRunLoopMode</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 非主线程需要手动运行runloop，run方法会阻塞，直到没有输入源的时候返回（例如：timer从runloop中移除，invalidate）</span></span><br><span class="line">    [runLoop run]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="6-NSTimer准确性"><a href="#6-NSTimer准确性" class="headerlink" title="6. NSTimer准确性"></a>6. NSTimer准确性</h2><p>通常我们使用NSTimer的时候都是在主线程使用的，主线程负责很多复杂的操作，例如UI处理，UI时间响应，并且iOS上的主线程是优先响应UI事件的，而NSTimer的优先级较低，有时候NSTimer的触发并不准确，例如当我们在滑动UIScrollView的时候，NSTimer就会延迟触发，主线优先响应UI的操作，只有UIScrollView停止了才触发NSTimer的事件<br>解决方案<br>NSTimer加入到runloop默认的Mode为<code>NSDefaultRunLoopMode</code>， 我们需要手动设置Mode为<code>NSRunLoopCommonModes</code><br>这时候，NSTimer即使在UI持续操作过程中也能得到触发，当然，会降低流畅度</p>
 <p>NSTimer触发是不精确的，如果由于某些原因错过了触发时间，例如执行了一个长时间的任务，那么NSTimer不会延后执行，而是会等下一次触发，相当于等公交错过了，只能等下一趟车，<code>tolerance</code>属性可以设置误差范围</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSTimer</span> *timer = [<span class="built_in">NSTimer</span> scheduledTimerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line"><span class="comment">// 误差范围1s内</span></span><br><span class="line">timer.tolerance = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSTimer</span> *timer = [<span class="built_in">NSTimer</span> scheduledTimerWithTimeInterval:<span class="number">2</span> target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerTest:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</span><br><span class="line"><span class="comment">// 误差范围1s内</span></span><br><span class="line">timer.tolerance = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p>如果对精度有要求，可以使用GCD的定时器</p>
@@ -325,7 +331,7 @@
 <p>第一种控制起来比较麻烦，通常建议手动控制，不在后台触发计时</p>
 <h2 id="9-performSelector"><a href="#9-performSelector" class="headerlink" title="9. performSelector"></a>9. performSelector</h2><p>NSObject对象有一个<code>performSelector</code>可以用于延迟执行一个方法，其实该方法内部是启用一个Timer并添加到当前线程的runloop，原理与NSTimer一样，所以在非主线程使用的时候，需要保证线程的runloop是运行的，否则不会得到执行</p>
 <p>如下</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line"></span><br><span class="line">    [<span class="built_in">NSThread</span> detachNewThreadSelector:<span class="keyword">@selector</span>(startNewThread) toTarget:<span class="keyword">self</span> withObject:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)startNewThread &#123;</span><br><span class="line">    <span class="comment">// test方法不会触发，因为runloop默认不开启</span></span><br><span class="line">    [<span class="keyword">self</span> performSelector:<span class="keyword">@selector</span>(test) withObject:<span class="literal">nil</span> afterDelay:<span class="number">1</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)test &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"test trigger"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line"></span><br><span class="line">    [<span class="built_in">NSThread</span> detachNewThreadSelector:<span class="keyword">@selector</span>(startNewThread) toTarget:<span class="keyword">self</span> withObject:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)startNewThread &#123;</span><br><span class="line">    <span class="comment">// test方法不会触发，因为runloop默认不开启</span></span><br><span class="line">    [<span class="keyword">self</span> performSelector:<span class="keyword">@selector</span>(test) withObject:<span class="literal">nil</span> afterDelay:<span class="number">1</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)test &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"test trigger"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="10-总结"><a href="#10-总结" class="headerlink" title="10. 总结"></a>10. 总结</h2><p>总的来说使用NSTimer有两点需要注意</p>
 <ol>
@@ -340,6 +346,23 @@
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>bomo
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2017-05-08/nstimer-notes/" title="NSTimer学习笔记">http://zhengbomo.github.io/2017-05-08/nstimer-notes/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -367,7 +390,6 @@
   
   
 
-  </div>
 
 
           </div>
@@ -375,7 +397,7 @@
 
 <script>
   window.addEventListener('tabs:register', () => {
-    let activeClass = CONFIG.comments.activeClass;
+    let { activeClass } = CONFIG.comments;
     if (CONFIG.comments.storage) {
       activeClass = localStorage.getItem('comments_active') || activeClass;
     }
@@ -424,6 +446,8 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="bomo"
+      src="/images/avatar.png">
   <p class="site-author-name" itemprop="name">bomo</p>
   <div class="site-description" itemprop="description">懒人</div>
 </div>
@@ -432,42 +456,42 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/zhengbomo" title="GitHub → https://github.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>Email</a>
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https://twitter.com/intent/user?user_id=371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>Facebook</a>
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http://facebook.com/zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
       </span>
       <span class="links-of-author-item">
-        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>QQ</a>
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent://message/?uin=449179249&Site=&Menu=yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
       </span>
       <span class="links-of-author-item">
-        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+        <a href="http://weibo.com/1891587992" title="Weibo → http://weibo.com/1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
       </span>
   </div>
 
@@ -487,19 +511,18 @@
       <div class="footer-inner">
         
 
+        
+
 <div class="copyright">
   
-  &copy; 
+  &copy; 2016 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">bomo</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
-  </div>
-  <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         
@@ -517,6 +540,8 @@
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 <script src="/js/utils.js"></script><script src="/js/motion.js"></script>
