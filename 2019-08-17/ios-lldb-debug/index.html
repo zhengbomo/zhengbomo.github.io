@@ -136,7 +136,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">59</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">61</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -278,7 +278,7 @@
 <p><a href="http://www.iosre.com/t/ios12-debugserver-lldb/14429" target="_blank" rel="noopener">iOS12 下配置debugserver + lldb调试环境的小技巧和问题处理</a></p>
 </blockquote>
 <h3 id="2-debugserver启动调试"><a href="#2-debugserver启动调试" class="headerlink" title="2. debugserver启动调试"></a>2. debugserver启动调试</h3><p>如果App没有运行，可以直接启动App调试</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 后面接的是完整路径</span></span><br><span class="line">debugserver -x backboard xx.xx.xx.xx:3333 /private/var/containers/Bundle/Application/B7984908-D77C-47AE-97AF-3803988F1401/Test.app/Test</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 后面接的是完整路径</span></span><br><span class="line">debugserver -x auto xx.xx.xx.xx:3333 /private/var/containers/Bundle/Application/B7984908-D77C-47AE-97AF-3803988F1401/Test.app/Test</span><br></pre></td></tr></table></figure>
 
 <h3 id="通过lldb连接调试器"><a href="#通过lldb连接调试器" class="headerlink" title="通过lldb连接调试器"></a>通过lldb连接调试器</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入lldb模式</span></span><br><span class="line">$ lldb</span><br><span class="line"><span class="comment"># 连接调试器</span></span><br><span class="line">(lldb) process connect connect://xx.xx.xx.xx:3333</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接成功后，会输出下面信息</span></span><br><span class="line">Process 40349 stopped</span><br><span class="line">* thread <span class="comment">#1, queue = 'com.apple.main-thread', stop reason = signal SIGSTOP</span></span><br><span class="line">    frame <span class="comment">#0: 0x0000000181971198 libsystem_kernel.dylib`mach_msg_trap + 8</span></span><br><span class="line">libsystem_kernel.dylib`mach_msg_trap:</span><br><span class="line">-&gt;  0x181971198 &lt;+8&gt;: ret</span><br><span class="line"></span><br><span class="line">libsystem_kernel.dylib`mach_msg_overwrite_trap:</span><br><span class="line">    0x18197119c &lt;+0&gt;: mov    x16, <span class="comment">#-0x20</span></span><br><span class="line">    0x1819711a0 &lt;+4&gt;: svc    <span class="comment">#0x80</span></span><br><span class="line">    0x1819711a4 &lt;+8&gt;: ret</span><br><span class="line">Target 0: (WeChat) stopped.</span><br><span class="line">(lldb)</span><br></pre></td></tr></table></figure>
 
@@ -357,8 +357,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2019-08-04/ios-entitlement/" rel="prev" title="【iOS逆向】iOS可执行文件权限签名">
-      <i class="fa fa-chevron-left"></i> 【iOS逆向】iOS可执行文件权限签名
+    <a href="/2019-08-06/ios-lldb/" rel="prev" title="lldb常用命令">
+      <i class="fa fa-chevron-left"></i> lldb常用命令
     </a></div>
       <div class="post-nav-item">
     <a href="/2019-09-12/ios-mach-o/" rel="next" title="【iOS逆向】Mach-O文件">
@@ -438,7 +438,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-count">61</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
