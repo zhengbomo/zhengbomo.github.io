@@ -133,12 +133,12 @@
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">63</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">64</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -254,8 +254,6 @@
 <li><p><code>int</code> / <code>short</code> / <code>long</code>, / <code>long long</code>：默认都为<code>signed</code>，也可以加<code>unsigned</code>变为无符号数</p>
   <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">10</span>;</span><br><span class="line">uint a = <span class="number">10u</span>;</span><br><span class="line"><span class="keyword">long</span> a = <span class="number">10l</span>;</span><br></pre></td></tr></table></figure>
 </li>
-<li><p><code>uint</code>无符号</p>
-</li>
 <li><p><code>float</code> / <code>double</code>, <code>long double</code>：默认都为<code>signed</code>，也可以加<code>unsigned</code>变为无符号数</p>
 </li>
 <li><p><code>bool</code>：本质是1和0</p>
@@ -300,13 +298,13 @@
 <h3 id="关于位运算"><a href="#关于位运算" class="headerlink" title="关于位运算"></a>关于位运算</h3><ul>
 <li>左移：移走位补0</li>
 <li>右移：<ul>
-<li>逻辑右移：移走位补0</li>
-<li>算数右移：对于有符号数，正数移走位补0，负数移走位补1</li>
+<li><code>逻辑右移</code>：移走位补0</li>
+<li><code>算数右移</code>：对于有符号数，正数移走位补0，负数移走位补1</li>
 </ul>
 </li>
 </ul>
 <blockquote>
-<p>具体使用<code>逻辑右移</code>还是<code>算数右移</code>，<code>取决于编译器</code>，所以，<code>尽量不要使用右移运算符</code></p>
+<p>具体使用逻辑右移还是算数右移，取决于编译器，所以，<code>尽量不要使用右移运算符</code></p>
 </blockquote>
 <h3 id="流程控制"><a href="#流程控制" class="headerlink" title="流程控制"></a>流程控制</h3><ul>
 <li><p><code>if-else</code></p>
@@ -315,7 +313,7 @@
 </li>
 <li><p><code>do-while</code></p>
 </li>
-<li><p><code>for</code>: C++11支持遍历</p>
+<li><p><code>for</code>: C++11支持下面集合遍历</p>
   <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> items[] = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span> item: items) &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; item &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 </li>
@@ -343,19 +341,20 @@
 <blockquote>
 <p>const修饰的是右边的内容<br>const还能用于修饰函数参数，让引用参数接受常量参数，见后面</p>
 </blockquote>
-<h3 id="头文件和实现文件分离"><a href="#头文件和实现文件分离" class="headerlink" title="头文件和实现文件分离"></a>头文件和实现文件分离</h3><p>头文件</p>
+<h3 id="头文件和实现文件分离"><a href="#头文件和实现文件分离" class="headerlink" title="头文件和实现文件分离"></a>头文件和实现文件分离</h3><p>头文件person.h</p>
 <figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> m_age;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span></span>;</span><br><span class="line">    Person();</span><br><span class="line">    ~Person();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>实现文件</p>
+<p>实现文件person.cpp</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"Person.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Person::setAge(<span class="keyword">int</span> age) &#123;</span><br><span class="line">    m_age = age;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">int</span> Person::getAge() &#123;</span><br><span class="line">    <span class="keyword">return</span> m_age;</span><br><span class="line">&#125;</span><br><span class="line">Person::Person() &#123;</span><br><span class="line">    m_age = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line">Person::~Person() &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h3><p>全局命名空间使用<code>::</code>显示引用</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> BM &#123;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line">        <span class="keyword">int</span> m_age;</span><br><span class="line">        <span class="keyword">int</span> m_height;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 全局命名空间</span></span><br><span class="line"><span class="comment">// 可以通过`::func`访问</span></span><br><span class="line"><span class="comment">// 默认情况下不用加`::`</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">BM::Person person = <span class="keyword">new</span> BM::Person();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只用命名空间的部分成员</span></span><br><span class="line"><span class="keyword">using</span> BM::Person;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用using之后不用加前缀</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> BM;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 访问命名空间里面的方法</span></span><br><span class="line">BM::func()</span><br><span class="line"><span class="comment">// 访问全局命名空间</span></span><br><span class="line">::func()</span><br></pre></td></tr></table></figure>
+<h3 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> BM &#123;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line">        <span class="keyword">int</span> m_age;</span><br><span class="line">        <span class="keyword">int</span> m_height;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 命名空间支持嵌套</span></span><br><span class="line">    <span class="keyword">namespace</span> SS &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 全局命名空间</span></span><br><span class="line"><span class="comment">// 可以通过`::func`访问</span></span><br><span class="line"><span class="comment">// 默认情况下不用加`::`</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">BM::Person person = <span class="keyword">new</span> BM::Person();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只用命名空间的部分成员</span></span><br><span class="line"><span class="keyword">using</span> BM::Person;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用using之后不用加前缀</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> BM;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 访问命名空间里面的方法</span></span><br><span class="line">BM::func()</span><br><span class="line"><span class="comment">// 访问全局命名空间</span></span><br><span class="line">::func()</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>命名空间不影响内存布局<br>命名空间可以在代码块使用<br>命名空间可以合并</p>
-</blockquote>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> BM &#123;</span><br><span class="line">    <span class="keyword">int</span> g_age;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> BM &#123;</span><br><span class="line">    <span class="keyword">int</span> g_height;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 上面于下面等价</span></span><br><span class="line"><span class="keyword">namespace</span> BM &#123;</span><br><span class="line">    <span class="keyword">int</span> g_age;</span><br><span class="line">    <span class="keyword">int</span> g_height;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>命名空间不影响内存布局</li>
+<li>命名空间可以在代码块使用</li>
+<li>命名空间可以合并</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> BM &#123;</span><br><span class="line">    <span class="keyword">int</span> g_age;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> BM &#123;</span><br><span class="line">    <span class="keyword">int</span> g_height;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 上面与下面等价</span></span><br><span class="line"><span class="keyword">namespace</span> BM &#123;</span><br><span class="line">    <span class="keyword">int</span> g_age;</span><br><span class="line">    <span class="keyword">int</span> g_height;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="引用（Reference）"><a href="#引用（Reference）" class="headerlink" title="引用（Reference）"></a>引用（Reference）</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 变量</span></span><br><span class="line"><span class="keyword">int</span> age = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 引用变量，相当于age的别名，定义的时候就要赋值</span></span><br><span class="line"><span class="keyword">int</span> &amp;rage = age;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 相当于：age = 20</span></span><br><span class="line">rage = <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> height = <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// rage赋值后不能修改，下面相当于rage = 20，rage还是引用age</span></span><br><span class="line">rage = height</span><br></pre></td></tr></table></figure>
 
@@ -378,9 +377,9 @@
 
 <h3 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h3><p>变量三个重要信息</p>
 <ul>
-<li>变量的内容</li>
-<li>变量存放的地址</li>
-<li>变量的类型</li>
+<li>变量的<code>内容</code></li>
+<li>变量存放的<code>地址</code></li>
+<li>变量的<code>类型</code></li>
 </ul>
 <p>指针变量：专门用来记录变量地址的变量，通过指针变量可以间接访问另一个变量的值</p>
 <p>未初始化和非法的指针</p>
@@ -389,7 +388,7 @@
 <p><code>NULL指针</code>：不指向任何东西，表示一种状态，指针变量不用时，或未初始化时，应置位<code>NULL</code>，在C++11之后，空指针使用<code>nullptr</code></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *a = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (a != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">    *a = <span class="number">12</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><code>野指针</code>：指向垃圾（程序逻辑上用不到的指针）内存的指针，应该把不再使用的指针变量置为<code>nullptr</code>值</p>
+<p><code>野指针</code>：指向垃圾（程序逻辑上用不到的指针）内存的指针，通常是被回收资源后未置空的指针，不再使用的指针变量应置为<code>nullptr</code>值</p>
 <p>指针的基本操作：</p>
 <ul>
 <li><code>&amp;</code>运算符: 取变量地址</li>
@@ -414,6 +413,9 @@
 <li><code>new</code> / <code>delete</code>：C++的方式，推荐</li>
 <li><code>new[]</code> / <code>delete[]</code>：数组空间</li>
 </ul>
+<blockquote>
+<p><code>数组释放</code>的时候和变量不一样，需要加中括号</p>
+</blockquote>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// C语言申请空间</span></span><br><span class="line"><span class="keyword">int</span> *p1 = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>(<span class="number">4</span>);</span><br><span class="line">*p1 = <span class="number">20</span>;</span><br><span class="line"><span class="built_in">free</span>(p1);</span><br><span class="line"></span><br><span class="line"><span class="comment">// C++申请空间</span></span><br><span class="line"><span class="keyword">int</span> *p2 = <span class="keyword">new</span> <span class="keyword">int</span>;</span><br><span class="line">*p2 = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">delete</span> p2;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果是数组，delete也要加中括号</span></span><br><span class="line"><span class="keyword">char</span> *p3 = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">4</span>];</span><br><span class="line"><span class="keyword">delete</span> [] p3;</span><br></pre></td></tr></table></figure>
 
 <p>通常情况下申请的内存空间不会进行初始化（不同平台可能不一样）</p>
@@ -439,9 +441,9 @@
 
 </li>
 </ul>
-<h3 id="多余对象拷贝"><a href="#多余对象拷贝" class="headerlink" title="多余对象拷贝"></a>多余对象拷贝</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Point <span class="title">func</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 调用Point默认构造函数</span></span><br><span class="line">    Point p;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1. 从func函数栈拷贝Point到main函数栈</span></span><br><span class="line">    <span class="comment">// 2. 调用Point拷贝构造函数</span></span><br><span class="line">    Point p = func();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="多余对象拷贝"><a href="#多余对象拷贝" class="headerlink" title="多余对象拷贝"></a>多余对象拷贝</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Point <span class="title">func</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1. 调用Point默认构造函数</span></span><br><span class="line">    Point p;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 2. 从func函数栈拷贝Point到main函数栈</span></span><br><span class="line">    <span class="comment">// 3. 调用Point拷贝构造函数</span></span><br><span class="line">    Point p = func();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>上面代码如果编译器不做优化的话，会调用3次Point的构造函数</p>
+<p>上面代码如果编译器不做优化的话，会调用<code>3</code>次Point的构造函数</p>
 <ol>
 <li>在func函数栈构造Point</li>
 <li>从func函数栈返回到main函数栈，会把返回值，通过拷贝构造函数拷贝到main函数栈</li>
@@ -454,9 +456,9 @@
 <ul>
 <li>栈</li>
 <li>堆</li>
-<li>全局区/静态区</li>
-<li>常量区</li>
-<li>代码段</li>
+<li>全局区/静态区: 可读写</li>
+<li>常量区: 只读</li>
+<li>代码段: 只读</li>
 </ul>
 <h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><h4 id="函数重载"><a href="#函数重载" class="headerlink" title="函数重载"></a>函数重载</h4><p>指函数名相同的函数，<code>函数参数类型不同</code>或<code>函数参数顺序不同</code>或<code>函数参数个数不同</code>，构成函数重载，<strong>函数重载与返回值类型无关</strong>（C语言不支持函数重载）</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 下面函数都构成重载</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">long</span> a, <span class="keyword">long</span> b)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b, <span class="keyword">int</span> c)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">long</span> b)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">long</span> a, <span class="keyword">int</span> b)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// const引用(指针)与非const引用(指针)构成重载，下面两个函数是不同函数</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span> &amp;a, <span class="keyword">int</span> &amp;b)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">const</span> <span class="keyword">int</span> &amp;a, <span class="keyword">const</span> <span class="keyword">int</span> &amp;b)</span></span>;</span><br></pre></td></tr></table></figure>
@@ -569,7 +571,10 @@
     <a href="/2020-03-30/ios-symbol-order-build/" rel="prev" title="iOS二进制重排对缺页和启动时间的优化实践">
       <i class="fa fa-chevron-left"></i> iOS二进制重排对缺页和启动时间的优化实践
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020-04-11/cpp-learn-2/" rel="next" title="重学C++学习笔记（二）">
+      重学C++学习笔记（二） <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -644,14 +649,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">63</span>
+          <span class="site-state-item-count">64</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
