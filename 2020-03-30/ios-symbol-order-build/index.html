@@ -139,7 +139,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">69</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">72</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -253,7 +253,7 @@
 
 <h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><ol>
 <li>进程运行时使用的内存是操作系统提供的<code>虚拟内存</code>，而不是直接操作物理内存</li>
-<li>从<code>虚拟内存</code>到<code>物理内存</code>有一个映射表</li>
+<li>从<code>虚拟内存</code>到<code>物理内存</code>有一个映射表(页表)</li>
 <li>进程的内存会进行<code>分页</code>管理，以页为单位</li>
 <li>程序启动的时候，<strong>并不会把所有内存都加载到物理内存中</strong>，而是用到的时候才加载，没有用到的内存，可能并没有加载到物理内存中</li>
 <li>当程序访问到的内存地址（虚拟内存），如果还没有加载到物理内存时，就会触发<code>Page Fault</code>，（对应<code>System Trace</code>的<code>File Backed Page In</code>），然后操作系统把数据加载到物理内存中，如果已经已经加载到物理内存了，则会触发<code>Page Cache Hit</code>，后者是比较快的，这也是热启动比冷启动快的原因之一</li>
@@ -417,7 +417,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">69</span>
+          <span class="site-state-item-count">72</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
