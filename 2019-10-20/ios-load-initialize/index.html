@@ -293,7 +293,7 @@
 <li>第一次使用的时候（objc_msgSend）调用</li>
 <li>先调用父类<code>initialize</code>，再调用子类的</li>
 <li>调用方法使用<code>objc_msgSend</code>，如果子类没有实现<code>initialize</code>，会调用父类的<code>initialize</code>（存在多次调用的问题）</li>
-<li>由于使用<code>objc_msgSend</code>调用，与普通方法一样，分类的<code>initialize</code>方法会先找到，相当于覆盖类的<code>initialize</code>方法，顺序看编译顺序</li>
+<li>由于使用<code>objc_msgSend</code>调用，与普通方法一样，分类的<code>initialize</code>方法会先找到，相当于覆盖类的<code>initialize</code>方法，顺序与编译顺序相反（后编译的分类方法会被加到前面）</li>
 </ol>
 
     </div>
