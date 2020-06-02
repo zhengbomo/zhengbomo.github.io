@@ -22,7 +22,7 @@
   </script>
 
   <meta name="description" content="lldb是llvm的一个子项目，用于调试llvm编译的程序，做iOS调试时，和lldb打交道应该是最多的，本文对lldb常用的一些命令做一些整理，以便后续查阅">
-<meta name="keywords" content="iOS">
+<meta name="keywords" content="iOS,lldb">
 <meta property="og:type" content="article">
 <meta property="og:title" content="lldb常用命令">
 <meta property="og:url" content="http://zhengbomo.github.io/2019-08-06/ios-lldb/index.html">
@@ -30,7 +30,7 @@
 <meta property="og:description" content="lldb是llvm的一个子项目，用于调试llvm编译的程序，做iOS调试时，和lldb打交道应该是最多的，本文对lldb常用的一些命令做一些整理，以便后续查阅">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/lldb-toolbar.png">
-<meta property="og:updated_time" content="2019-08-06T08:40:58.000Z">
+<meta property="og:updated_time" content="2020-05-31T08:40:58.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="lldb常用命令">
 <meta name="twitter:description" content="lldb是llvm的一个子项目，用于调试llvm编译的程序，做iOS调试时，和lldb打交道应该是最多的，本文对lldb常用的一些命令做一些整理，以便后续查阅">
@@ -224,6 +224,13 @@
 
               <time title="创建时间：2019-08-06 16:40:58" itemprop="dateCreated datePublished" datetime="2019-08-06T16:40:58+08:00">2019-08-06</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-31 16:40:58" itemprop="dateModified" datetime="2020-05-31T16:40:58+08:00">2020-05-31</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -436,6 +443,16 @@
 
 </li>
 </ul>
+<h3 id="查看内存"><a href="#查看内存" class="headerlink" title="查看内存"></a>查看内存</h3><p>memory read/数量+格式+字节数 内存地址</p>
+<p>格式：<code>x</code>为16进制，<code>f</code>位浮点数，<code>d</code>为10进制<br>字节数：<code>b</code>为1个字节，<code>h</code>为2个字节，<code>w</code>为4个字节，<code>g</code>为8个字节</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">(lldb) memory <span class="built_in">read</span> 0x00006000001600b0</span><br><span class="line">0x6000001600b0: 00 ed c1 89 ff 7f 00 00 00 00 00 00 00 00 00 00  ................</span><br><span class="line">0x6000001600c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................</span><br><span class="line"></span><br><span class="line">(lldb) memory <span class="built_in">read</span>/3xg 0x00006000001600b0</span><br><span class="line">0x6000001600b0: 0x00007fff89c1ed00 0x0000000000000000</span><br><span class="line">0x6000001600c0: 0x0000000000000000</span><br><span class="line"></span><br><span class="line">(lldb) memory <span class="built_in">read</span>/8xg 0x00006000001600b0</span><br><span class="line">0x6000001600b0: 0x00007fff89c1ed00 0x0000000000000000</span><br><span class="line">0x6000001600c0: 0x0000000000000000 0x0000000000000000</span><br><span class="line">0x6000001600d0: 0x0000000000000000 0x0000000000000000</span><br><span class="line">0x6000001600e0: 0x0000000000000000 0x0000000000000000</span><br><span class="line"></span><br><span class="line">(lldb) memory <span class="built_in">read</span>/8xw 0x00006000001600b0</span><br><span class="line">0x6000001600b0: 0x89c1ed00 0x00007fff 0x00000000 0x00000000</span><br><span class="line">0x6000001600c0: 0x00000000 0x00000000 0x00000000 0x00000000</span><br><span class="line"></span><br><span class="line">(lldb) memory <span class="built_in">read</span>/3dw 0x00006000001600b0</span><br><span class="line">0x6000001600b0: -1983779584</span><br><span class="line">0x6000001600b4: 32767</span><br><span class="line">0x6000001600b8: 0</span><br><span class="line"></span><br><span class="line">(lldb) memory <span class="built_in">read</span>/3fw 0x00006000001600b0</span><br><span class="line">0x6000001600b0: -4.66859336E-33</span><br><span class="line">0x6000001600b4: 4.59163468E-41</span><br><span class="line">0x6000001600bc: 0</span><br></pre></td></tr></table></figure>
+
+<p>也可以直接使用<code>x</code>查看内存，用法和<code>memory read</code>一样</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(lldb) x/4xg 0x00006000001600b0</span><br><span class="line">0x6000001600b0: 0x00007fff89c1ed00 0x0000000000000000</span><br><span class="line">0x6000001600c0: 0x0000000000000000 0x0000000000000000</span><br></pre></td></tr></table></figure>
+
+<p>写内存</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">memory write 内存地址 述职</span><br></pre></td></tr></table></figure>
+
 <h3 id="缩写"><a href="#缩写" class="headerlink" title="缩写"></a>缩写</h3><p>lldb大部分命令都支持缩写</p>
 <table>
 <thead>
@@ -508,6 +525,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/lldb/" rel="tag"># lldb</a>
           </div>
 
         
@@ -581,7 +599,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#lldb常用操作"><span class="nav-number">1.</span> <span class="nav-text">lldb常用操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#expression"><span class="nav-number">1.1.</span> <span class="nav-text">expression</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#thread"><span class="nav-number">1.2.</span> <span class="nav-text">thread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#breakpoint"><span class="nav-number">1.3.</span> <span class="nav-text">breakpoint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存断点"><span class="nav-number">1.4.</span> <span class="nav-text">内存断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#image"><span class="nav-number">1.5.</span> <span class="nav-text">image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#register"><span class="nav-number">1.6.</span> <span class="nav-text">register</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缩写"><span class="nav-number">1.7.</span> <span class="nav-text">缩写</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#lldb常用操作"><span class="nav-number">1.</span> <span class="nav-text">lldb常用操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#expression"><span class="nav-number">1.1.</span> <span class="nav-text">expression</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#thread"><span class="nav-number">1.2.</span> <span class="nav-text">thread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#breakpoint"><span class="nav-number">1.3.</span> <span class="nav-text">breakpoint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存断点"><span class="nav-number">1.4.</span> <span class="nav-text">内存断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#image"><span class="nav-number">1.5.</span> <span class="nav-text">image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#register"><span class="nav-number">1.6.</span> <span class="nav-text">register</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看内存"><span class="nav-number">1.7.</span> <span class="nav-text">查看内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缩写"><span class="nav-number">1.8.</span> <span class="nav-text">缩写</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
