@@ -126,12 +126,12 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">48</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">47</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
@@ -282,9 +282,23 @@
 <li><p>flutter给native发消息</p>
  <figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 给native发消息</span></span><br><span class="line">    <span class="keyword">final</span> <span class="built_in">bool</span> result = <span class="keyword">await</span> method_channel.invokeMethod(<span class="string">"alert"</span>, &lt;<span class="built_in">String</span>, <span class="keyword">dynamic</span>&gt;&#123; <span class="string">"a"</span>: <span class="number">1</span> &#125;);</span><br><span class="line">    <span class="built_in">print</span>(result);</span><br><span class="line">&#125; on Exception <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="built_in">print</span>(e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>TODO: native给flutter发消息</p>
+<li><p>native给flutter发消息</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">FlutterBoostPlugin</span>.sharedInstance().sendEvent(<span class="string">"showToast"</span>, arguments: [<span class="string">"message"</span>: <span class="string">"native消息"</span>]);</span><br></pre></td></tr></table></figure>
+
+<p> flutter 监听消息</p>
+ <figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 监听消息，返回值是个匿名方法，可以取消监听</span></span><br><span class="line">_listenCancelable = FlutterBoost.singleton.channel.addEventListener(<span class="string">'showToast'</span>, (name, arguments) <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> msg = arguments[<span class="string">"message"</span>];</span><br><span class="line">    <span class="keyword">if</span> (msg != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">await</span> _hudKey.currentState.showAndDismiss(ProgressHudType.success, msg);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 取消监听</span></span><br><span class="line">_listenCancelable.call()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>flutter给native发消息</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> cancelable: <span class="type">FLBVoidCallback?</span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听flutter发来的消息</span></span><br><span class="line">cancelable = <span class="type">FlutterBoostPlugin</span>.sharedInstance().addEventListener(&#123; [<span class="keyword">weak</span> <span class="keyword">self</span>] (name, arguments) <span class="keyword">in</span></span><br><span class="line">    <span class="keyword">guard</span> <span class="keyword">let</span> <span class="keyword">self</span> = <span class="keyword">self</span> <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> arguments = arguments, <span class="keyword">let</span> msg = arguments[<span class="string">"message"</span>] <span class="keyword">as</span>? <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> vc = <span class="type">UIAlertController</span>(title: <span class="string">"tip"</span>, message: msg, preferredStyle: .alert)</span><br><span class="line">        vc.addAction(<span class="type">UIAlertAction</span>(title: <span class="string">"cancel"</span>, style: .<span class="keyword">default</span>, handler: <span class="literal">nil</span>))</span><br><span class="line">        <span class="keyword">self</span>.present(vc, animated: <span class="literal">true</span>, completion: <span class="literal">nil</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;, forName: <span class="string">"alert"</span>);</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment">// 取消监听</span></span><br><span class="line">cancelable?()</span><br></pre></td></tr></table></figure>
+
+<p> flutter发送消息</p>
+ <figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FlutterBoost.singleton.channel.sendEvent(<span class="string">"alert"</span>, &#123;<span class="string">"message"</span>: <span class="string">"flutter消息"</span>&#125;);</span><br></pre></td></tr></table></figure>
+
 </li>
 </ol>
+<blockquote>
+<p>flutter给native发消息交互也可以使用<code>FlutterMethodChannel</code></p>
+</blockquote>
 <h3 id="兼容侧滑返回"><a href="#兼容侧滑返回" class="headerlink" title="兼容侧滑返回"></a>兼容侧滑返回</h3><p>iOS的<code>UINavigationController</code>默认支持侧滑返回，flutter的<code>MaterialApp</code>在iOS上也支持侧滑返回，由于flutter运行在FlutterViewController上，所以默认情况下侧滑走的是UINavigationController，为了让侧滑可以衔接起来，我们需要</p>
 <ul>
 <li>当<code>MaterialApp</code>的只有一个页面的时候，使用native侧滑</li>
@@ -428,13 +442,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-count">47</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
