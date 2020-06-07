@@ -122,17 +122,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">47</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">48</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">74</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">75</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -194,6 +194,80 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-06-07/flutter-boost-integration/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="bomo">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020-06-07/flutter-boost-integration/" class="post-title-link" itemprop="url">flutter_boost混编实践</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-07 10:15:43" itemprop="dateCreated datePublished" datetime="2020-06-07T10:15:43+08:00">2020-06-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flutter/" itemprop="url" rel="index"><span itemprop="name">flutter</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>基于现有的项目接入flutter，官方提供的一个比较完整的接入方案，但是存在一个问题，由于<code>FlutterEngine</code>很重，而多个<code>FlutterViewController</code>共享一个Engine，并且同一时间下，一个engine只能与一个viewcontroller绑定，在管理起来，特别是对于多层跳转（native-&gt;flutter-&gt;native-&gt;flutter）非常麻烦，而如果创建多个<code>FlutterEngine</code>，就会带来很大的开销，导致内存暴涨，而<code>flutter_boost</code>提供了像WebView的方式操作FlutterViewController，可以存在多个FlutterViewController，这里基于一个现有的demo继承flutter_boost并解决侧滑手势冲突的问题</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020-06-07/flutter-boost-integration/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-06-01/swift-performance/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -208,7 +282,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020-06-01/swift-performance/" class="post-title-link" itemprop="url">Swift性能优化</a>
+            <a href="/2020-06-01/swift-performance/" class="post-title-link" itemprop="url">Swift性能优化（一）</a>
         </h2>
 
         <div class="post-meta">
@@ -860,80 +934,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-04-06/cpp-learn-1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="bomo">
-      <meta itemprop="description" content="懒人">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="bomo的开发随笔">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020-04-06/cpp-learn-1/" class="post-title-link" itemprop="url">重学C++学习笔记（一）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-06 22:56:44" itemprop="dateCreated datePublished" datetime="2020-04-06T22:56:44+08:00">2020-04-06</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>越深入底层，C/C++的作用就越大，对于底层的了解比别人更具体，工作中由于不是主要语言，用的少，近来有空，重新完整的过了一遍C++的语法和一些内存只是，在这里做一下笔记</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020-04-06/cpp-learn-1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1005,20 +1005,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">75</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-count">48</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

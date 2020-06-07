@@ -24,7 +24,7 @@
   <meta name="description" content="最近学习了Swift底层原理相关的视频和文章，收获颇丰，趁热打铁，记录和总结对Swift的理解，对于Swift性能优化主要从下面三个方面入手">
 <meta name="keywords" content="iOS,Swift">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Swift性能优化">
+<meta property="og:title" content="Swift性能优化（一）">
 <meta property="og:url" content="http://zhengbomo.github.io/2020-06-01/swift-performance/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
 <meta property="og:description" content="最近学习了Swift底层原理相关的视频和文章，收获颇丰，趁热打铁，记录和总结对Swift的理解，对于Swift性能优化主要从下面三个方面入手">
@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/swift/class-on-stack.png">
 <meta property="og:updated_time" content="2020-06-01T13:31:37.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Swift性能优化">
+<meta name="twitter:title" content="Swift性能优化（一）">
 <meta name="twitter:description" content="最近学习了Swift底层原理相关的视频和文章，收获颇丰，趁热打铁，记录和总结对Swift的理解，对于Swift性能优化主要从下面三个方面入手">
 <meta name="twitter:image" content="http://zhengbomo.github.io/images/post/swift/struct-on-stack.png">
 
@@ -50,7 +50,7 @@
   };
 </script>
 
-  <title>Swift性能优化 | bomo的开发随笔</title>
+  <title>Swift性能优化（一） | bomo的开发随笔</title>
   
 
 
@@ -127,17 +127,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">47</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">48</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">74</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">75</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -213,7 +213,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Swift性能优化
+          Swift性能优化（一）
         </h1>
 
         <div class="post-meta">
@@ -323,6 +323,10 @@
 <li>使用<code>private</code>来修饰不会被外部访问到的属性和方法</li>
 <li>从而提高函数的派发性能</li>
 </ul>
+<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><ul>
+<li><a href="https://developer.apple.com/videos/play/wwdc2016/416/" target="_blank" rel="noopener">Understanding Swift Performance</a></li>
+</ul>
+<p>未完待续~</p>
 
     </div>
 
@@ -338,7 +342,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://zhengbomo.github.io/2020-06-01/swift-performance/" title="Swift性能优化">http://zhengbomo.github.io/2020-06-01/swift-performance/</a>
+    <a href="http://zhengbomo.github.io/2020-06-01/swift-performance/" title="Swift性能优化（一）">http://zhengbomo.github.io/2020-06-01/swift-performance/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -362,7 +366,10 @@
     <a href="/2020-05-23/swift-method-dispatch/" rel="prev" title="Swift方法派发机制">
       <i class="fa fa-chevron-left"></i> Swift方法派发机制
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020-06-07/flutter-boost-integration/" rel="next" title="flutter_boost混编实践">
+      flutter_boost混编实践 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -421,7 +428,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存分配"><span class="nav-number">1.</span> <span class="nav-text">内存分配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#栈分配"><span class="nav-number">1.1.</span> <span class="nav-text">栈分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆分配"><span class="nav-number">1.2.</span> <span class="nav-text">堆分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优化"><span class="nav-number">1.3.</span> <span class="nav-text">优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">1.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引用计数"><span class="nav-number">2.</span> <span class="nav-text">引用计数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">2.1.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#派发方式"><span class="nav-number">3.</span> <span class="nav-text">派发方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-2"><span class="nav-number">3.1.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存分配"><span class="nav-number">1.</span> <span class="nav-text">内存分配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#栈分配"><span class="nav-number">1.1.</span> <span class="nav-text">栈分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆分配"><span class="nav-number">1.2.</span> <span class="nav-text">堆分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优化"><span class="nav-number">1.3.</span> <span class="nav-text">优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">1.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引用计数"><span class="nav-number">2.</span> <span class="nav-text">引用计数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">2.1.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#派发方式"><span class="nav-number">3.</span> <span class="nav-text">派发方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-2"><span class="nav-number">3.1.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引用"><span class="nav-number">4.</span> <span class="nav-text">引用</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -437,20 +444,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">75</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-count">48</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
