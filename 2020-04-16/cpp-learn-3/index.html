@@ -124,17 +124,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">47</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">48</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">75</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">76</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -243,7 +243,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>接上一篇，本篇主要是针对C++的新特性介绍，包括异常和智能指针</p>
+        <p>接<a href="/2020-04-11/cpp-learn-2/">上一篇</a>，本篇主要是针对C++的新特性介绍，包括异常和智能指针</p>
 <a id="more"></a>
 
 <h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>异常函数，抛出异常用<code>throw xxx</code>;</p>
@@ -287,7 +287,7 @@
 <p>自己实现<code>auto_ptr</code>指针，通过栈上的局部变量管理</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SmartPoint</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    T *m_obj;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    SmartPoint(T *obj): m_obj(obj) &#123; &#125;</span><br><span class="line">    ~SmartPoint() &#123;</span><br><span class="line">        <span class="keyword">if</span> (m_obj != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">            <span class="keyword">delete</span> m_obj;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重写变量访问</span></span><br><span class="line">    T *<span class="keyword">operator</span>-&gt;() &#123;</span><br><span class="line">        <span class="keyword">return</span> m_obj;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 由于p是存放在栈空间，当p释放的时候，内部的Person也会被释放</span></span><br><span class="line">        SmartPoint&lt;Person&gt; p(<span class="keyword">new</span> Person(<span class="number">20</span>));</span><br><span class="line">        p-&gt;run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="模板（泛型）"><a href="#模板（泛型）" class="headerlink" title="模板（泛型）"></a>模板（泛型）</h3><p>C++通过模板实现泛型，模板其实是相当于语法糖，在编译的时候自动生成对应的方法，如果方法没有使用，则不会被编译</p>
+<h2 id="模板（泛型）"><a href="#模板（泛型）" class="headerlink" title="模板（泛型）"></a>模板（泛型）</h2><p>C++通过模板实现泛型，模板其实是相当于语法糖，在编译的时候自动生成对应的方法，如果方法没有使用，则不会被编译</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模板方法-单参数</span></span><br><span class="line"><span class="comment">// template &lt;class T&gt;       // 也可以使用class，是等价的</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function">T <span class="title">add</span><span class="params">(T a, T b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> result = add&lt;<span class="keyword">int</span>&gt;(<span class="number">10</span>, <span class="number">20</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模板方法，多参数</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> TA, <span class="keyword">typename</span> TB&gt; <span class="function">T <span class="title">add</span><span class="params">(TA a, TB b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模板类</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Array</span> &#123;</span></span><br><span class="line">    T *m_data;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">add</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>编译细节</p>
@@ -415,7 +415,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#异常"><span class="nav-number">1.</span> <span class="nav-text">异常</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#智能指针"><span class="nav-number">2.</span> <span class="nav-text">智能指针</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模板（泛型）"><span class="nav-number">2.1.</span> <span class="nav-text">模板（泛型）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-新特性"><span class="nav-number">3.</span> <span class="nav-text">C++新特性</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#异常"><span class="nav-number">1.</span> <span class="nav-text">异常</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#智能指针"><span class="nav-number">2.</span> <span class="nav-text">智能指针</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模板（泛型）"><span class="nav-number">3.</span> <span class="nav-text">模板（泛型）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-新特性"><span class="nav-number">4.</span> <span class="nav-text">C++新特性</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -431,20 +431,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-count">48</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

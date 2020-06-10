@@ -133,17 +133,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">47</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">48</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">75</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">76</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -252,7 +252,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>接上一篇，本篇主要是面向对象相关的知识点</p>
+        <p>接<a href="/2020-04-06/cpp-learn-1/">上一篇</a>，本篇主要是面向对象相关的知识点</p>
 <a id="more"></a>
 
 <h2 id="类"><a href="#类" class="headerlink" title="类"></a>类</h2><p>C++可以使用<code>struct</code>和<code>class</code>定义一个类</p>
@@ -424,6 +424,7 @@
 <h2 id="友元"><a href="#友元" class="headerlink" title="友元"></a>友元</h2><p><code>友元方法</code>：可以在类外部的方法访问类的所有成员（字段和方法）<br><code>友元类</code>：可以在其他类访问类的所有成员（字段和方法）</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line">    <span class="comment">// 声明友元方法</span></span><br><span class="line">    <span class="function"><span class="keyword">friend</span> Point <span class="title">add</span><span class="params">(<span class="keyword">const</span> Point &amp;a, <span class="keyword">const</span> Point &amp;b)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 声明友元类</span></span><br><span class="line">    <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">Math</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> m_x;</span><br><span class="line">    <span class="keyword">int</span> m_y;</span><br><span class="line">    <span class="comment">// 私有方法</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123; &#125;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Point(<span class="keyword">int</span> x, <span class="keyword">int</span> y): m_x(x), m_y(y) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">Point <span class="title">add</span><span class="params">(<span class="keyword">const</span> Point &amp;a, <span class="keyword">const</span> Point &amp;b)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 在这里可以直接访问Point的私有变量</span></span><br><span class="line">    <span class="keyword">return</span> Point(a.m_x + b.m_x, a.m_y + b.m_y);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Math</span> &#123;</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Point p = Point(<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line">        <span class="comment">// 可以访问类的私有成员</span></span><br><span class="line">        p.m_x = <span class="number">10</span>;</span><br><span class="line">        p.m_y = <span class="number">20</span>;</span><br><span class="line">        <span class="comment">// 访问私有方法</span></span><br><span class="line">        p.func();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
+<p><a href="/2020-04-16/cpp-learn-3/">下一篇</a>主要是C++的新特性</p>
 
     </div>
 
@@ -540,20 +541,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-count">48</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

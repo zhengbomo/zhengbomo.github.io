@@ -21,13 +21,13 @@
     var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="越深入底层，C/C++的作用就越大，对于底层的了解比别人更具体，工作中由于不是主要语言，用的少，近来有空，重新完整的过了一遍C++的语法和一些内存只是，在这里做一下笔记">
+  <meta name="description" content="越深入底层，C/C++的作用就越大，对于底层的了解比别人更具体，工作中由于不是主要语言，用的少，近来有空，重新完整的过了一遍C++的语法和一些内存知识，在这里做一下笔记">
 <meta name="keywords" content="C++">
 <meta property="og:type" content="article">
 <meta property="og:title" content="重学C++学习笔记（一）">
 <meta property="og:url" content="http://zhengbomo.github.io/2020-04-06/cpp-learn-1/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
-<meta property="og:description" content="越深入底层，C/C++的作用就越大，对于底层的了解比别人更具体，工作中由于不是主要语言，用的少，近来有空，重新完整的过了一遍C++的语法和一些内存只是，在这里做一下笔记">
+<meta property="og:description" content="越深入底层，C/C++的作用就越大，对于底层的了解比别人更具体，工作中由于不是主要语言，用的少，近来有空，重新完整的过了一遍C++的语法和一些内存知识，在这里做一下笔记">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/virtual-address.png">
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/byte-ordering.png">
@@ -35,7 +35,7 @@
 <meta property="og:updated_time" content="2020-04-06T14:56:44.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="重学C++学习笔记（一）">
-<meta name="twitter:description" content="越深入底层，C/C++的作用就越大，对于底层的了解比别人更具体，工作中由于不是主要语言，用的少，近来有空，重新完整的过了一遍C++的语法和一些内存只是，在这里做一下笔记">
+<meta name="twitter:description" content="越深入底层，C/C++的作用就越大，对于底层的了解比别人更具体，工作中由于不是主要语言，用的少，近来有空，重新完整的过了一遍C++的语法和一些内存知识，在这里做一下笔记">
 <meta name="twitter:image" content="http://zhengbomo.github.io/images/post/virtual-address.png">
 
 <link rel="canonical" href="http://zhengbomo.github.io/2020-04-06/cpp-learn-1/">
@@ -128,17 +128,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">47</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">48</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">75</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">76</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -247,7 +247,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>越深入底层，C/C++的作用就越大，对于底层的了解比别人更具体，工作中由于不是主要语言，用的少，近来有空，重新完整的过了一遍C++的语法和一些内存只是，在这里做一下笔记</p>
+        <p>越深入底层，C/C++的作用就越大，对于底层的了解比别人更具体，工作中由于不是主要语言，用的少，近来有空，重新完整的过了一遍C++的语法和一些内存知识，在这里做一下笔记</p>
 <a id="more"></a>
 
 <h2 id="基础语法"><a href="#基础语法" class="headerlink" title="基础语法"></a>基础语法</h2><h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><ul>
@@ -529,10 +529,11 @@
 <h3 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h3><p>Unicode: 表示所有语言</p>
 <ul>
 <li>ASCII: 1byte表示一个字符，存储效率高，存储的字符有限</li>
-<li>UTF-8：1byte表示一个字符，可以兼容ASCII码，存储效率高，可变长（随机访问效率低），无字节序的问题（可作为外部编码）</li>
-<li>UTF-16：2byte表示一个字符，定长（随机访问效率高），右字节序的问题（不可作为外部编码），但不能表达所有的字符</li>
-<li>UTF-32：4byte表示一个字符，定长（随机访问效率高），右字节序的问题（不可作为外部编码），可以表达所有的字符</li>
+<li>UTF-8：1byte表示一个字符，可以兼容ASCII码，存储效率高，可变长（随机访问效率低），无字节序的问题（可作为外部编码），如网络传输普遍使用</li>
+<li>UTF-16：2byte表示一个字符，定长（随机访问效率高），有字节序的问题（不可作为外部编码），但不能表达所有的字符</li>
+<li>UTF-32：4byte表示一个字符，定长（随机访问效率高），有字节序的问题（不可作为外部编码），可以表达目前已存在的所有的字符</li>
 </ul>
+<p><a href="/2020-04-11/cpp-learn-2/">下一篇</a>主要是面向对象相关的知识点</p>
 
     </div>
 
@@ -649,20 +650,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-count">48</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
