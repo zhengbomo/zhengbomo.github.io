@@ -21,18 +21,18 @@
     var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="为了更好的学习 OpenGL，我们需要对部分专业属于有一些基本认识，本文介绍在计算机图形学常用的一些专业名词 图形APIOpenGL（Open Graphics Library）是⼀个跨编程语⾔、跨平台的编程图形程序接⼝，它将计算机的资源抽象称为⼀个OpenGL的对象，对这些资源的操作抽象为⼀个个的OpenGL指令 OpenGL ES（OpenGL for Embedded Systems）是Op">
+  <meta name="description" content="为了更好的学习 OpenGL，我们需要对部分专业属于有一些基本认识，本文介绍在计算机图形学常用的一些专业名词">
 <meta name="keywords" content="OpenGL">
 <meta property="og:type" content="article">
 <meta property="og:title" content="OpenGL名词解释">
 <meta property="og:url" content="http://zhengbomo.github.io/2020-07-01/opengl-words/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
-<meta property="og:description" content="为了更好的学习 OpenGL，我们需要对部分专业属于有一些基本认识，本文介绍在计算机图形学常用的一些专业名词 图形APIOpenGL（Open Graphics Library）是⼀个跨编程语⾔、跨平台的编程图形程序接⼝，它将计算机的资源抽象称为⼀个OpenGL的对象，对这些资源的操作抽象为⼀个个的OpenGL指令 OpenGL ES（OpenGL for Embedded Systems）是Op">
+<meta property="og:description" content="为了更好的学习 OpenGL，我们需要对部分专业属于有一些基本认识，本文介绍在计算机图形学常用的一些专业名词">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-15T09:10:42.341Z">
+<meta property="og:updated_time" content="2020-07-15T13:48:03.705Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OpenGL名词解释">
-<meta name="twitter:description" content="为了更好的学习 OpenGL，我们需要对部分专业属于有一些基本认识，本文介绍在计算机图形学常用的一些专业名词 图形APIOpenGL（Open Graphics Library）是⼀个跨编程语⾔、跨平台的编程图形程序接⼝，它将计算机的资源抽象称为⼀个OpenGL的对象，对这些资源的操作抽象为⼀个个的OpenGL指令 OpenGL ES（OpenGL for Embedded Systems）是Op">
+<meta name="twitter:description" content="为了更好的学习 OpenGL，我们需要对部分专业属于有一些基本认识，本文介绍在计算机图形学常用的一些专业名词">
 
 <link rel="canonical" href="http://zhengbomo.github.io/2020-07-01/opengl-words/">
 
@@ -227,7 +227,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-15 17:10:42" itemprop="dateModified" datetime="2020-07-15T17:10:42+08:00">2020-07-15</time>
+                <time title="修改时间：2020-07-15 21:48:03" itemprop="dateModified" datetime="2020-07-15T21:48:03+08:00">2020-07-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -251,6 +251,8 @@
 
       
         <p>为了更好的学习 OpenGL，我们需要对部分专业属于有一些基本认识，本文介绍在计算机图形学常用的一些专业名词</p>
+<a id="more"></a>
+
 <h2 id="图形API"><a href="#图形API" class="headerlink" title="图形API"></a>图形API</h2><p><code>OpenGL</code>（Open Graphics Library）是⼀个跨编程语⾔、跨平台的编程图形程序接⼝，它将计算机的资源抽象称为⼀个OpenGL的对象，对这些资源的操作抽象为⼀个个的OpenGL指令</p>
 <p><code>OpenGL ES</code>（OpenGL for Embedded Systems）是OpenGL的API子集，针对⼿机、PDA和游戏主机等嵌⼊式设备⽽设计，去除了许多不必要和性能较低的API接⼝</p>
 <p><code>DirectX</code>是Windows平台的多媒体处理工具，包含图形API，功能比较多，按性质分类，可以分为四⼤部分，显示部分、声⾳部分、输⼊部分和⽹络部分</p>
@@ -337,7 +339,7 @@
 <li>分配一个颜色值和一个深度值到各个区域。光栅化过程产生的是片元。</li>
 </ol>
 <h3 id="纹理（Texture）"><a href="#纹理（Texture）" class="headerlink" title="纹理（Texture）"></a>纹理（Texture）</h3><p>纹理可以理解为图⽚，在OpenGL习惯叫纹理</p>
-<h3 id="混合（Blending）"><a href="#混合（Blending）" class="headerlink" title="混合（Blending）"></a>混合（Blending）</h3><p>不同图层进行<code>颜色混合</code>，例如<code>组透明度</code>，OpenGL提供的默认的混合算法混合算法，如果需要更加复杂的混合算法，⼀般可以通过像素着⾊器进⾏实现，当然性能会⽐原⽣的混合算法差⼀些</p>
+<h3 id="混合（Blending）"><a href="#混合（Blending）" class="headerlink" title="混合（Blending）"></a>混合（Blending）</h3><p>不同图层进行<code>颜色混合</code>，例如<code>组透明度</code>（例如将两个图层（透明度0.2的红色图层和透明度0.5的绿色图层）混合叠加在一起，这个过程就叫做混合），OpenGL提供的默认的混合算法混合算法，如果需要更加复杂的混合算法，⼀般可以通过像素着⾊器进⾏实现，当然性能会⽐原⽣的混合算法差⼀些</p>
 <h3 id="变换矩阵（Transformation）"><a href="#变换矩阵（Transformation）" class="headerlink" title="变换矩阵（Transformation）"></a>变换矩阵（Transformation）</h3><p>用于对图形进行平移，缩放，旋转变换操作时使用</p>
 <h3 id="投影矩阵（Projection）"><a href="#投影矩阵（Projection）" class="headerlink" title="投影矩阵（Projection）"></a>投影矩阵（Projection）</h3><p>⽤于将3D坐标转换为⼆维屏幕坐标时使用</p>
 <h3 id="渲染上屏-交换缓冲区-SwapBuffer"><a href="#渲染上屏-交换缓冲区-SwapBuffer" class="headerlink" title="渲染上屏/交换缓冲区(SwapBuffer)"></a>渲染上屏/交换缓冲区(SwapBuffer)</h3><ol>
