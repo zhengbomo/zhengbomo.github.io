@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zhengbomo.github.io/"/>
-  <updated>2020-07-04T23:34:21.451Z</updated>
+  <updated>2020-07-10T13:33:03.000Z</updated>
   <id>http://zhengbomo.github.io/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>OpenGL图像渲染解析</title>
+    <link href="http://zhengbomo.github.io/2020-07-10/ios-render/"/>
+    <id>http://zhengbomo.github.io/2020-07-10/ios-render/</id>
+    <published>2020-07-10T13:33:03.000Z</published>
+    <updated>2020-07-10T13:33:03.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="CPU和GPU"><a href="#CPU和GPU" class="headerlink" title="CPU和GPU"></a>CPU和GPU</h2><img src="/images/post/opengl/cpu-gpu.png" width="800"><p>从图中结构可以看出</p><ul><li><code>CPU</code>的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，<code>擅长逻辑控制</code>  </li><li><code>GPU</code>是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，<code>擅长并发计算</code></li></ul><a id="more"></a><h2 id="计算机渲染原理"><a href="#计算机渲染原理" class="headerlink" title="计算机渲染原理"></a>计算机渲染原理</h2><h3 id="⾼级光栅扫描显示系统结构"><a href="#⾼级光栅扫描显示系统结构" class="headerlink" title="⾼级光栅扫描显示系统结构"></a>⾼级光栅扫描显示系统结构</h3><img src="/images/post/opengl/print-structure.png" width="700"><h3 id="屏幕扫描"><a href="#屏幕扫描" class="headerlink" title="屏幕扫描"></a>屏幕扫描</h3><p><code>视频控制器/显示控制器</code>从<code>帧缓冲区</code>中读取图像信息（位图），经过数模转换（数字信号处-&gt;模拟型号）后通过<code>逐行扫描</code>把图像显示到显示器上的</p><img src="/images/post/opengl/screen-scan.png" width="500"><h4 id="撕裂问题"><a href="#撕裂问题" class="headerlink" title="撕裂问题"></a>撕裂问题</h4><p>显示一个完整画面是需要一定时间的，视频控制器在显示图像的过程中，如果这时候帧缓冲区的数据被刷新了，就会造成<code>撕裂</code>的问题，上面部分显示前面一帧的数据，下面部分为新的数据</p><img src="/images/post/opengl/image-tear.png" width="500"><h4 id="双缓冲区和垂直同步"><a href="#双缓冲区和垂直同步" class="headerlink" title="双缓冲区和垂直同步"></a>双缓冲区和垂直同步</h4><p>为了解决撕裂，苹果引入了<code>垂直同步</code>（VSync） + <code>双缓存区</code>（DoubleBuffering）来解决撕裂的问题（苹果使用的就是这个策略）</p><ol><li>垂直同步Vsync：每隔1/60s就会发出一个信号，让GPU开始渲染图像，而这个时间间隔足够视频控制器显示图像了，App启动后，会在Runloop注册对应的CFRunLoopSource，通过mach_port，接受来自系统的Vsync事件（实际上是由硬件发出的，每秒钟发60次），CADisplayLink也是同样的原理</li><li>双缓存区 DoubleBuffering，使用两个帧缓冲区，视频控制器使用的帧缓冲区和GPU使用的分开，避免视频控制器正在使用的缓冲区被修改，避免撕裂问题，在GPU把帧数据写到帧缓冲区后，会和视频控制器使用的帧缓冲区进行交换，然后等待下一帧的渲染</li></ol><img src="/images/post/opengl/double-buffer.png" width="800"><h4 id="掉帧"><a href="#掉帧" class="headerlink" title="掉帧"></a>掉帧</h4><p>上面解决了撕裂的问题，但是还有一个掉帧的问题，如下图</p><img src="/images/post/opengl/jank.png" width="800"><p>当CPU和GPU渲染图像的时间过长，在下一个垂直同步信号来的时候，GPU并没有处理完一帧的数据，帧缓冲区也就没有交换，视频控制器就会显示原来缓冲区的内容</p><h4 id="三缓冲区"><a href="#三缓冲区" class="headerlink" title="三缓冲区"></a>三缓冲区</h4><p>从上图可以看出，CPU和GPU是在垂直同步信号到来的时候才开始渲染的工作，为了<code>减少掉帧</code>的情况，引入了<code>三缓冲区</code></p><p>A：显示到屏幕<br>B：提前渲染号<br>C：正在渲染</p><p>其实相当于预加载，充分利用CPU和GPU的空闲时间，提前渲染好一帧B（同时也会带来画面延迟，当然1帧的延迟是可以接受的），多留出了一帧的时间，即使在渲染C的时候出现了一次掉帧，依然能刘畅渲染，这种情况大大减小了掉帧的可能</p><p>但如果渲染C的时间过长（掉多帧），依然会带来掉帧的问题，三缓冲区本质上并不解决掉帧的问题，只是缓解</p><blockquote><p>为了解决掉帧的问题，我们只能尽可能优化我们的代码，减少CPU和GPU的渲染时间</p></blockquote><h2 id="iOS的渲染框架"><a href="#iOS的渲染框架" class="headerlink" title="iOS的渲染框架"></a>iOS的渲染框架</h2><h3 id="渲染框架"><a href="#渲染框架" class="headerlink" title="渲染框架"></a>渲染框架</h3><img src="/images/post/opengl/ios-render-structure.png" width="800"><p>可以看到在iOS中的<code>CoreGraphics</code>, <code>CoreAnimation</code>, <code>CoreImage</code>都是通过OpenGL/Metal进行渲染的，我们的App也可以使用OpenGL/Metal来操作GPU进行渲染</p><h3 id="CoreAnimation-渲染流⽔线"><a href="#CoreAnimation-渲染流⽔线" class="headerlink" title="CoreAnimation 渲染流⽔线"></a>CoreAnimation 渲染流⽔线</h3><img src="/images/post/opengl/coreanimation-pipe.png" width="1000"><p>任何一个View(例如：UIButton、UIImage)的加载都来到CoreAnimation, 首先会处理它的事件(点击、改变位置等)，然后进行提交Commit Transaction。再对图片提交给Render Server(Core Animation)进行解码，等待下一个VSync来进行下一个回调，<code>RenderService</code>通过<code>OpenGL/Metal</code>把控制操作和数据信息传递给GPU，GPU通过下面渲染流程程（顶点数据-&gt;顶点着⾊器-&gt;⽚元着⾊器），再渲染到帧缓冲区，最终被视频控制器显示到屏幕上</p><img src="/images/post/opengl/renderservice.png" width="800">]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;CPU和GPU&quot;&gt;&lt;a href=&quot;#CPU和GPU&quot; class=&quot;headerlink&quot; title=&quot;CPU和GPU&quot;&gt;&lt;/a&gt;CPU和GPU&lt;/h2&gt;&lt;img src=&quot;/images/post/opengl/cpu-gpu.png&quot; width=&quot;800&quot;&gt;
+
+&lt;p&gt;从图中结构可以看出&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;CPU&lt;/code&gt;的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，&lt;code&gt;擅长逻辑控制&lt;/code&gt;  &lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GPU&lt;/code&gt;是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，&lt;code&gt;擅长并发计算&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+      <category term="iOS" scheme="http://zhengbomo.github.io/categories/iOS/"/>
+    
+    
+      <category term="OpenGL" scheme="http://zhengbomo.github.io/tags/OpenGL/"/>
+    
+  </entry>
   
   <entry>
     <title>理解flutter中的Key</title>
@@ -478,31 +507,6 @@
     
     
       <category term="iOS" scheme="http://zhengbomo.github.io/tags/iOS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MacOS 10.15安装IDA7</title>
-    <link href="http://zhengbomo.github.io/2020-03-13/ida7-catalina/"/>
-    <id>http://zhengbomo.github.io/2020-03-13/ida7-catalina/</id>
-    <published>2020-03-13T14:01:20.000Z</published>
-    <updated>2020-03-13T14:01:20.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>MacOS 10.15对系统做了比较大的改动，之前的<code>IDA7.0</code>无法在10.15上安装，而在10.14安装是正常的，解决方案是通过<code>MacOS 10.14</code>安装，然后把安装好的文件放到10.15系统运行</p><a id="more"></a><h2 id="Mac-10-14安装IDA"><a href="#Mac-10-14安装IDA" class="headerlink" title="Mac 10.14安装IDA"></a>Mac 10.14安装IDA</h2><ol><li><p>下载并安装虚拟机<a href="https://xclient.info/s/vmware-fusion.html" target="_blank" rel="noopener"><code>VMware Fusion</code></a></p></li><li><p>下载并安装<code>MacOS 10.14</code>镜像</p><blockquote><p>链接: <a href="https://pan.baidu.com/s/1XVPCyecg4xIbxnvR6_ukDA" target="_blank" rel="noopener">https://pan.baidu.com/s/1XVPCyecg4xIbxnvR6_ukDA</a> 提取码: y8xn</p></blockquote></li><li><p>下载<a href="http://www.pc6.com/mac/566964.html" target="_blank" rel="noopener"><code>IDA7.0</code></a>，安装到MacOS10.14上</p></li></ol><p>安装完得到</p><img src="/images/post/ida-app.png" width="500"><h2 id="复制到Mac-10-15"><a href="#复制到Mac-10-15" class="headerlink" title="复制到Mac 10.15"></a>复制到Mac 10.15</h2><p>拷贝10.14系统下的到<code>/Applications/IDA Pro 7.0</code>目录到10.15系统的<code>/Applications/</code>下</p><ol><li><p>直接打开会直接崩溃</p> <img src="/images/post/ida-catalina-crash.png" width="500"><p> 需要替换一下<code>libqcocoa.dylib</code>文件，在<a href="https://github.com/fjh658/IDA7.0_SP" target="_blank" rel="noopener">这里</a>可以找到</p> <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/Applications/IDA Pro 7.0/ida.app/Contents/PlugIns/platforms/libqcocoa.dylib</span><br></pre></td></tr></table></figure></li><li><p>每次打开会报授权过期<br> 解压<code>Fixes/IDA Mac 7 pacth.7z</code>并替换下面文件</p> <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/Applications/IDA Pro 7.0/ida.app/Contents/MacOS/ida</span><br><span class="line">/Applications/IDA Pro 7.0/ida.app/Contents/MacOS/ida64</span><br><span class="line">/Applications/IDA Pro 7.0/ida.app/Contents/MacOS/libida.dylib</span><br><span class="line">/Applications/IDA Pro 7.0/ida.app/Contents/MacOS/libida64.dylib</span><br></pre></td></tr></table></figure></li><li><p>打开<code>ida64</code>如果出现无法打开的情况</p><img src="/images/post/ida-catalina2.png" width="500"><p>可能是权限问题</p><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果没有执行权限，需要先添加，之后就能直接启动了</span></span><br><span class="line"><span class="built_in">cd</span> /Applications/IDA Pro 7.0/ida.app/Contents/MacOS</span><br><span class="line">chmod +x ida</span><br><span class="line">chmod +x ida64</span><br></pre></td></tr></table></figure> <img src="/images/post/ida-catalina3.png" width="600"></li></ol><p>下面是我处理后的文件，可以直接拿到<code>Mac10.15</code>使用</p><blockquote><p>链接:<a href="https://pan.baidu.com/s/1DwkW2ICWev5FhIqOHuq6BA" target="_blank" rel="noopener">https://pan.baidu.com/s/1DwkW2ICWev5FhIqOHuq6BA</a>  密码:kzxx</p></blockquote>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;MacOS 10.15对系统做了比较大的改动，之前的&lt;code&gt;IDA7.0&lt;/code&gt;无法在10.15上安装，而在10.14安装是正常的，解决方案是通过&lt;code&gt;MacOS 10.14&lt;/code&gt;安装，然后把安装好的文件放到10.15系统运行&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="iOS" scheme="http://zhengbomo.github.io/categories/iOS/"/>
-    
-    
-      <category term="iOS" scheme="http://zhengbomo.github.io/tags/iOS/"/>
-    
-      <category term="逆向" scheme="http://zhengbomo.github.io/tags/%E9%80%86%E5%90%91/"/>
     
   </entry>
   

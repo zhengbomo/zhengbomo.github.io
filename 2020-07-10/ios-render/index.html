@@ -21,20 +21,30 @@
     var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Swift指针类型平常开发中用的不多，在纯Swift开发上，基本不会用到，由于iOS平台很多方法是使用C语言编写的，为了兼容C的指针，Swift提供了很丰富的指针类型用于兼容C/C++的指针类型 C指针首先我们先回顾以下C语言的指针 1234567891011121314151617181920212223// 普通变量int a = 10;// int类型的指针，可变int *p1 = &amp;amp">
-<meta name="keywords" content="iOS,Swift">
+  <meta name="description" content="CPU和GPU  从图中结构可以看出  CPU的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，擅长逻辑控制   GPU是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，擅长并发计算">
+<meta name="keywords" content="OpenGL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Swift指针学习">
-<meta property="og:url" content="http://zhengbomo.github.io/2020-06-20/swift-pointer/index.html">
+<meta property="og:title" content="OpenGL图像渲染解析">
+<meta property="og:url" content="http://zhengbomo.github.io/2020-07-10/ios-render/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
-<meta property="og:description" content="Swift指针类型平常开发中用的不多，在纯Swift开发上，基本不会用到，由于iOS平台很多方法是使用C语言编写的，为了兼容C的指针，Swift提供了很丰富的指针类型用于兼容C/C++的指针类型 C指针首先我们先回顾以下C语言的指针 1234567891011121314151617181920212223// 普通变量int a = 10;// int类型的指针，可变int *p1 = &amp;amp">
+<meta property="og:description" content="CPU和GPU  从图中结构可以看出  CPU的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，擅长逻辑控制   GPU是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，擅长并发计算">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-20T06:09:13.000Z">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/cpu-gpu.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/print-structure.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/screen-scan.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/image-tear.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/double-buffer.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/jank.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/ios-render-structure.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/coreanimation-pipe.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/renderservice.png">
+<meta property="og:updated_time" content="2020-07-10T13:33:03.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Swift指针学习">
-<meta name="twitter:description" content="Swift指针类型平常开发中用的不多，在纯Swift开发上，基本不会用到，由于iOS平台很多方法是使用C语言编写的，为了兼容C的指针，Swift提供了很丰富的指针类型用于兼容C/C++的指针类型 C指针首先我们先回顾以下C语言的指针 1234567891011121314151617181920212223// 普通变量int a = 10;// int类型的指针，可变int *p1 = &amp;amp">
+<meta name="twitter:title" content="OpenGL图像渲染解析">
+<meta name="twitter:description" content="CPU和GPU  从图中结构可以看出  CPU的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，擅长逻辑控制   GPU是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，擅长并发计算">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/opengl/cpu-gpu.png">
 
-<link rel="canonical" href="http://zhengbomo.github.io/2020-06-20/swift-pointer/">
+<link rel="canonical" href="http://zhengbomo.github.io/2020-07-10/ios-render/">
 
 
 <script id="page-configurations">
@@ -47,7 +57,7 @@
   };
 </script>
 
-  <title>Swift指针学习 | bomo的开发随笔</title>
+  <title>OpenGL图像渲染解析 | bomo的开发随笔</title>
   
 
 
@@ -124,17 +134,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">48</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">49</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">81</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">82</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -197,7 +207,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-06-20/swift-pointer/">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-07-10/ios-render/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -210,7 +220,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Swift指针学习
+          OpenGL图像渲染解析
         </h1>
 
         <div class="post-meta">
@@ -220,7 +230,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2020-06-20 14:09:13" itemprop="dateCreated datePublished" datetime="2020-06-20T14:09:13+08:00">2020-06-20</time>
+              <time title="创建时间：2020-07-10 21:33:03" itemprop="dateCreated datePublished" datetime="2020-07-10T21:33:03+08:00">2020-07-10</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,34 +253,48 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Swift指针类型平常开发中用的不多，在纯Swift开发上，基本不会用到，由于iOS平台很多方法是使用C语言编写的，为了兼容C的指针，Swift提供了很丰富的指针类型用于兼容C/C++的指针类型</p>
-<h2 id="C指针"><a href="#C指针" class="headerlink" title="C指针"></a>C指针</h2><p>首先我们先回顾以下C语言的指针</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 普通变量</span></span><br><span class="line"><span class="keyword">int</span> a = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// int类型的指针，可变</span></span><br><span class="line"><span class="keyword">int</span> *p1 = &amp;a;</span><br><span class="line"></span><br><span class="line"><span class="comment">// int类型的指针，指针不可变</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> *p2 = p1;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 和p2一样</span></span><br><span class="line"><span class="keyword">int</span> <span class="keyword">const</span> *p3 = &amp;age;</span><br><span class="line"></span><br><span class="line"><span class="comment">// p4是常量，*p4不是常量</span></span><br><span class="line"><span class="keyword">int</span> * <span class="keyword">const</span> p4 = &amp;age;</span><br><span class="line"></span><br><span class="line"><span class="comment">// p5是常量，*p5是常量</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> * <span class="keyword">const</span> p5 = &amp;age;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 与p5一样</span></span><br><span class="line"><span class="keyword">int</span> <span class="keyword">const</span> * <span class="keyword">const</span> p6 = &amp;age;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 指向指针的指针，可变</span></span><br><span class="line"><span class="keyword">int</span> **p7 = &amp;p1;</span><br></pre></td></tr></table></figure>
+        <h2 id="CPU和GPU"><a href="#CPU和GPU" class="headerlink" title="CPU和GPU"></a>CPU和GPU</h2><img src="/images/post/opengl/cpu-gpu.png" width="800">
 
-<p>上面指针对应的Swift类型如下</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 普通变量</span></span><br><span class="line"><span class="keyword">let</span> a: <span class="type">Int</span> = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// int类型的指针，可变</span></span><br><span class="line">int *p1 = &amp;a;</span><br><span class="line"></span><br><span class="line"><span class="comment">// int类型的指针，指针不可变</span></span><br><span class="line">const int *p2 = p1;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 和p2一样</span></span><br><span class="line">int const *p3 = &amp;age;</span><br><span class="line"></span><br><span class="line"><span class="comment">// p4是常量，*p4不是常量</span></span><br><span class="line">int * const p4 = &amp;age;</span><br><span class="line"></span><br><span class="line"><span class="comment">// p5是常量，*p5是常量</span></span><br><span class="line">const int * const p5 = &amp;age;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 与p5一样</span></span><br><span class="line">int const * const p6 = &amp;age;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 指向指针的指针，可变</span></span><br><span class="line">int **p7 = &amp;p1;</span><br></pre></td></tr></table></figure>
+<p>从图中结构可以看出</p>
+<ul>
+<li><code>CPU</code>的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，<code>擅长逻辑控制</code>  </li>
+<li><code>GPU</code>是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，<code>擅长并发计算</code></li>
+</ul>
+<a id="more"></a>
 
-<p>在Swift中使用C，Swift发展已经有很长一段时间了，由于底层很多函数库都是使用C语言的，当我们使用C/Swift混编的时候，也需要在Swift调用C方法</p>
+<h2 id="计算机渲染原理"><a href="#计算机渲染原理" class="headerlink" title="计算机渲染原理"></a>计算机渲染原理</h2><h3 id="⾼级光栅扫描显示系统结构"><a href="#⾼级光栅扫描显示系统结构" class="headerlink" title="⾼级光栅扫描显示系统结构"></a>⾼级光栅扫描显示系统结构</h3><img src="/images/post/opengl/print-structure.png" width="700">
+
+<h3 id="屏幕扫描"><a href="#屏幕扫描" class="headerlink" title="屏幕扫描"></a>屏幕扫描</h3><p><code>视频控制器/显示控制器</code>从<code>帧缓冲区</code>中读取图像信息（位图），经过数模转换（数字信号处-&gt;模拟型号）后通过<code>逐行扫描</code>把图像显示到显示器上的</p>
+<img src="/images/post/opengl/screen-scan.png" width="500">
+
+<h4 id="撕裂问题"><a href="#撕裂问题" class="headerlink" title="撕裂问题"></a>撕裂问题</h4><p>显示一个完整画面是需要一定时间的，视频控制器在显示图像的过程中，如果这时候帧缓冲区的数据被刷新了，就会造成<code>撕裂</code>的问题，上面部分显示前面一帧的数据，下面部分为新的数据</p>
+<img src="/images/post/opengl/image-tear.png" width="500">
+
+<h4 id="双缓冲区和垂直同步"><a href="#双缓冲区和垂直同步" class="headerlink" title="双缓冲区和垂直同步"></a>双缓冲区和垂直同步</h4><p>为了解决撕裂，苹果引入了<code>垂直同步</code>（VSync） + <code>双缓存区</code>（DoubleBuffering）来解决撕裂的问题（苹果使用的就是这个策略）</p>
 <ol>
-<li><p>直接在Swift声明C语言的方法，就可以直接使用，而不需要导入头文件</p>
-</li>
-<li><p>类型转换</p>
-</li>
-<li><p>对于C语言的基本数据类型，Swift都有与之对应的类型</p>
-</li>
+<li>垂直同步Vsync：每隔1/60s就会发出一个信号，让GPU开始渲染图像，而这个时间间隔足够视频控制器显示图像了，App启动后，会在Runloop注册对应的CFRunLoopSource，通过mach_port，接受来自系统的Vsync事件（实际上是由硬件发出的，每秒钟发60次），CADisplayLink也是同样的原理</li>
+<li>双缓存区 DoubleBuffering，使用两个帧缓冲区，视频控制器使用的帧缓冲区和GPU使用的分开，避免视频控制器正在使用的缓冲区被修改，避免撕裂问题，在GPU把帧数据写到帧缓冲区后，会和视频控制器使用的帧缓冲区进行交换，然后等待下一帧的渲染</li>
 </ol>
-<!-- C 类型    Swift 对应类型    别名
-bool    CBool    Bool
-char,unsigned char    CChar, CUnsignedChar    Int8, UInt8
-short, unsigned short    CShort, CUnsignedShort    Int16, UInt16
-int, unsigned int    CInt, CUnsignedInt    Int32, UInt32
-long, unsigned long    CLong, CUnsignedLong    Int, UInt
-long long, unsigned long long    CLongLong, CUnsignedLongLong    Int64, UInt64
-wchar_t, char16_t, char32_t    CWideChar, CChar16, CChar32    UnicodeScalar, UInt16, UnicodeScalar
-float, double    CFloat, CDouble    Float, Double -->
+<img src="/images/post/opengl/double-buffer.png" width="800">
 
+<h4 id="掉帧"><a href="#掉帧" class="headerlink" title="掉帧"></a>掉帧</h4><p>上面解决了撕裂的问题，但是还有一个掉帧的问题，如下图</p>
+<img src="/images/post/opengl/jank.png" width="800">
 
+<p>当CPU和GPU渲染图像的时间过长，在下一个垂直同步信号来的时候，GPU并没有处理完一帧的数据，帧缓冲区也就没有交换，视频控制器就会显示原来缓冲区的内容</p>
+<h4 id="三缓冲区"><a href="#三缓冲区" class="headerlink" title="三缓冲区"></a>三缓冲区</h4><p>从上图可以看出，CPU和GPU是在垂直同步信号到来的时候才开始渲染的工作，为了<code>减少掉帧</code>的情况，引入了<code>三缓冲区</code></p>
+<p>A：显示到屏幕<br>B：提前渲染号<br>C：正在渲染</p>
+<p>其实相当于预加载，充分利用CPU和GPU的空闲时间，提前渲染好一帧B（同时也会带来画面延迟，当然1帧的延迟是可以接受的），多留出了一帧的时间，即使在渲染C的时候出现了一次掉帧，依然能刘畅渲染，这种情况大大减小了掉帧的可能</p>
+<p>但如果渲染C的时间过长（掉多帧），依然会带来掉帧的问题，三缓冲区本质上并不解决掉帧的问题，只是缓解</p>
+<blockquote>
+<p>为了解决掉帧的问题，我们只能尽可能优化我们的代码，减少CPU和GPU的渲染时间</p>
+</blockquote>
+<h2 id="iOS的渲染框架"><a href="#iOS的渲染框架" class="headerlink" title="iOS的渲染框架"></a>iOS的渲染框架</h2><h3 id="渲染框架"><a href="#渲染框架" class="headerlink" title="渲染框架"></a>渲染框架</h3><img src="/images/post/opengl/ios-render-structure.png" width="800">
 
+<p>可以看到在iOS中的<code>CoreGraphics</code>, <code>CoreAnimation</code>, <code>CoreImage</code>都是通过OpenGL/Metal进行渲染的，我们的App也可以使用OpenGL/Metal来操作GPU进行渲染</p>
+<h3 id="CoreAnimation-渲染流⽔线"><a href="#CoreAnimation-渲染流⽔线" class="headerlink" title="CoreAnimation 渲染流⽔线"></a>CoreAnimation 渲染流⽔线</h3><img src="/images/post/opengl/coreanimation-pipe.png" width="1000">
+
+<p>任何一个View(例如：UIButton、UIImage)的加载都来到CoreAnimation, 首先会处理它的事件(点击、改变位置等)，然后进行提交Commit Transaction。再对图片提交给Render Server(Core Animation)进行解码，等待下一个VSync来进行下一个回调，<code>RenderService</code>通过<code>OpenGL/Metal</code>把控制操作和数据信息传递给GPU，GPU通过下面渲染流程程（顶点数据-&gt;顶点着⾊器-&gt;⽚元着⾊器），再渲染到帧缓冲区，最终被视频控制器显示到屏幕上</p>
+<img src="/images/post/opengl/renderservice.png" width="800">
 
     </div>
 
@@ -286,7 +310,7 @@ float, double    CFloat, CDouble    Float, Double -->
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://zhengbomo.github.io/2020-06-20/swift-pointer/" title="Swift指针学习">http://zhengbomo.github.io/2020-06-20/swift-pointer/</a>
+    <a href="http://zhengbomo.github.io/2020-07-10/ios-render/" title="OpenGL图像渲染解析">http://zhengbomo.github.io/2020-07-10/ios-render/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -297,8 +321,7 @@ float, double    CFloat, CDouble    Float, Double -->
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/iOS/" rel="tag"># iOS</a>
-              <a href="/tags/Swift/" rel="tag"># Swift</a>
+              <a href="/tags/OpenGL/" rel="tag"># OpenGL</a>
           </div>
 
         
@@ -307,13 +330,10 @@ float, double    CFloat, CDouble    Float, Double -->
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020-06-19/ios-performance/" rel="prev" title="iOS性能优化">
-      <i class="fa fa-chevron-left"></i> iOS性能优化
+    <a href="/2020-07-04/flutter-key/" rel="prev" title="理解flutter中的Key">
+      <i class="fa fa-chevron-left"></i> 理解flutter中的Key
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020-06-30/flutter-chat-listview/" rel="next" title="flutter聊天消息列表">
-      flutter聊天消息列表 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -372,7 +392,7 @@ float, double    CFloat, CDouble    Float, Double -->
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#C指针"><span class="nav-number">1.</span> <span class="nav-text">C指针</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU和GPU"><span class="nav-number">1.</span> <span class="nav-text">CPU和GPU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#计算机渲染原理"><span class="nav-number">2.</span> <span class="nav-text">计算机渲染原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#⾼级光栅扫描显示系统结构"><span class="nav-number">2.1.</span> <span class="nav-text">⾼级光栅扫描显示系统结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#屏幕扫描"><span class="nav-number">2.2.</span> <span class="nav-text">屏幕扫描</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#撕裂问题"><span class="nav-number">2.2.1.</span> <span class="nav-text">撕裂问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双缓冲区和垂直同步"><span class="nav-number">2.2.2.</span> <span class="nav-text">双缓冲区和垂直同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#掉帧"><span class="nav-number">2.2.3.</span> <span class="nav-text">掉帧</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三缓冲区"><span class="nav-number">2.2.4.</span> <span class="nav-text">三缓冲区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS的渲染框架"><span class="nav-number">3.</span> <span class="nav-text">iOS的渲染框架</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#渲染框架"><span class="nav-number">3.1.</span> <span class="nav-text">渲染框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CoreAnimation-渲染流⽔线"><span class="nav-number">3.2.</span> <span class="nav-text">CoreAnimation 渲染流⽔线</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -388,20 +408,20 @@ float, double    CFloat, CDouble    Float, Double -->
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">81</span>
+          <span class="site-state-item-count">82</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-count">49</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

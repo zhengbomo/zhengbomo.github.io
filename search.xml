@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>OpenGL图像渲染解析</title>
+      <link href="/2020-07-10/ios-render/"/>
+      <url>/2020-07-10/ios-render/</url>
+      
+        <content type="html"><![CDATA[<h2 id="CPU和GPU"><a href="#CPU和GPU" class="headerlink" title="CPU和GPU"></a>CPU和GPU</h2><img src="/images/post/opengl/cpu-gpu.png" width="800"><p>从图中结构可以看出</p><ul><li><code>CPU</code>的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，<code>擅长逻辑控制</code>  </li><li><code>GPU</code>是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，<code>擅长并发计算</code></li></ul><a id="more"></a><h2 id="计算机渲染原理"><a href="#计算机渲染原理" class="headerlink" title="计算机渲染原理"></a>计算机渲染原理</h2><h3 id="⾼级光栅扫描显示系统结构"><a href="#⾼级光栅扫描显示系统结构" class="headerlink" title="⾼级光栅扫描显示系统结构"></a>⾼级光栅扫描显示系统结构</h3><img src="/images/post/opengl/print-structure.png" width="700"><h3 id="屏幕扫描"><a href="#屏幕扫描" class="headerlink" title="屏幕扫描"></a>屏幕扫描</h3><p><code>视频控制器/显示控制器</code>从<code>帧缓冲区</code>中读取图像信息（位图），经过数模转换（数字信号处-&gt;模拟型号）后通过<code>逐行扫描</code>把图像显示到显示器上的</p><img src="/images/post/opengl/screen-scan.png" width="500"><h4 id="撕裂问题"><a href="#撕裂问题" class="headerlink" title="撕裂问题"></a>撕裂问题</h4><p>显示一个完整画面是需要一定时间的，视频控制器在显示图像的过程中，如果这时候帧缓冲区的数据被刷新了，就会造成<code>撕裂</code>的问题，上面部分显示前面一帧的数据，下面部分为新的数据</p><img src="/images/post/opengl/image-tear.png" width="500"><h4 id="双缓冲区和垂直同步"><a href="#双缓冲区和垂直同步" class="headerlink" title="双缓冲区和垂直同步"></a>双缓冲区和垂直同步</h4><p>为了解决撕裂，苹果引入了<code>垂直同步</code>（VSync） + <code>双缓存区</code>（DoubleBuffering）来解决撕裂的问题（苹果使用的就是这个策略）</p><ol><li>垂直同步Vsync：每隔1/60s就会发出一个信号，让GPU开始渲染图像，而这个时间间隔足够视频控制器显示图像了，App启动后，会在Runloop注册对应的CFRunLoopSource，通过mach_port，接受来自系统的Vsync事件（实际上是由硬件发出的，每秒钟发60次），CADisplayLink也是同样的原理</li><li>双缓存区 DoubleBuffering，使用两个帧缓冲区，视频控制器使用的帧缓冲区和GPU使用的分开，避免视频控制器正在使用的缓冲区被修改，避免撕裂问题，在GPU把帧数据写到帧缓冲区后，会和视频控制器使用的帧缓冲区进行交换，然后等待下一帧的渲染</li></ol><img src="/images/post/opengl/double-buffer.png" width="800"><h4 id="掉帧"><a href="#掉帧" class="headerlink" title="掉帧"></a>掉帧</h4><p>上面解决了撕裂的问题，但是还有一个掉帧的问题，如下图</p><img src="/images/post/opengl/jank.png" width="800"><p>当CPU和GPU渲染图像的时间过长，在下一个垂直同步信号来的时候，GPU并没有处理完一帧的数据，帧缓冲区也就没有交换，视频控制器就会显示原来缓冲区的内容</p><h4 id="三缓冲区"><a href="#三缓冲区" class="headerlink" title="三缓冲区"></a>三缓冲区</h4><p>从上图可以看出，CPU和GPU是在垂直同步信号到来的时候才开始渲染的工作，为了<code>减少掉帧</code>的情况，引入了<code>三缓冲区</code></p><p>A：显示到屏幕<br>B：提前渲染号<br>C：正在渲染</p><p>其实相当于预加载，充分利用CPU和GPU的空闲时间，提前渲染好一帧B（同时也会带来画面延迟，当然1帧的延迟是可以接受的），多留出了一帧的时间，即使在渲染C的时候出现了一次掉帧，依然能刘畅渲染，这种情况大大减小了掉帧的可能</p><p>但如果渲染C的时间过长（掉多帧），依然会带来掉帧的问题，三缓冲区本质上并不解决掉帧的问题，只是缓解</p><blockquote><p>为了解决掉帧的问题，我们只能尽可能优化我们的代码，减少CPU和GPU的渲染时间</p></blockquote><h2 id="iOS的渲染框架"><a href="#iOS的渲染框架" class="headerlink" title="iOS的渲染框架"></a>iOS的渲染框架</h2><h3 id="渲染框架"><a href="#渲染框架" class="headerlink" title="渲染框架"></a>渲染框架</h3><img src="/images/post/opengl/ios-render-structure.png" width="800"><p>可以看到在iOS中的<code>CoreGraphics</code>, <code>CoreAnimation</code>, <code>CoreImage</code>都是通过OpenGL/Metal进行渲染的，我们的App也可以使用OpenGL/Metal来操作GPU进行渲染</p><h3 id="CoreAnimation-渲染流⽔线"><a href="#CoreAnimation-渲染流⽔线" class="headerlink" title="CoreAnimation 渲染流⽔线"></a>CoreAnimation 渲染流⽔线</h3><img src="/images/post/opengl/coreanimation-pipe.png" width="1000"><p>任何一个View(例如：UIButton、UIImage)的加载都来到CoreAnimation, 首先会处理它的事件(点击、改变位置等)，然后进行提交Commit Transaction。再对图片提交给Render Server(Core Animation)进行解码，等待下一个VSync来进行下一个回调，<code>RenderService</code>通过<code>OpenGL/Metal</code>把控制操作和数据信息传递给GPU，GPU通过下面渲染流程程（顶点数据-&gt;顶点着⾊器-&gt;⽚元着⾊器），再渲染到帧缓冲区，最终被视频控制器显示到屏幕上</p><img src="/images/post/opengl/renderservice.png" width="800">]]></content>
+      
+      
+      <categories>
+          
+          <category> iOS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> OpenGL </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>理解flutter中的Key</title>
       <link href="/2020-07-04/flutter-key/"/>
       <url>/2020-07-04/flutter-key/</url>
