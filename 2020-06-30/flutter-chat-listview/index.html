@@ -24,7 +24,7 @@
   <meta name="description" content="最近在做一个聊天的页面，参考微信的聊天页面，对ListView有下面几个需求  使用列表Widget，例如：ListView, CustomScrollView等 支持scrollToEnd，当键盘，表情面板，工具面板弹出时，消息滑动到底部 支持获取位置用于跳转getCurrentIndexInfo，用于保持加载数据时候的位置不变 支持jumpToIndex和scrollToIndex，避免手动计">
 <meta name="keywords" content="flutter">
 <meta property="og:type" content="article">
-<meta property="og:title" content="flutter聊天消息列表">
+<meta property="og:title" content="flutter仿微信聊天交互">
 <meta property="og:url" content="http://zhengbomo.github.io/2020-06-30/flutter-chat-listview/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
 <meta property="og:description" content="最近在做一个聊天的页面，参考微信的聊天页面，对ListView有下面几个需求  使用列表Widget，例如：ListView, CustomScrollView等 支持scrollToEnd，当键盘，表情面板，工具面板弹出时，消息滑动到底部 支持获取位置用于跳转getCurrentIndexInfo，用于保持加载数据时候的位置不变 支持jumpToIndex和scrollToIndex，避免手动计">
@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/flutter/flutter-listview-insert-keep-position.gif">
 <meta property="og:updated_time" content="2020-06-30T00:16:15.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="flutter聊天消息列表">
+<meta name="twitter:title" content="flutter仿微信聊天交互">
 <meta name="twitter:description" content="最近在做一个聊天的页面，参考微信的聊天页面，对ListView有下面几个需求  使用列表Widget，例如：ListView, CustomScrollView等 支持scrollToEnd，当键盘，表情面板，工具面板弹出时，消息滑动到底部 支持获取位置用于跳转getCurrentIndexInfo，用于保持加载数据时候的位置不变 支持jumpToIndex和scrollToIndex，避免手动计">
 <meta name="twitter:image" content="http://zhengbomo.github.io/images/post/flutter/flutter-chat-message-list.gif">
 
@@ -51,7 +51,7 @@
   };
 </script>
 
-  <title>flutter聊天消息列表 | bomo的开发随笔</title>
+  <title>flutter仿微信聊天交互 | bomo的开发随笔</title>
   
 
 
@@ -214,7 +214,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          flutter聊天消息列表
+          flutter仿微信聊天交互
         </h1>
 
         <div class="post-meta">
@@ -255,6 +255,7 @@
 <li>支持<code>jumpToIndex</code>和<code>scrollToIndex</code>，避免手动计算位置</li>
 <li>滑动位置要准确，没有误差</li>
 <li>滑动到底部不会出现bounce</li>
+<li>由于键盘上移的时候scrollToEnd</li>
 </ol>
 <a id="more"></a>
 
@@ -296,6 +297,12 @@
 
 <img src="/images/post/flutter/flutter-listview-insert-keep-position.gif" width="300">
 
+<h2 id="键盘处理"><a href="#键盘处理" class="headerlink" title="键盘处理"></a>键盘处理</h2><p>键盘弹出的时候，我们希望ChatBar是动画上移的，并且listview需要scrollToEnd，<code>Scaffold</code>有个属性<code>resizeToAvoidBottomInset</code>用于控制键盘弹出时的内容区域，但是没有动画，直接变化看起来非常突兀，这里关掉了这个属性，我们自己来控制键盘弹出时的UI变化</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Scaffold(</span><br><span class="line">    resizeToAvoidBottomInset: <span class="keyword">false</span>,</span><br><span class="line">    ...</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>如果使用动画修改ListView的高度，则无法和scrollToEnd配合起来，应为scrollToEnd无法根据动画一致滚动，这样性能上会比较差，这里采用占位的方式，键盘弹出的时候，不修改ListView的高度，而是在ListView底部添加一个<code>占位item</code>，修改这个占位item高度（不需要动画），然后scrollToEnd，这个滚动可以做到平滑，另外ChatBar键盘弹出时添加上动画即可</p>
+<p>仿写微信项目在<a href="https://github.com/zhengbomo/flutter_wechat" target="_blank" rel="noopener">这里</a></p>
+
     </div>
 
     
@@ -310,7 +317,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://zhengbomo.github.io/2020-06-30/flutter-chat-listview/" title="flutter聊天消息列表">http://zhengbomo.github.io/2020-06-30/flutter-chat-listview/</a>
+    <a href="http://zhengbomo.github.io/2020-06-30/flutter-chat-listview/" title="flutter仿微信聊天交互">http://zhengbomo.github.io/2020-06-30/flutter-chat-listview/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -395,7 +402,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#scrollToEnd"><span class="nav-number">1.</span> <span class="nav-text">scrollToEnd</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#存在问题"><span class="nav-number">1.1.</span> <span class="nav-text">存在问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#scrollToIndex"><span class="nav-number">2.</span> <span class="nav-text">scrollToIndex</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#存在问题-1"><span class="nav-number">2.1.</span> <span class="nav-text">存在问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bounce问题"><span class="nav-number">3.</span> <span class="nav-text">bounce问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取index位置"><span class="nav-number">4.</span> <span class="nav-text">获取index位置</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#scrollToEnd"><span class="nav-number">1.</span> <span class="nav-text">scrollToEnd</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#存在问题"><span class="nav-number">1.1.</span> <span class="nav-text">存在问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#scrollToIndex"><span class="nav-number">2.</span> <span class="nav-text">scrollToIndex</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#存在问题-1"><span class="nav-number">2.1.</span> <span class="nav-text">存在问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bounce问题"><span class="nav-number">3.</span> <span class="nav-text">bounce问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取index位置"><span class="nav-number">4.</span> <span class="nav-text">获取index位置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#键盘处理"><span class="nav-number">5.</span> <span class="nav-text">键盘处理</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

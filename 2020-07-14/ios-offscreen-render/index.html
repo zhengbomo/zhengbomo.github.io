@@ -293,15 +293,14 @@
 <li>提前切好需要的圆角，避免渲染的时候再切</li>
 </ol>
 <h2 id="其他触发离屏渲染的情况"><a href="#其他触发离屏渲染的情况" class="headerlink" title="其他触发离屏渲染的情况"></a>其他触发离屏渲染的情况</h2><ul>
-<li>使用了 <code>mask</code> 的 layer (layer.mask)</li>
-<li>需要进行裁剪的 layer (layer.masksToBounds /view.clipsToBounds)</li>
-<li>设置了组透明度为 YES，并且透明度不为 1 的layer (layer.allowsGroupOpacity/ layer.opacity)</li>
-<li>添加了投影的 layer (layer.shadow*)</li>
-<li>采用了光栅化的 layer (layer.shouldRasterize)</li>
-<li>绘制了文字的 layer (UILabel, CATextLayer, Core Text 等)</li>
+<li>使用了遮罩的 layer (<code>layer.mask</code>)</li>
+<li>需要进行裁剪的 layer (<code>layer.masksToBounds</code> / <code>view.clipsToBounds</code>)</li>
+<li>设置了组透明度为 YES，并且透明度不为 1 的layer (<code>layer.allowsGroupOpacity</code> / <code>layer.opacity</code>)</li>
+<li>添加了投影的 layer (<code>layer.shadow</code>)</li>
+<li>采用了光栅化的 layer (<code>layer.shouldRasterize</code>)，光栅化也可以优化离屏渲染问题</li>
+<li>绘制了文字的 layer (<code>UILabel</code>, <code>CATextLayer</code>, <code>CoreText</code>等)</li>
 </ul>
-<p>这里不展开</p>
-<h2 id="毛玻璃"><a href="#毛玻璃" class="headerlink" title="毛玻璃"></a>毛玻璃</h2><p>在iOS系统中，毛玻璃效果可以说应用的非常广泛，从上面分析也可以知道，这个肯定会触发离屏渲染的，图层之间存在依赖，下面是UIBlurEffect在GPU上的渲染过程</p>
+<h2 id="毛玻璃"><a href="#毛玻璃" class="headerlink" title="毛玻璃"></a>毛玻璃</h2><p>在iOS系统中，毛玻璃效果可以说应用的非常广泛，从上面分析也可以知道，这个肯定会触发离屏渲染的，图层之间存在依赖，下面是<code>UIBlurEffect</code>在GPU上的渲染过程</p>
 <img src="/images/post/opengl/uiblureffect-render.png" width="1000">
 
 <p>GPU在渲染完Content之后，会另外开辟一个<code>Off-screen buffer</code>，执行下面步骤，最后再做合并处理，最后再拷贝回<code>On-screen buffer</code>上</p>
