@@ -22,9 +22,9 @@
   </script>
 
   <meta name="description" content="CPU和GPU  从图中结构可以看出  CPU的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，擅长逻辑控制   GPU是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，擅长并发计算">
-<meta name="keywords" content="OpenGL">
+<meta name="keywords" content="iOS,OpenGL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="OpenGL图像渲染解析">
+<meta property="og:title" content="iOS图像渲染原理解析">
 <meta property="og:url" content="http://zhengbomo.github.io/2020-07-10/ios-render/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
 <meta property="og:description" content="CPU和GPU  从图中结构可以看出  CPU的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，擅长逻辑控制   GPU是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，擅长并发计算">
@@ -40,7 +40,7 @@
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/renderservice.png">
 <meta property="og:updated_time" content="2020-07-10T13:33:03.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="OpenGL图像渲染解析">
+<meta name="twitter:title" content="iOS图像渲染原理解析">
 <meta name="twitter:description" content="CPU和GPU  从图中结构可以看出  CPU的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，擅长逻辑控制   GPU是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，擅长并发计算">
 <meta name="twitter:image" content="http://zhengbomo.github.io/images/post/opengl/cpu-gpu.png">
 
@@ -57,7 +57,7 @@
   };
 </script>
 
-  <title>OpenGL图像渲染解析 | bomo的开发随笔</title>
+  <title>iOS图像渲染原理解析 | bomo的开发随笔</title>
   
 
 
@@ -144,7 +144,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">82</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">83</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -220,7 +220,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          OpenGL图像渲染解析
+          iOS图像渲染原理解析
         </h1>
 
         <div class="post-meta">
@@ -238,7 +238,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                  <a href="/categories/OpenGL/" itemprop="url" rel="index"><span itemprop="name">OpenGL</span></a>
                 </span>
             </span>
 
@@ -293,8 +293,45 @@
 <p>可以看到在iOS中的<code>CoreGraphics</code>, <code>CoreAnimation</code>, <code>CoreImage</code>都是通过OpenGL/Metal进行渲染的，我们的App也可以使用OpenGL/Metal来操作GPU进行渲染</p>
 <h3 id="CoreAnimation-渲染流⽔线"><a href="#CoreAnimation-渲染流⽔线" class="headerlink" title="CoreAnimation 渲染流⽔线"></a>CoreAnimation 渲染流⽔线</h3><img src="/images/post/opengl/coreanimation-pipe.png" width="1000">
 
-<p>任何一个View(例如：UIButton、UIImage)的加载都来到CoreAnimation, 首先会处理它的事件(点击、改变位置等)，然后进行提交Commit Transaction。再对图片提交给Render Server(Core Animation)进行解码，等待下一个VSync来进行下一个回调，<code>RenderService</code>通过<code>OpenGL/Metal</code>把控制操作和数据信息传递给GPU，GPU通过下面渲染流程程（顶点数据-&gt;顶点着⾊器-&gt;⽚元着⾊器），再渲染到帧缓冲区，最终被视频控制器显示到屏幕上</p>
+<p><code>CoreAnimation</code>会在<code>Runloop</code>注册一个<code>Observer</code>监听触摸事件，当点击事件到来的时候，Runloop会被唤醒处理相关的业务逻辑（UIView的创建，修改，添加动画等）</p>
+<p>最终会在CALayer通过<code>CATransaction</code>提交到<code>RenderServer</code>中，RenderServer会对图片进行解码，并等待下一个<code>VSync</code>的到来</p>
+<p>VSync信号到来后，<code>RenderService</code>会通过OpenGL/Metal做一些绘制操作，然后把处理完的数据（纹理，顶点，着色器等）提交给<code>GPU</code></p>
+<p>GPU通过下面渲染流程程（顶点数据-&gt;顶点着⾊器-&gt;⽚元着⾊器），渲染到<code>帧缓冲区</code>，然后交换<code>帧缓冲区</code>（双缓冲区）</p>
+<p>下一个VSync信号到来的时候，视频控制器读取帧缓冲区的数据显示到屏幕上</p>
+<p>如果此处有动画，CoreAnimation会通过<code>DisplayLink</code>等机制多次触发相关流程</p>
 <img src="/images/post/opengl/renderservice.png" width="800">
+
+<h3 id="渲染流程"><a href="#渲染流程" class="headerlink" title="渲染流程"></a>渲染流程</h3><ol>
+<li><p><code>CPU</code>阶段</p>
+<ul>
+<li>布局（Frame）: <code>layoutSubviews</code>, <code>addSubview</code></li>
+<li>显示（Core Graphics）: <code>drawRect</code>, 绘制字符串</li>
+<li>准备（QuartzCore/Core Animation）：图片<code>decode</code></li>
+<li>提交：通过<code>IPC</code>提交(打包好的layers以及动画属性)给OpenGL/Metal，递归提交subview的layers</li>
+</ul>
+</li>
+<li><p><code>OpenGL ES/Metal</code>阶段，主要是对图层进行取色，采样，生成纹理，绑定数据，生成前后帧缓存，为GPU渲染做准备</p>
+<ul>
+<li>生成(Generate)</li>
+<li>绑定(Bind)</li>
+<li>缓存数据(Buffer Data)</li>
+<li>启用(Enable)</li>
+<li>设置指针(Set Pointers)</li>
+<li>绘图(Draw)</li>
+<li>清除(Delete)</li>
+</ul>
+</li>
+<li><p><code>GPU</code>阶段</p>
+<ul>
+<li>接收提交的纹理（Texture）和顶点描述（三角形）</li>
+<li>应用变换（transform）</li>
+<li>合并渲染（离屏渲染等）</li>
+</ul>
+</li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://www.jianshu.com/p/39b91ecaaac8" target="_blank" rel="noopener">iOS界面渲染流程分析</a></li>
+</ul>
 
     </div>
 
@@ -310,7 +347,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://zhengbomo.github.io/2020-07-10/ios-render/" title="OpenGL图像渲染解析">http://zhengbomo.github.io/2020-07-10/ios-render/</a>
+    <a href="http://zhengbomo.github.io/2020-07-10/ios-render/" title="iOS图像渲染原理解析">http://zhengbomo.github.io/2020-07-10/ios-render/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -321,6 +358,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
               <a href="/tags/OpenGL/" rel="tag"># OpenGL</a>
           </div>
 
@@ -333,7 +371,10 @@
     <a href="/2020-07-04/flutter-key/" rel="prev" title="理解flutter中的Key">
       <i class="fa fa-chevron-left"></i> 理解flutter中的Key
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020-07-14/ios-offscreen-render/" rel="next" title="iOS离屏渲染原理和优化">
+      iOS离屏渲染原理和优化 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -392,7 +433,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU和GPU"><span class="nav-number">1.</span> <span class="nav-text">CPU和GPU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#计算机渲染原理"><span class="nav-number">2.</span> <span class="nav-text">计算机渲染原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#⾼级光栅扫描显示系统结构"><span class="nav-number">2.1.</span> <span class="nav-text">⾼级光栅扫描显示系统结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#屏幕扫描"><span class="nav-number">2.2.</span> <span class="nav-text">屏幕扫描</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#撕裂问题"><span class="nav-number">2.2.1.</span> <span class="nav-text">撕裂问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双缓冲区和垂直同步"><span class="nav-number">2.2.2.</span> <span class="nav-text">双缓冲区和垂直同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#掉帧"><span class="nav-number">2.2.3.</span> <span class="nav-text">掉帧</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三缓冲区"><span class="nav-number">2.2.4.</span> <span class="nav-text">三缓冲区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS的渲染框架"><span class="nav-number">3.</span> <span class="nav-text">iOS的渲染框架</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#渲染框架"><span class="nav-number">3.1.</span> <span class="nav-text">渲染框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CoreAnimation-渲染流⽔线"><span class="nav-number">3.2.</span> <span class="nav-text">CoreAnimation 渲染流⽔线</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU和GPU"><span class="nav-number">1.</span> <span class="nav-text">CPU和GPU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#计算机渲染原理"><span class="nav-number">2.</span> <span class="nav-text">计算机渲染原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#⾼级光栅扫描显示系统结构"><span class="nav-number">2.1.</span> <span class="nav-text">⾼级光栅扫描显示系统结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#屏幕扫描"><span class="nav-number">2.2.</span> <span class="nav-text">屏幕扫描</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#撕裂问题"><span class="nav-number">2.2.1.</span> <span class="nav-text">撕裂问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双缓冲区和垂直同步"><span class="nav-number">2.2.2.</span> <span class="nav-text">双缓冲区和垂直同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#掉帧"><span class="nav-number">2.2.3.</span> <span class="nav-text">掉帧</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三缓冲区"><span class="nav-number">2.2.4.</span> <span class="nav-text">三缓冲区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS的渲染框架"><span class="nav-number">3.</span> <span class="nav-text">iOS的渲染框架</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#渲染框架"><span class="nav-number">3.1.</span> <span class="nav-text">渲染框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CoreAnimation-渲染流⽔线"><span class="nav-number">3.2.</span> <span class="nav-text">CoreAnimation 渲染流⽔线</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#渲染流程"><span class="nav-number">3.3.</span> <span class="nav-text">渲染流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -408,7 +449,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">82</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
