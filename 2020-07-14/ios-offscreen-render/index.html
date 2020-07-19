@@ -33,8 +33,8 @@
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/offscreen-flow.png">
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/layer-cornerradius.png">
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/offscreen-demo.png">
-<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/uiblureffect-render.png">
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/uiblureffect-render2.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/uiblureffect-render.png">
 <meta property="og:updated_time" content="2020-07-14T02:07:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS离屏渲染原理和优化">
@@ -141,7 +141,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">83</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -253,14 +253,14 @@
         <p>几乎做iOS开发的人都知道，设置<code>圆角</code>会触发<code>离屏渲染</code>，那么什么情况下设置圆角不会触发离屏渲染呢，为什么会触发离屏渲染。</p>
 <a id="more"></a>
 
-<h2 id="画家算法"><a href="#画家算法" class="headerlink" title="画家算法"></a>画家算法</h2><p>计算机图层的叠加绘制大概遵循<code>画家算法</code>，在这种算法下会按层绘制，首先绘制距离较远的场景，然后用绘制距离较近的场景覆盖较远的部分，如下图。</p>
-<img src="/images/post/opengl/painter-draw.png" width="800" title="画家算法">
+<h2 id="油画算法"><a href="#油画算法" class="headerlink" title="油画算法"></a>油画算法</h2><p>计算机图层的叠加绘制大概遵循<code>油画算法</code>，在这种算法下会按层绘制，首先绘制距离较远的场景，然后用绘制距离较近的场景覆盖较远的部分，如下图。</p>
+<img src="/images/post/opengl/painter-draw.png" width="800" title="油画算法">
 
 <p>这样就不会导致远的物体挡住近的物体，但是有个局限，就是无法在后面一层渲染完成后，再回去修改前面图层，因为前面的图层已经被覆盖了</p>
-<h2 id="离屏渲染"><a href="#离屏渲染" class="headerlink" title="离屏渲染"></a>离屏渲染</h2><p>对于有前后依赖的图层（如全局剪切，阴影等），画家算法无法满足我们的需求，对于有前后依赖的图层，我们可以再另开辟一个空间，用于临时渲染，渲染完成后再渲染到当前的缓冲区上，这个临时渲染，就是离屏渲染，由于需要开辟一个新的内存空间，由于共享同一个上下文，所以还需要做上下文切换，并且渲染完成后还要进行拷贝操作</p>
+<h2 id="离屏渲染"><a href="#离屏渲染" class="headerlink" title="离屏渲染"></a>离屏渲染</h2><p>对于有前后依赖的图层（如全局剪切，阴影等），油画算法无法满足我们的需求，对于有前后依赖的图层，我们可以再另开辟一个空间，用于临时渲染，渲染完成后再渲染到当前的缓冲区上，这个临时渲染，就是<code>离屏渲染</code>，由于需要开辟一个新的内存空间，并且共享同一个上下文，所以还需要做上下文切换（状态切换），并且渲染完成后还要进行拷贝操作</p>
 <ol>
 <li><code>开辟临时缓存空间</code></li>
-<li><code>上下文切换</code></li>
+<li><code>上下文切换</code>，上下文对象比较大，切换操作会带来一定的性能消耗</li>
 <li><code>内存拷贝</code></li>
 <li><code>额外的渲染</code>（没有进一步考证）</li>
 </ol>
@@ -273,7 +273,7 @@
 <blockquote>
 <p><code>layer.cornerRadius</code>只作用<code>backgroundColor</code>和<code>border</code>，不会作用于<code>content</code>，支持<code>动画</code></p>
 </blockquote>
-<p>离屏渲染是系统无法按画家算法一次性渲染完我们的视图才会触发，我们先来看几个iOS的例子，模拟器打开<code>Color Off-screen Rendered</code></p>
+<p>离屏渲染是GPU无法按油画算法一次性渲染完我们的视图才会触发，我们先来看几个iOS的例子，模拟器打开<code>Color Off-screen Rendered</code></p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. UIImageView</span></span><br><span class="line"><span class="keyword">let</span> imageView = <span class="type">UIImageView</span>(frame: <span class="type">CGRect</span>(x: <span class="number">50</span>, y: <span class="number">100</span>, width: <span class="number">300</span>, height: <span class="number">200</span>))</span><br><span class="line"><span class="keyword">self</span>.view.addSubview(imageView)</span><br><span class="line">imageView.image = <span class="type">UIImage</span>.<span class="keyword">init</span>(named: <span class="string">"test.jpg"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// image + cornerRadius + masksToBounds 不会触发离屏渲染</span></span><br><span class="line">imageView.layer.cornerRadius = <span class="number">10</span></span><br><span class="line">imageView.layer.masksToBounds = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 触发离屏渲染</span></span><br><span class="line">imageView.backgroundColor = <span class="type">UIColor</span>.green</span><br><span class="line"><span class="comment">// 添加一个空的UIView不会触发离屏渲染</span></span><br><span class="line"><span class="comment">// imageView.addSubview(UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 10)))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. UIButton</span></span><br><span class="line"><span class="keyword">let</span> button = <span class="type">UIButton</span>(type: .custom)</span><br><span class="line">button.frame = <span class="type">CGRect</span>(x: <span class="number">50</span>, y: <span class="number">300</span> + <span class="number">50</span>, width: <span class="number">300</span>, height: <span class="number">50</span>)</span><br><span class="line"><span class="keyword">self</span>.view.addSubview(button)</span><br><span class="line">button.setTitle(<span class="string">"Test"</span>, <span class="keyword">for</span>: .normal)</span><br><span class="line">button.setTitleColor(<span class="type">UIColor</span>.blue, <span class="keyword">for</span>: .normal)</span><br><span class="line">button.layer.cornerRadius = <span class="number">10</span></span><br><span class="line">button.layer.masksToBounds = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 触发离屏渲染</span></span><br><span class="line">button.backgroundColor = <span class="type">UIColor</span>.green</span><br><span class="line"><span class="comment">// 触发离屏渲染</span></span><br><span class="line">button.setBackgroundImage(<span class="type">UIImage</span>(named: <span class="string">"test.jpg"</span>), <span class="keyword">for</span>: .normal)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. UIView</span></span><br><span class="line"><span class="keyword">let</span> view = <span class="type">UIView</span>(frame: <span class="type">CGRect</span>(x: <span class="number">50</span>, y: <span class="number">400</span> + <span class="number">50</span>, width: <span class="number">300</span>, height: <span class="number">50</span>))</span><br><span class="line"><span class="keyword">self</span>.view.addSubview(view)</span><br><span class="line">view.backgroundColor = <span class="type">UIColor</span>.red</span><br><span class="line">view.layer.cornerRadius = <span class="number">10</span></span><br><span class="line">view.layer.masksToBounds = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// label如果被渲染，则会触发渲染，如果text为空不会被渲染</span></span><br><span class="line"><span class="keyword">let</span> label = <span class="type">UILabel</span>(frame: <span class="type">CGRect</span>(x: <span class="number">10</span>, y: <span class="number">10</span>, width: <span class="number">1</span>, height: <span class="number">1</span>))</span><br><span class="line">label.text = <span class="string">"1"</span></span><br><span class="line">view.addSubview(label)</span><br></pre></td></tr></table></figure>
 
 <img src="/images/post/opengl/offscreen-demo.png" width="300" title="出现离屏渲染的地方被标记为黄色">
@@ -288,7 +288,7 @@
 </ul>
 <h2 id="优化圆角问题"><a href="#优化圆角问题" class="headerlink" title="优化圆角问题"></a>优化圆角问题</h2><p>基于上面的问题，我们可以有几个优化方向</p>
 <ol>
-<li>避免使用裁切操作，如果我们能确保View里面的内容不会溢出，就可以不用<code>masksToBounds</code></li>
+<li>避免使用<code>裁切</code>(<code>masksToBounds</code>)操作，如果我们能确保View里面的内容不会溢出，就可以不用<code>masksToBounds</code></li>
 <li>即使要用到裁切的操作，尽量放到子view里面，不要在上层view使用masksToBounds，因为裁切需要对所有的layer和subview所有图层都进行裁切，这样离屏渲染会需要更大的空间，裁切更多的图层，应该只对必要的view/layer进行裁切</li>
 <li>提前切好需要的圆角，避免渲染的时候再切</li>
 </ol>
@@ -296,15 +296,17 @@
 <li>使用了遮罩的 layer (<code>layer.mask</code>)</li>
 <li>需要进行裁剪的 layer (<code>layer.masksToBounds</code> / <code>view.clipsToBounds</code>)</li>
 <li>设置了组透明度为 YES，并且透明度不为 1 的layer (<code>layer.allowsGroupOpacity</code> / <code>layer.opacity</code>)</li>
-<li>添加了投影的 layer (<code>layer.shadow</code>)</li>
+<li>添加了投影的 layer (<code>layer.shadow</code>)，但如果设置了shadowPath，则系统已经知道如何绘制阴影了，不会触发离屏渲染</li>
 <li>采用了光栅化的 layer (<code>layer.shouldRasterize</code>)，光栅化也可以优化离屏渲染问题</li>
 <li>绘制了文字的 layer (<code>UILabel</code>, <code>CATextLayer</code>, <code>CoreText</code>等)</li>
 </ul>
-<h2 id="毛玻璃"><a href="#毛玻璃" class="headerlink" title="毛玻璃"></a>毛玻璃</h2><p>在iOS系统中，毛玻璃效果可以说应用的非常广泛，从上面分析也可以知道，这个肯定会触发离屏渲染的，图层之间存在依赖，下面是<code>UIBlurEffect</code>在GPU上的渲染过程</p>
+<h2 id="毛玻璃"><a href="#毛玻璃" class="headerlink" title="毛玻璃"></a>毛玻璃</h2><p>在iOS系统中，毛玻璃效果应用的非常广泛，从上面分析也可以知道，这个肯定会触发离屏渲染的，图层之间存在依赖，下面是<code>UIBlurEffect</code>的处理过程</p>
+<img src="/images/post/opengl/uiblureffect-render2.png" width="600">
+
+<p>在GPU的渲染过程如下图</p>
 <img src="/images/post/opengl/uiblureffect-render.png" width="1000">
 
 <p>GPU在渲染完Content之后，会另外开辟一个<code>Off-screen buffer</code>，执行下面步骤，最后再做合并处理，最后再拷贝回<code>On-screen buffer</code>上</p>
-<img src="/images/post/opengl/uiblureffect-render2.png" width="600">
 
     </div>
 
@@ -343,7 +345,10 @@
     <a href="/2020-07-10/ios-render/" rel="prev" title="iOS图像渲染原理解析">
       <i class="fa fa-chevron-left"></i> iOS图像渲染原理解析
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020-07-19/opengl-face-culling/" rel="next" title="OpenGL正背面剔除和深度测试">
+      OpenGL正背面剔除和深度测试 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -402,7 +407,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#画家算法"><span class="nav-number">1.</span> <span class="nav-text">画家算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#离屏渲染"><span class="nav-number">2.</span> <span class="nav-text">离屏渲染</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS圆角问题"><span class="nav-number">3.</span> <span class="nav-text">iOS圆角问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化圆角问题"><span class="nav-number">4.</span> <span class="nav-text">优化圆角问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他触发离屏渲染的情况"><span class="nav-number">5.</span> <span class="nav-text">其他触发离屏渲染的情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#毛玻璃"><span class="nav-number">6.</span> <span class="nav-text">毛玻璃</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#油画算法"><span class="nav-number">1.</span> <span class="nav-text">油画算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#离屏渲染"><span class="nav-number">2.</span> <span class="nav-text">离屏渲染</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS圆角问题"><span class="nav-number">3.</span> <span class="nav-text">iOS圆角问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化圆角问题"><span class="nav-number">4.</span> <span class="nav-text">优化圆角问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他触发离屏渲染的情况"><span class="nav-number">5.</span> <span class="nav-text">其他触发离屏渲染的情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#毛玻璃"><span class="nav-number">6.</span> <span class="nav-text">毛玻璃</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -418,7 +423,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-count">84</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
