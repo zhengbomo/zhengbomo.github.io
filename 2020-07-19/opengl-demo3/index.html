@@ -283,6 +283,9 @@
 <h3 id="模型变换"><a href="#模型变换" class="headerlink" title="模型变换"></a>模型变换</h3><p>模型变换，主要涉及三个函数，移动、旋转、缩放。有了这三个函数的组合，我们可以进行任意变换。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 平移，沿x/y/z三个方向平移，矩阵结果放在第一个参数里面</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">m3dTranslationMatrix44</span><span class="params">(M3DMatrix44f m, <span class="keyword">float</span> x, <span class="keyword">float</span> y, <span class="keyword">float</span> z)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 旋转</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">m3dRotationMatrix44</span><span class="params">(M3DMatrix44f m, <span class="keyword">float</span> angle, <span class="keyword">float</span> x, <span class="keyword">float</span> y, <span class="keyword">float</span> z)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 缩放</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">m3dScaleMatrix44</span><span class="params">(M3DMatrix44f m, <span class="keyword">float</span> xScale, <span class="keyword">float</span> yScale, <span class="keyword">float</span> zScale)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 矩阵叉乘，结果放在product</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">m3dMatrixMultiply44</span><span class="params">(M3DMatrix44f product, <span class="keyword">const</span> M3DMatrix44f a, <span class="keyword">const</span> M3DMatrix44f b)</span></span>;</span><br></pre></td></tr></table></figure>
 
+<blockquote>
+<p>翻转操作可以用旋转，也可以用缩放（缩放到-1）</p>
+</blockquote>
 <h3 id="投影变换"><a href="#投影变换" class="headerlink" title="投影变换"></a>投影变换</h3><p>通常也在窗口改变的时候设置</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GLFrustum              viewFrustum;</span><br><span class="line"><span class="comment">// 设置透视投影</span></span><br><span class="line">viewFrustum.SetPerspective(<span class="number">35.0f</span>, <span class="keyword">float</span>(w) / <span class="keyword">float</span>(h), <span class="number">1.0f</span>, <span class="number">500.0f</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载投影矩阵到矩阵堆栈projectionMatrix</span></span><br><span class="line">projectionMatrix.LoadMatrix(viewFrustum.GetProjectionMatrix());</span><br></pre></td></tr></table></figure>
 
@@ -393,10 +396,13 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020-07-19/opengl-render-architecture/" rel="prev" title="OpenGL渲染架构">
-      <i class="fa fa-chevron-left"></i> OpenGL渲染架构
+    <a href="/2020-07-18/primitive-shader/" rel="prev" title="OpenGL投影、图元和存储着色器">
+      <i class="fa fa-chevron-left"></i> OpenGL投影、图元和存储着色器
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020-07-20/opengl-demo4/" rel="next" title="【OpenGL案例4】球，环，圆柱，磁盘的绘制">
+      【OpenGL案例4】球，环，圆柱，磁盘的绘制 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
