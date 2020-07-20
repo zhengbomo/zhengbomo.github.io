@@ -268,81 +268,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-07-19/opengl-face-culling/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="bomo">
-      <meta itemprop="description" content="懒人">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="bomo的开发随笔">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020-07-19/opengl-face-culling/" class="post-title-link" itemprop="url">OpenGL正背面剔除和深度测试</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-07-19 10:29:52 / 修改时间：13:40:27" itemprop="dateCreated datePublished" datetime="2020-07-19T10:29:52+08:00">2020-07-19</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/OpenGL/" itemprop="url" rel="index"><span itemprop="name">OpenGL</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>当我们在绘制3D图形的时候，由于观察者的角度问题，3D图形拥有多个面，假设所有的面是不透明的，在前面的面是可见的，而背后的面是不可见的，对于不可见的部分，不应该渲染出来，并且出于性能的考虑，应该丢弃（如下面正方体有6个面，而我们能看到的只有三个面），对于下面正方体，面比较少，影响不大，但对于一些复杂的3D图形，影响就比较大了，这种问题称为<code>隐藏面消除/找出可见面</code>（Hidden surface elimination/Visible surface detemination）</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020-07-19/opengl-face-culling/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-07-18/primitive-shader/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -413,6 +338,80 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020-07-18/primitive-shader/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-07-16/opengl-face-culling/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="bomo">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020-07-16/opengl-face-culling/" class="post-title-link" itemprop="url">OpenGL正背面剔除和深度测试</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-16 10:29:52" itemprop="dateCreated datePublished" datetime="2020-07-16T10:29:52+08:00">2020-07-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OpenGL/" itemprop="url" rel="index"><span itemprop="name">OpenGL</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>当我们在绘制3D图形的时候，由于观察者的角度问题，3D图形拥有多个面，假设所有的面是不透明的，在前面的面是可见的，而背后的面是不可见的，对于不可见的部分，不应该渲染出来，并且出于性能的考虑，应该丢弃（如下面正方体有6个面，而我们能看到的只有三个面），对于下面正方体，面比较少，影响不大，但对于一些复杂的3D图形，影响就比较大了，这种问题称为<code>隐藏面消除/找出可见面</code>（Hidden surface elimination/Visible surface detemination）</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020-07-16/opengl-face-culling/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
