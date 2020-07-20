@@ -40,6 +40,25 @@
   </entry>
   
   <entry>
+    <title>OpenGL渲染架构</title>
+    <link href="http://zhengbomo.github.io/2020-07-19/opengl-render-architecture/"/>
+    <id>http://zhengbomo.github.io/2020-07-19/opengl-render-architecture/</id>
+    <published>2020-07-19T06:16:13.000Z</published>
+    <updated>2020-07-20T02:44:17.348Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+      <category term="OpenGL" scheme="http://zhengbomo.github.io/categories/OpenGL/"/>
+    
+    
+      <category term="OpenGL" scheme="http://zhengbomo.github.io/tags/OpenGL/"/>
+    
+  </entry>
+  
+  <entry>
     <title>OpenGL投影、图元和存储着色器</title>
     <link href="http://zhengbomo.github.io/2020-07-18/primitive-shader/"/>
     <id>http://zhengbomo.github.io/2020-07-18/primitive-shader/</id>
@@ -496,29 +515,6 @@
     <summary type="html">
     
       &lt;h2 id=&quot;概念&quot;&gt;&lt;a href=&quot;#概念&quot; class=&quot;headerlink&quot; title=&quot;概念&quot;&gt;&lt;/a&gt;概念&lt;/h2&gt;&lt;p&gt;程序：是静态的，存放在磁盘的一系列可执行的指令集合&lt;br&gt;进程：是动态的，程序加载到内存运行的一次执行过程&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="操作系统" scheme="http://zhengbomo.github.io/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
-    
-      <category term="操作系统" scheme="http://zhengbomo.github.io/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>《操作系统》概论（一）</title>
-    <link href="http://zhengbomo.github.io/2020-04-25/os-learn-basic/"/>
-    <id>http://zhengbomo.github.io/2020-04-25/os-learn-basic/</id>
-    <published>2020-04-25T14:21:25.000Z</published>
-    <updated>2020-04-25T14:21:25.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>操作系统：控制和管理整个计算机系统的硬件和软件资源，并合理组织调度计算机工作和资源的分配，以提供给用户和其他软件方便的接口和环境，它是计算机系统中最基本的<code>系统软件</code></p><a id="more"></a><h2 id="概念语功能"><a href="#概念语功能" class="headerlink" title="概念语功能"></a>概念语功能</h2><p>提供的功能</p><ul><li>处理机管理</li><li>存储器管理</li><li>文件管理</li><li>设备管理</li></ul><p>目标</p><ul><li>安全</li><li>高效</li></ul><p>为上层提供服务</p><ul><li>普通用户<ul><li>GUI</li><li>命令接口</li></ul></li><li>软件/程序员<ul><li>程序接口/系统调用</li></ul></li></ul><p>基本特征</p><ul><li><code>并发</code>: 宏观上同时发生，微观上交替发生，CPU的调度</li><li><code>共享</code>: 多个进程共同使用同一资源</li><li><code>虚拟</code>: 对资源的抽象（虚拟内存，分时CPU等）</li><li><code>异步</code>: 多道程序环境下，IO资源有限，带来的时间等待</li></ul><blockquote><p><code>并行</code>：宏观和微观上都是同时发生，多核CPU</p></blockquote><h2 id="运行机制"><a href="#运行机制" class="headerlink" title="运行机制"></a>运行机制</h2><p>两类程序</p><ul><li><code>内核程序</code>: 多个内核程序组成操作系统内核</li><li><code>应用程序</code>: 基于操作系统之上的的应用程序</li></ul><p>两种指令</p><ul><li><code>特权指令</code>: 只允许操作系统调用（保护计算机安全）</li><li><code>非特权指令</code>: 可以被上层应用程序调用</li></ul><p>两种处理器状态</p><ul><li><code>内核态</code></li><li><code>用户态</code></li></ul><blockquote><p>CPU通过<code>内核态</code>和<code>用户态</code>区分特权指令，CPU通过程序状态字寄存器（<code>PSW</code>）标志位区分内核态还是用户态</p></blockquote><ul><li><code>内核态-&gt;用户态</code>: 执行特权指令修改<code>PSW</code>标志位</li><li><code>用户态-&gt;内核态</code>: 通过<code>中断</code>引发，由硬件自动完成</li></ul><h2 id="中断"><a href="#中断" class="headerlink" title="中断"></a>中断</h2><p>中断是<code>操作系统内核夺回CPU的使用权的的唯一途径</code>（用户态-&gt;内核态）</p><ul><li>内中断: CPU内部触发<ul><li>陷阱，陷入：由程序主动引发，如系统调用</li><li>故障：由错误条件引起，内核修复故障后，会把CPU使用权还给程序，如缺页故障</li><li>终止：由致命错误引起的，CPU无法修复，会终止引用程序，如除数为0，非法执行特权指令</li></ul></li><li>外中断: 每一条指令执行结束时，CPU都会检查是否有外中断信号（由硬件完成，效率高）<ul><li>时钟中断（50nm）实现并发</li><li>IO设备发出的中断信号(如：打印机准备就绪)</li></ul></li></ul><h2 id="系统调用"><a href="#系统调用" class="headerlink" title="系统调用"></a>系统调用</h2><p>应用程序通常使用操作系统提供的一组应用程序接口（<code>库函数</code>）来使用系统的服务，而这些应用程序接口由一组<code>系统调用</code>组成，更底层</p><ul><li>应用程序: 可以直接使用库函数，也可以直接使用系统调用(比较少)</li><li>库函数：通常由编程语言通过<code>库函数</code>的方式提供，封装了系统调用，有些库函数不包含系统调用</li><li>系统调用（可以通过<code>汇编语言</code>调用）</li></ul><p>系统调用是操作系统对底层资源管理的抽象，可以让上层更安全的使用系统资源，凡事与共享资源有关的操作（存储/IO/文件），都必须通过系统调用的方式向操作系统内核提出服务请求，<code>保证系统的稳定性和安全性</code>，防止用户非法操作，主要分为下面几类</p><ul><li>设备管理: 启动/请求/释放</li><li>文件管理: 读/写/创建/删除</li><li>进程控制: 创建/阻塞/唤醒</li><li>进程通信: 消息传递/信号传递</li><li>内存管理: 内存的分配/回收</li></ul><img src="/images/post/os/systemcall-trap.png" width="800" title="系统调用的过程"><ol><li>应用程序把对应的参数放到<code>寄存器</code></li><li>调用陷入指令（<code>trap</code>），让CPU内核切换到内核态</li><li>CPU调用对应的<code>系统调用</code>（内核程序）</li><li>CPU把使用权返还给应用程序</li></ol><h2 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a>体系结构</h2><img src="/images/post/os/os-core-layer.png" width="800" title="操作系统内核结构"><ul><li>底层<ul><li>时钟管理</li><li>中断处理</li><li>原语<ul><li>处于最底层，最接近硬件</li><li>原子性操作</li><li>运行时间短，调用频繁</li></ul></li></ul></li><li>管理<ul><li>进程管理</li><li>存储器管理</li><li>设备管理</li></ul></li></ul><p>由于进程管理，存储器管理，设备管理不直接操作底层，也可以作为用户态执行</p><img src="/images/post/os/os-core-type.png" width="600" title="大内核与微内核"><ul><li>大内核/宏内核: 将操作系统主要功能模块作为系统内核，运行在内核态<ul><li>优点：高性能</li><li>缺点：内核代码庞大</li><li>常用操作系统：Linux，Unix</li></ul></li><li>微内核：只保留最基本的功能在内核<ul><li>优点：性能低</li><li>缺点：内核代码少，易维护</li><li>常用操作系统：Windows, MacOS</li></ul></li></ul>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;操作系统：控制和管理整个计算机系统的硬件和软件资源，并合理组织调度计算机工作和资源的分配，以提供给用户和其他软件方便的接口和环境，它是计算机系统中最基本的&lt;code&gt;系统软件&lt;/code&gt;&lt;/p&gt;
     
     </summary>
     

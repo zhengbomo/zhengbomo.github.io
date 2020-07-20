@@ -29,6 +29,31 @@
     
     
     <entry>
+      <title>OpenGL渲染架构</title>
+      <link href="/2020-07-19/opengl-render-architecture/"/>
+      <url>/2020-07-19/opengl-render-architecture/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      <categories>
+          
+          <category> OpenGL </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> OpenGL </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>OpenGL投影、图元和存储着色器</title>
       <link href="/2020-07-18/primitive-shader/"/>
       <url>/2020-07-18/primitive-shader/</url>
