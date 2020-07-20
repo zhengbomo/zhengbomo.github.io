@@ -137,7 +137,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">89</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">87</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -268,6 +268,8 @@
 </tbody></table>
 <img src="/images/post/opengl/two-projection.png" width="600">
 
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"GLFrustum.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 投影矩阵</span></span><br><span class="line">GLFrustum              viewFrustum;</span><br><span class="line"></span><br><span class="line"> <span class="comment">// 设置透视投影</span></span><br><span class="line">viewFrustum.SetPerspective(<span class="number">35.0f</span>, <span class="keyword">float</span>(w) / <span class="keyword">float</span>(h), <span class="number">1.0f</span>, <span class="number">500.0f</span>);</span><br><span class="line"><span class="comment">// 获取投影矩阵</span></span><br><span class="line">M3DMatrix44f *projectionMatrix = viewFrustum.GetProjectionMatrix();</span><br></pre></td></tr></table></figure>
+
 <h2 id="图元装配方式"><a href="#图元装配方式" class="headerlink" title="图元装配方式"></a>图元装配方式</h2><p>在OpenGL中，相同的顶点可以有不同的装配方式，如下图</p>
 <img src="/images/post/opengl/primitive-assembly.jpg" width="800">
 
@@ -309,7 +311,7 @@
 </tbody></table>
 <p>其中<code>GL_TRIANGLE_STRIP</code>和<code>GL_TRIANGLE_FAN</code>共享三角形的一条边，在绘制大量三角形的时候，可以节省存储空间和提高性能</p>
 <p>如</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">GLfloat vCoast[] = &#123;</span><br><span class="line">    <span class="number">3</span>,<span class="number">3</span>,<span class="number">0</span>,</span><br><span class="line">    <span class="number">0</span>,<span class="number">3</span>,<span class="number">0</span>,</span><br><span class="line">    <span class="number">3</span>,<span class="number">0</span>,<span class="number">0</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 三个点</span></span><br><span class="line">pointBatch.Begin(GL_POINTS, <span class="number">3</span>);</span><br><span class="line">pointBatch.CopyVertexData3f(vCoast);</span><br><span class="line">pointBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 一条线</span></span><br><span class="line">lineBatch.Begin(GL_LINES, <span class="number">3</span>);</span><br><span class="line">lineBatch.CopyVertexData3f(vCoast);</span><br><span class="line">lineBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 两条线段</span></span><br><span class="line">lineStripBatch.Begin(GL_LINE_STRIP, <span class="number">3</span>);</span><br><span class="line">lineStripBatch.CopyVertexData3f(vCoast);</span><br><span class="line">lineStripBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三角形线</span></span><br><span class="line">lineLoopBatch.Begin(GL_LINE_LOOP, <span class="number">3</span>);</span><br><span class="line">lineLoopBatch.CopyVertexData3f(vCoast);</span><br><span class="line">lineLoopBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三角形线</span></span><br><span class="line">lineLoopBatch.Begin(GL_LINE_LOOP, <span class="number">3</span>);</span><br><span class="line">lineLoopBatch.CopyVertexData3f(vCoast);</span><br><span class="line">lineLoopBatch.End();</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">GLfloat vCoast[] = &#123;</span><br><span class="line">    <span class="number">3</span>,<span class="number">3</span>,<span class="number">0</span>,</span><br><span class="line">    <span class="number">0</span>,<span class="number">3</span>,<span class="number">0</span>,</span><br><span class="line">    <span class="number">3</span>,<span class="number">0</span>,<span class="number">0</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 三个点</span></span><br><span class="line">pointBatch.Begin(GL_POINTS, <span class="number">3</span>);</span><br><span class="line">pointBatch.CopyVertexData3f(vCoast);</span><br><span class="line">pointBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 一条线</span></span><br><span class="line">lineBatch.Begin(GL_LINES, <span class="number">3</span>);</span><br><span class="line">lineBatch.CopyVertexData3f(vCoast);</span><br><span class="line">lineBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 闭合三角形线段</span></span><br><span class="line">lineLoopBatch.Begin(GL_LINE_LOOP, <span class="number">3</span>);</span><br><span class="line">lineLoopBatch.CopyVertexData3f(vCoast);</span><br><span class="line">lineLoopBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 闭合三角形，可以填充颜色</span></span><br><span class="line">triangleBatch.Begin(GL_TRIANGLES, <span class="number">3</span>);</span><br><span class="line">triangleBatch.CopyVertexData3f(vCoast);</span><br><span class="line">triangleBatch.End();</span><br></pre></td></tr></table></figure>
 
 <h2 id="存储着色器-固定管线着色器"><a href="#存储着色器-固定管线着色器" class="headerlink" title="存储着色器/固定管线着色器"></a>存储着色器/固定管线着色器</h2><p>在使用存储着色器之前需要先进行初始化</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GLShaderManager shaderManager;</span><br><span class="line">shaderManager.InitializeStockShaders();</span><br></pre></td></tr></table></figure>
@@ -339,7 +341,7 @@
 <h3 id="纹理光源着⾊器"><a href="#纹理光源着⾊器" class="headerlink" title="纹理光源着⾊器"></a>纹理光源着⾊器</h3><p>使⽤用场景：在绘制图形时, 可以应⽤变换(模型/投影变化)。这种着⾊器通过给定的模型视图投影矩阵，着⾊器将⼀个纹理通过漫反射照明计算进⾏调整(相乘)。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 参数1: 存储着⾊器种类-纹理光源着⾊器</span></span><br><span class="line"><span class="comment">// 参数2: 模型4*4矩阵</span></span><br><span class="line"><span class="comment">// 参数3: 投影4*4矩阵</span></span><br><span class="line"><span class="comment">// 参数4: 点光源位置</span></span><br><span class="line"><span class="comment">// 参数5: 颜⾊值</span></span><br><span class="line"><span class="comment">// 参数6: 纹理单元</span></span><br><span class="line">GLShaderManager::UserStockShader(GLT_SHADER_TEXTURE_POINT_LIGHT_DIEF,</span><br><span class="line">                                 GLfloat mvMatrix[<span class="number">16</span>],</span><br><span class="line">                                 GLfloat pMatrix[<span class="number">16</span>],</span><br><span class="line">                                 GLfloat vLightPos[<span class="number">3</span>],</span><br><span class="line">                                 GLfloat vBaseColor[<span class="number">4</span>],</span><br><span class="line">                                 GLint nTextureUnit);</span><br></pre></td></tr></table></figure>
 
-<h2 id="综合案例"><a href="#综合案例" class="headerlink" title="综合案例"></a>综合案例</h2><p>见<a href="/2020-07-19/primitive-shader/">这里</a></p>
+<h2 id="综合案例"><a href="#综合案例" class="headerlink" title="综合案例"></a>综合案例</h2><p>图元绘制完整代码见<a href="https://github.com/zhengbomo/OpenGLDemo/tree/master/003--OpenGL%E5%9B%BE%E5%85%83%E7%BB%98%E5%88%B6(%E7%BB%BC%E5%90%88)" target="_blank" rel="noopener">这里</a></p>
 
     </div>
 
@@ -375,13 +377,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020-07-19/opengl-render-architecture/" rel="prev" title="OpenGL渲染架构">
-      <i class="fa fa-chevron-left"></i> OpenGL渲染架构
+    <a href="/2020-07-19/opengl-face-culling/" rel="prev" title="OpenGL正背面剔除和深度测试">
+      <i class="fa fa-chevron-left"></i> OpenGL正背面剔除和深度测试
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020-07-19/opengl-demo3/" rel="next" title="【OpenGL案例3】绘制金字塔、六边形、圆环">
-      【OpenGL案例3】绘制金字塔、六边形、圆环 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -456,7 +455,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">89</span>
+          <span class="site-state-item-count">87</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
