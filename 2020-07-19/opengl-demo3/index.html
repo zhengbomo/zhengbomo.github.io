@@ -21,18 +21,21 @@
     var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="懒人">
+  <meta name="description" content="上节说到了不同的图元的装配方式，本节主要通过绘制金字塔，圆环，并使用透视投影，和矩阵变换来控制图形的显示">
 <meta name="keywords" content="OpenGL">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【OpenGL案例3】绘制金字塔、六边形、圆环">
 <meta property="og:url" content="http://zhengbomo.github.io/2020-07-19/opengl-demo3/index.html">
 <meta property="og:site_name" content="bomo的开发随笔">
-<meta property="og:description" content="懒人">
+<meta property="og:description" content="上节说到了不同的图元的装配方式，本节主要通过绘制金字塔，圆环，并使用透视投影，和矩阵变换来控制图形的显示">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/primitive-demo.gif">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/translate-order.png">
 <meta property="og:updated_time" content="2020-07-19T14:08:46.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【OpenGL案例3】绘制金字塔、六边形、圆环">
-<meta name="twitter:description" content="懒人">
+<meta name="twitter:description" content="上节说到了不同的图元的装配方式，本节主要通过绘制金字塔，圆环，并使用透视投影，和矩阵变换来控制图形的显示">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/opengl/primitive-demo.gif">
 
 <link rel="canonical" href="http://zhengbomo.github.io/2020-07-19/opengl-demo3/">
 
@@ -134,7 +137,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">89</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">88</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -243,7 +246,119 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <p>上节说到了不同的图元的装配方式，本节主要通过绘制金字塔，圆环，并使用<code>透视投影</code>，和<code>矩阵变换</code>来控制图形的显示</p>
+<a id="more"></a>
+
+<img src="/images/post/opengl/primitive-demo.gif" width="600">
+
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><p>OpenGL涉及到的基础变换主要有下面4种</p>
+<table>
+<thead>
+<tr>
+<th>变换</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>视图变换</td>
+<td>移动观察者的位置，观察者动，物体不动</td>
+</tr>
+<tr>
+<td>模型变换</td>
+<td>在场景中移动物体，观察者不动，物体动</td>
+</tr>
+<tr>
+<td>投影变换</td>
+<td>正投影，透视投影</td>
+</tr>
+<tr>
+<td>视口变换</td>
+<td>对窗口上最终输出进行缩放</td>
+</tr>
+</tbody></table>
+<p>其中对于同一个物体，使用<code>视图变换</code>和<code>模型变换</code>都能做到同样的效果，具体采用什么变换取决于实际情况</p>
+<h3 id="视图变换"><a href="#视图变换" class="headerlink" title="视图变换"></a>视图变换</h3><p>视图变换是应用到场景中的第一种变换，通过物体/观察者在Z轴上的移动（默认是Z轴，也可以改为其他轴），确定场景中利于观察的位置。默认情况下，透视投影中的观察者位置处于原点（0，0，0），并沿着z轴负方向看向屏幕里面，一般通过<code>moveForward</code>方法来调整观察者位置，moveForward默认的朝向是-z轴，所以向屏幕里面移动传正数值，向屏幕外即+z轴，需要传负数值</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个参考证</span></span><br><span class="line">GLFrame                cameraFrame;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 向屏幕外（+z轴方向）移动15.0f</span></span><br><span class="line">cameraFrame.MoveForward(<span class="number">-15.0f</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 生成矩阵到mCamera，用于矩阵变换操作</span></span><br><span class="line">M3DMatrix44f mCamera;</span><br><span class="line">cameraFrame.GetCameraMatrix(mCamera);</span><br></pre></td></tr></table></figure>
+
+<h3 id="模型变换"><a href="#模型变换" class="headerlink" title="模型变换"></a>模型变换</h3><p>模型变换，主要涉及三个函数，移动、旋转、缩放。有了这三个函数的组合，我们可以进行任意变换。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 平移，沿x/y/z三个方向平移，矩阵结果放在第一个参数里面</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">m3dTranslationMatrix44</span><span class="params">(M3DMatrix44f m, <span class="keyword">float</span> x, <span class="keyword">float</span> y, <span class="keyword">float</span> z)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 旋转</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">m3dRotationMatrix44</span><span class="params">(M3DMatrix44f m, <span class="keyword">float</span> angle, <span class="keyword">float</span> x, <span class="keyword">float</span> y, <span class="keyword">float</span> z)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 缩放</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">m3dScaleMatrix44</span><span class="params">(M3DMatrix44f m, <span class="keyword">float</span> xScale, <span class="keyword">float</span> yScale, <span class="keyword">float</span> zScale)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 矩阵叉乘，结果放在product</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">m3dMatrixMultiply44</span><span class="params">(M3DMatrix44f product, <span class="keyword">const</span> M3DMatrix44f a, <span class="keyword">const</span> M3DMatrix44f b)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="投影变换"><a href="#投影变换" class="headerlink" title="投影变换"></a>投影变换</h3><p>通常也在窗口改变的时候设置</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GLFrustum              viewFrustum;</span><br><span class="line"><span class="comment">// 设置透视投影</span></span><br><span class="line">viewFrustum.SetPerspective(<span class="number">35.0f</span>, <span class="keyword">float</span>(w) / <span class="keyword">float</span>(h), <span class="number">1.0f</span>, <span class="number">500.0f</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载投影矩阵到矩阵堆栈projectionMatrix</span></span><br><span class="line">projectionMatrix.LoadMatrix(viewFrustum.GetProjectionMatrix());</span><br></pre></td></tr></table></figure>
+
+<h3 id="视口变换"><a href="#视口变换" class="headerlink" title="视口变换"></a>视口变换</h3><p>视口变换相关函数为，通常在窗口大小改变的时候修改</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改glView视口</span></span><br><span class="line">glViewport (GLint x, GLint y, GLsizei width, GLsizei height);</span><br></pre></td></tr></table></figure>
+
+<p>这里需要注意的是，矩阵变换叉乘不满足交换律，变换顺序会导致结果不一致</p>
+<img src="/images/post/opengl/translate-order.png" width="800">
+
+<h2 id="绘制"><a href="#绘制" class="headerlink" title="绘制"></a>绘制</h2><p>定义7个批次类，用于保存顶点</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">GLBatch                pointBatch;</span><br><span class="line">GLBatch                lineBatch;</span><br><span class="line">GLBatch                lineStripBatch;</span><br><span class="line">GLBatch                lineLoopBatch;</span><br><span class="line">GLBatch                triangleBatch;</span><br><span class="line">GLBatch                triangleStripBatch;</span><br><span class="line">GLBatch                triangleFanBatch;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>setupRC</code>初始化顶点数据</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义三个点</span></span><br><span class="line">GLfloat vCoast[] = &#123;</span><br><span class="line">    <span class="number">3</span>,<span class="number">3</span>,<span class="number">0</span>,</span><br><span class="line">    <span class="number">0</span>,<span class="number">3</span>,<span class="number">0</span>,</span><br><span class="line">    <span class="number">3</span>,<span class="number">0</span>,<span class="number">0</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 画点</span></span><br><span class="line">pointBatch.Begin(GL_POINTS, <span class="number">3</span>);</span><br><span class="line">pointBatch.CopyVertexData3f(vCoast);</span><br><span class="line">pointBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 画线</span></span><br><span class="line">lineBatch.Begin(GL_LINES, <span class="number">3</span>);</span><br><span class="line">lineBatch.CopyVertexData3f(vCoast);</span><br><span class="line">lineBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 画连续线段</span></span><br><span class="line">lineStripBatch.Begin(GL_LINE_STRIP, <span class="number">3</span>);</span><br><span class="line">lineStripBatch.CopyVertexData3f(vCoast);</span><br><span class="line">lineStripBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 画闭合线段</span></span><br><span class="line">lineLoopBatch.Begin(GL_LINE_LOOP, <span class="number">3</span>);</span><br><span class="line">lineLoopBatch.CopyVertexData3f(vCoast);</span><br><span class="line">lineLoopBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3个三角形，构成金字塔形状</span></span><br><span class="line">GLfloat vPyramid[<span class="number">12</span>][<span class="number">3</span>] = &#123;</span><br><span class="line">    <span class="number">-2.0f</span>, <span class="number">0.0f</span>, <span class="number">-2.0f</span>,</span><br><span class="line">    <span class="number">2.0f</span>, <span class="number">0.0f</span>, <span class="number">-2.0f</span>,</span><br><span class="line">    <span class="number">0.0f</span>, <span class="number">4.0f</span>, <span class="number">0.0f</span>,</span><br><span class="line"></span><br><span class="line">    <span class="number">2.0f</span>, <span class="number">0.0f</span>, <span class="number">-2.0f</span>,</span><br><span class="line">    <span class="number">2.0f</span>, <span class="number">0.0f</span>, <span class="number">2.0f</span>,</span><br><span class="line">    <span class="number">0.0f</span>, <span class="number">4.0f</span>, <span class="number">0.0f</span>,</span><br><span class="line"></span><br><span class="line">    <span class="number">2.0f</span>, <span class="number">0.0f</span>, <span class="number">2.0f</span>,</span><br><span class="line">    <span class="number">-2.0f</span>, <span class="number">0.0f</span>, <span class="number">2.0f</span>,</span><br><span class="line">    <span class="number">0.0f</span>, <span class="number">4.0f</span>, <span class="number">0.0f</span>,</span><br><span class="line"></span><br><span class="line">    <span class="number">-2.0f</span>, <span class="number">0.0f</span>, <span class="number">2.0f</span>,</span><br><span class="line">    <span class="number">-2.0f</span>, <span class="number">0.0f</span>, <span class="number">-2.0f</span>,</span><br><span class="line">    <span class="number">0.0f</span>, <span class="number">4.0f</span>, <span class="number">0.0f</span></span><br><span class="line">&#125;;</span><br><span class="line">triangleBatch.Begin(GL_TRIANGLES, <span class="number">12</span>);</span><br><span class="line">triangleBatch.CopyVertexData3f(vPyramid);</span><br><span class="line">triangleBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三角形扇形--六边形</span></span><br><span class="line">GLfloat vPoints[<span class="number">100</span>][<span class="number">3</span>];</span><br><span class="line"><span class="keyword">int</span> nVerts = <span class="number">0</span>;</span><br><span class="line"><span class="comment">// 半径</span></span><br><span class="line">GLfloat r = <span class="number">3.0f</span>;</span><br><span class="line"><span class="comment">// 原点(x,y,z) = (0,0,0);</span></span><br><span class="line">vPoints[nVerts][<span class="number">0</span>] = <span class="number">0.0f</span>;</span><br><span class="line">vPoints[nVerts][<span class="number">1</span>] = <span class="number">0.0f</span>;</span><br><span class="line">vPoints[nVerts][<span class="number">2</span>] = <span class="number">0.0f</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// M3D_2PI 就是2Pi 的意思，就一个圆的意思。 绘制圆形</span></span><br><span class="line"><span class="keyword">for</span> (GLfloat angle = <span class="number">0</span>; angle &lt; M3D_2PI; angle += M3D_2PI / <span class="number">6.0f</span>) &#123;</span><br><span class="line">    <span class="comment">// 数组下标自增（每自增1次就表示一个顶点）</span></span><br><span class="line">    nVerts++;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">        弧长=半径*角度,这里的角度是弧度制,不是平时的角度制</span></span><br><span class="line"><span class="comment">        既然知道了cos值,那么角度=arccos,求一个反三角函数就行了</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">    <span class="comment">// x点坐标 cos(angle) * 半径</span></span><br><span class="line">    vPoints[nVerts][<span class="number">0</span>] = <span class="keyword">float</span>(<span class="built_in">cos</span>(angle)) * r;</span><br><span class="line">    <span class="comment">// y点坐标 sin(angle) * 半径</span></span><br><span class="line">    vPoints[nVerts][<span class="number">1</span>] = <span class="keyword">float</span>(<span class="built_in">sin</span>(angle)) * r;</span><br><span class="line">    <span class="comment">// z点的坐标</span></span><br><span class="line">    vPoints[nVerts][<span class="number">2</span>] = <span class="number">-0.5f</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 结束扇形 前面一共绘制7个顶点（包括圆心）</span></span><br><span class="line"><span class="comment">// 添加闭合的终点</span></span><br><span class="line"><span class="comment">// 课程添加演示：屏蔽177-180行代码，并把绘制节点改为7.则三角形扇形是无法闭合的。</span></span><br><span class="line">nVerts++;</span><br><span class="line">vPoints[nVerts][<span class="number">0</span>] = r;</span><br><span class="line">vPoints[nVerts][<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">vPoints[nVerts][<span class="number">2</span>] = <span class="number">0.0f</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载！GL_TRIANGLE_FAN 以一个圆心为中心呈扇形排列，共用相邻顶点的一组三角形</span></span><br><span class="line">triangleFanBatch.Begin(GL_TRIANGLE_FAN, <span class="number">8</span>);</span><br><span class="line">triangleFanBatch.CopyVertexData3f(vPoints);</span><br><span class="line">triangleFanBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三角形条带，一个小环或圆柱段</span></span><br><span class="line"><span class="comment">// 顶点下标</span></span><br><span class="line"><span class="keyword">int</span> iCounter = <span class="number">0</span>;</span><br><span class="line"><span class="comment">// 半径</span></span><br><span class="line">GLfloat radius = <span class="number">3.0f</span>;</span><br><span class="line"><span class="comment">// 从0度~360度，以0.3弧度为步长</span></span><br><span class="line"><span class="keyword">for</span> (GLfloat angle = <span class="number">0.0f</span>; angle &lt;= (<span class="number">2.0f</span>*M3D_PI); angle += <span class="number">0.3f</span>) &#123;</span><br><span class="line">    <span class="comment">//或许圆形的顶点的X,Y</span></span><br><span class="line">    GLfloat x = radius * <span class="built_in">sin</span>(angle);</span><br><span class="line">    GLfloat y = radius * <span class="built_in">cos</span>(angle);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//绘制2个三角形（他们的x,y顶点一样，只是z点不一样）</span></span><br><span class="line">    vPoints[iCounter][<span class="number">0</span>] = x;</span><br><span class="line">    vPoints[iCounter][<span class="number">1</span>] = y;</span><br><span class="line">    vPoints[iCounter][<span class="number">2</span>] = <span class="number">-0.5</span>;</span><br><span class="line">    iCounter++;</span><br><span class="line"></span><br><span class="line">    vPoints[iCounter][<span class="number">0</span>] = x;</span><br><span class="line">    vPoints[iCounter][<span class="number">1</span>] = y;</span><br><span class="line">    vPoints[iCounter][<span class="number">2</span>] = <span class="number">0.5</span>;</span><br><span class="line">    iCounter++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结束循环，在循环位置生成2个三角形</span></span><br><span class="line">vPoints[iCounter][<span class="number">0</span>] = vPoints[<span class="number">0</span>][<span class="number">0</span>];</span><br><span class="line">vPoints[iCounter][<span class="number">1</span>] = vPoints[<span class="number">0</span>][<span class="number">1</span>];</span><br><span class="line">vPoints[iCounter][<span class="number">2</span>] = <span class="number">-0.5</span>;</span><br><span class="line">iCounter++;</span><br><span class="line"></span><br><span class="line">vPoints[iCounter][<span class="number">0</span>] = vPoints[<span class="number">1</span>][<span class="number">0</span>];</span><br><span class="line">vPoints[iCounter][<span class="number">1</span>] = vPoints[<span class="number">1</span>][<span class="number">1</span>];</span><br><span class="line">vPoints[iCounter][<span class="number">2</span>] = <span class="number">0.5</span>;</span><br><span class="line">iCounter++;</span><br><span class="line"></span><br><span class="line"><span class="comment">// GL_TRIANGLE_STRIP 共用一个条带（strip）上的顶点的一组三角形</span></span><br><span class="line">triangleStripBatch.Begin(GL_TRIANGLE_STRIP, iCounter);</span><br><span class="line">triangleStripBatch.CopyVertexData3f(vPoints);</span><br><span class="line">triangleStripBatch.End();</span><br></pre></td></tr></table></figure>
+
+<p>然后在renderSence里面，把对应的批次类draw出来就可以了</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 画点</span></span><br><span class="line">glPointSize(<span class="number">4.0f</span>);</span><br><span class="line">pointBatch.Draw();</span><br><span class="line">glPointSize(<span class="number">1.0f</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 画三角形</span></span><br><span class="line">glLineWidth(<span class="number">2.0f</span>);</span><br><span class="line">lineLoopBatch.Draw();</span><br><span class="line">glLineWidth(<span class="number">1.0f</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="矩阵堆栈"><a href="#矩阵堆栈" class="headerlink" title="矩阵堆栈"></a>矩阵堆栈</h2><p>本案例涉及到3个矩阵，<code>视图矩阵</code>（修改观察者位置），<code>模型矩阵</code>（旋转），<code>投影矩阵</code>（透视投影）</p>
+<p>这里我们定义两个矩阵堆栈，来计算</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 矩阵堆栈，用于设置投影矩阵</span></span><br><span class="line">GLMatrixStack          projectionMatrix;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 矩阵堆栈，用于设置视图矩阵，模型矩阵，</span></span><br><span class="line">GLMatrixStack          modelViewMatrix;</span><br></pre></td></tr></table></figure>
+
+<p>为了方便计算，我们定义一个<code>变换管道</code>transformPipeline，用于合并2个矩阵堆栈（投影矩阵堆栈projectionMatrix和模型视图矩阵堆栈modelViewMatrix）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 几何变换的管道</span></span><br><span class="line">GLGeometryTransform    transformPipeline;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置变换管线以使用两个矩阵堆栈</span></span><br><span class="line">transformPipeline.SetMatrixStacks(modelViewMatrix, projectionMatrix);</span><br></pre></td></tr></table></figure>
+
+<p>对于投影矩阵，直接在<code>changeSize</code>的时候配置就可以</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 透视投影</span></span><br><span class="line">GLFrustum              viewFrustum;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置透视投影</span></span><br><span class="line">viewFrustum.SetPerspective(<span class="number">35.0f</span>, <span class="keyword">float</span>(w) / <span class="keyword">float</span>(h), <span class="number">1.0f</span>, <span class="number">500.0f</span>);</span><br><span class="line"><span class="comment">// 重新加载投影矩阵到矩阵堆栈projectionMatrix</span></span><br><span class="line">projectionMatrix.LoadMatrix(viewFrustum.GetProjectionMatrix());</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们在<code>renderSence</code>配置模型视图矩阵</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 加载一个单元矩阵到栈顶</span></span><br><span class="line">modelViewMatrix.LoadIdentity();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 复制一份栈顶矩阵到栈顶</span></span><br><span class="line">modelViewMatrix.PushMatrix();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获得视图矩阵</span></span><br><span class="line">M3DMatrix44f mCamera;</span><br><span class="line">cameraFrame.GetCameraMatrix(mCamera);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 与栈顶矩阵叉乘并覆盖栈顶矩阵</span></span><br><span class="line">modelViewMatrix.MultMatrix(mCamera);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获得模型矩阵</span></span><br><span class="line">M3DMatrix44f mObjectFrame;</span><br><span class="line">objectFrame.GetMatrix(mObjectFrame);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 与栈顶矩阵叉乘并覆盖栈顶矩阵</span></span><br><span class="line">modelViewMatrix.MultMatrix(mObjectFrame);</span><br></pre></td></tr></table></figure>
+
+<p>最终通过变换管道，生成矩阵传递给着色器</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 生成最终的矩阵</span></span><br><span class="line">M3DMatrix44f *fMatrix = transformPipeline.GetModelViewProjectionMatrix()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 传给平面着色器处理，vBlack为填充颜色</span></span><br><span class="line">shaderManager.UseStockShader(GLT_SHADER_FLAT, fMatrix, vBlack);</span><br></pre></td></tr></table></figure>
+
+<p>对于几何图形除了直接填充颜色，还需要绘制边框（<code>glPolygonMode</code>）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 开启多边形偏移</span></span><br><span class="line">glPolygonOffset(<span class="number">-1.0f</span>, <span class="number">-1.0f</span>);</span><br><span class="line">glEnable(GL_POLYGON_OFFSET_LINE);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 开启反锯齿</span></span><br><span class="line">glEnable(GL_LINE_SMOOTH);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 开启混合</span></span><br><span class="line">glEnable(GL_BLEND);</span><br><span class="line"><span class="comment">// 混合方法</span></span><br><span class="line">glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 绘制线框几何黑色版 三种模式，实心，边框，点，可以作用在正面，背面，或者两面</span></span><br><span class="line"><span class="comment">//通过调用glPolygonMode将多边形正面或者背面设为线框模式，实现线框渲染</span></span><br><span class="line">glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);</span><br><span class="line"><span class="comment">//设置线条宽度</span></span><br><span class="line">glLineWidth(<span class="number">2.5f</span>);</span><br><span class="line"></span><br><span class="line">shaderManager.UseStockShader(GLT_SHADER_FLAT, transformPipeline.GetModelViewProjectionMatrix(), vBlack);</span><br><span class="line">pBatch-&gt;Draw();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 复原原本的设置</span></span><br><span class="line"><span class="comment">//通过调用glPolygonMode将多边形正面或者背面设为全部填充模式</span></span><br><span class="line">glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);</span><br><span class="line">glDisable(GL_POLYGON_OFFSET_LINE);</span><br><span class="line">glLineWidth(<span class="number">1.0f</span>);</span><br><span class="line">glDisable(GL_BLEND);</span><br><span class="line">glDisable(GL_LINE_SMOOTH);</span><br></pre></td></tr></table></figure>
+
+<p>关于矩阵堆栈的操作</p>
+<table>
+<thead>
+<tr>
+<th>矩阵堆栈API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GLMatrixStack::LoadIdentity(void)</td>
+<td>在栈顶加载/覆盖一个单元矩阵</td>
+</tr>
+<tr>
+<td>GLMatrixStack::LoadMatrix(const M3DMatrix44f m)</td>
+<td>在栈顶加载/覆盖成矩阵m</td>
+</tr>
+<tr>
+<td>GLMatrixStack::MultMatrix(const M3DMatrix44f m)</td>
+<td>矩阵m与栈顶矩阵叉乘，结果覆盖栈顶矩阵</td>
+</tr>
+<tr>
+<td>GLMatrixStack::GetMatrix(void)</td>
+<td>获取栈顶矩阵</td>
+</tr>
+<tr>
+<td>GLMatrixStack::PushMatrix(void)</td>
+<td>拷贝栈顶矩阵入栈</td>
+</tr>
+<tr>
+<td>GLMatrixStack::PushMatrix(const M3DMatrix44f m)</td>
+<td>把矩阵m入栈</td>
+</tr>
+<tr>
+<td>GLMatrixStack::PopMatrix(void)</td>
+<td>出栈，移出栈顶矩阵</td>
+</tr>
+</tbody></table>
+<p>完整代码在<a href="https://github.com/zhengbomo/OpenGLDemo/tree/master/003--OpenGL%E5%9B%BE%E5%85%83%E7%BB%98%E5%88%B6(%E7%BB%BC%E5%90%88)" target="_blank" rel="noopener">这里</a></p>
+
     </div>
 
     
@@ -278,8 +393,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020-07-19/primitive-shader/" rel="prev" title="OpenGL投影、图元和存储着色器">
-      <i class="fa fa-chevron-left"></i> OpenGL投影、图元和存储着色器
+    <a href="/2020-07-19/opengl-face-culling/" rel="prev" title="OpenGL正背面剔除和深度测试">
+      <i class="fa fa-chevron-left"></i> OpenGL正背面剔除和深度测试
     </a></div>
       <div class="post-nav-item"></div>
     </div>
@@ -340,6 +455,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础知识"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#视图变换"><span class="nav-number">1.1.</span> <span class="nav-text">视图变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模型变换"><span class="nav-number">1.2.</span> <span class="nav-text">模型变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#投影变换"><span class="nav-number">1.3.</span> <span class="nav-text">投影变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#视口变换"><span class="nav-number">1.4.</span> <span class="nav-text">视口变换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#绘制"><span class="nav-number">2.</span> <span class="nav-text">绘制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#矩阵堆栈"><span class="nav-number">3.</span> <span class="nav-text">矩阵堆栈</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -355,7 +471,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">89</span>
+          <span class="site-state-item-count">88</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
