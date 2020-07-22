@@ -30,7 +30,7 @@
 <meta property="og:description" content="通过案例4我们已经知道如何绘制球了，本案例绘制一个非常经典的案例，就是球的自转和公转（小球公转，大球自转）">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/sphere-world.gif">
-<meta property="og:updated_time" content="2020-07-20T14:02:53.259Z">
+<meta property="og:updated_time" content="2020-07-21T00:56:36.423Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【OpenGL案例5】球的自转和公转">
 <meta name="twitter:description" content="通过案例4我们已经知道如何绘制球了，本案例绘制一个非常经典的案例，就是球的自转和公转（小球公转，大球自转）">
@@ -136,7 +136,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">90</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">91</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -221,10 +221,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-07-20 16:47:49 / 修改时间：22:02:53" itemprop="dateCreated datePublished" datetime="2020-07-20T16:47:49+08:00">2020-07-20</time>
+              <time title="创建时间：2020-07-20 16:47:49" itemprop="dateCreated datePublished" datetime="2020-07-20T16:47:49+08:00">2020-07-20</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-21 08:56:36" itemprop="dateModified" datetime="2020-07-21T08:56:36+08:00">2020-07-21</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -252,7 +258,7 @@
 <img src="/images/post/opengl/sphere-world.gif" width="600">
 
 <p>为了方便看出自转，这里只画三角形线，不进行填充</p>
-<h2 id="绘制图形"><a href="#绘制图形" class="headerlink" title="绘制图形"></a>绘制图形</h2><p>基于前面的案例4的基础上来绘制</p>
+<h2 id="绘制图形"><a href="#绘制图形" class="headerlink" title="绘制图形"></a>绘制图形</h2><p>基于前面的<a href="(/2020-07-20/opengl-demo4/)">案例4</a>的基础上来绘制</p>
 <h3 id="绘制地板"><a href="#绘制地板" class="headerlink" title="绘制地板"></a>绘制地板</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 地板</span></span><br><span class="line">GLBatch                floorBatch;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置地板顶点数据</span></span><br><span class="line">floorBatch.Begin(GL_LINES, <span class="number">324</span>);</span><br><span class="line"><span class="keyword">for</span>(GLfloat x = <span class="number">-20.0</span>; x &lt;= <span class="number">20.0f</span>; x+= <span class="number">0.5</span>) &#123;</span><br><span class="line">    floorBatch.Vertex3f(x, <span class="number">-0.55f</span>, <span class="number">20.0f</span>);</span><br><span class="line">    floorBatch.Vertex3f(x, <span class="number">-0.55f</span>, <span class="number">-20.0f</span>);</span><br><span class="line"></span><br><span class="line">    floorBatch.Vertex3f(<span class="number">20.0f</span>, <span class="number">-0.55f</span>, x);</span><br><span class="line">    floorBatch.Vertex3f(<span class="number">-20.0f</span>, <span class="number">-0.55f</span>, x);</span><br><span class="line">&#125;</span><br><span class="line">floorBatch.End();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在renderSence绘制地板</span></span><br><span class="line">shaderManager.UseStockShader(GLT_SHADER_FLAT, transformPipeline.GetModelViewProjectionMatrix(), vGreen);</span><br><span class="line">floorBatch.Draw();</span><br></pre></td></tr></table></figure>
 
 <h3 id="大球和小球"><a href="#大球和小球" class="headerlink" title="大球和小球"></a>大球和小球</h3><p>自转公转小球</p>
@@ -396,7 +402,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-count">91</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

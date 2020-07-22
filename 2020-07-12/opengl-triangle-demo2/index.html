@@ -137,7 +137,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">90</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">91</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -273,7 +273,7 @@
 <p>实现上下左右键的监听</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">SpecialKeys</span><span class="params">(<span class="keyword">int</span> key, <span class="keyword">int</span> x, <span class="keyword">int</span> y)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (key == GLUT_KEY_UP) &#123;</span><br><span class="line">        yPos += stepSize;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (key == GLUT_KEY_DOWN) &#123;</span><br><span class="line">        yPos -= stepSize;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (key == GLUT_KEY_LEFT) &#123;</span><br><span class="line">        xPos -= stepSize;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (key == GLUT_KEY_RIGHT) &#123;</span><br><span class="line">        xPos += stepSize;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 边缘检测</span></span><br><span class="line">    <span class="keyword">if</span> (xPos &lt; (<span class="number">-1.0f</span> + blockSize)) &#123;</span><br><span class="line">        xPos = <span class="number">-1.0f</span> + blockSize;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (xPos &gt; (<span class="number">1.0f</span> - blockSize)) &#123;</span><br><span class="line">        xPos = <span class="number">1.0f</span> - blockSize;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (yPos &lt; (<span class="number">-1.0f</span> + blockSize)) &#123;</span><br><span class="line">        yPos = <span class="number">-1.0f</span> + blockSize;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (yPos &gt; (<span class="number">1.0f</span> - blockSize)) &#123;</span><br><span class="line">        yPos = <span class="number">1.0f</span> - blockSize;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重新绘制</span></span><br><span class="line">    glutPostRedisplay();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<img src="/images/post/opengl/square-demo.gif" width="600">
+<img src="/images/post/opengl/square-demo.gif" width="600" title="键盘控制正方形移动">
 
 <p>完整代码见<a href="https://github.com/zhengbomo/OpenGLDemo/tree/master/002--%E9%94%AE%E7%9B%98%E6%8E%A7%E5%88%B6%E6%AD%A3%E6%96%B9%E5%BD%A2" target="_blank" rel="noopener">这里</a></p>
 
@@ -392,7 +392,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-count">91</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
