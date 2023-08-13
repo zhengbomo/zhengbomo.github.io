@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="树莓派4B性能强大，发热也大，我在上面跑可道云和aria2，在没有风扇的情况下基本都要到60-70℃了，通常都会买个外壳接一个小风扇用于散热，淘宝上有很多，挑一个自己喜欢的，我这台设备加了风扇后可以稳定在40-50之间 默认情况下，风扇是随着电源开关控制的，即使关机了，风扇也会转，这里介绍使用三极管控制风扇开关的方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="（二）树莓派4B自动控制风扇开关">
+<meta property="og:url" content="http://zhengbomo.github.io/2021-08-28/raspberrypi-autofan/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="树莓派4B性能强大，发热也大，我在上面跑可道云和aria2，在没有风扇的情况下基本都要到60-70℃了，通常都会买个外壳接一个小风扇用于散热，淘宝上有很多，挑一个自己喜欢的，我这台设备加了风扇后可以稳定在40-50之间 默认情况下，风扇是随着电源开关控制的，即使关机了，风扇也会转，这里介绍使用三极管控制风扇开关的方法">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/raspberrypi/raspberrypi_fan.jpg">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/raspberrypi/raspberrypi_pin.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/raspberrypi/triode.jpg">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/raspberrypi/fan_wiring.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/raspberrypi/raspberrypi_fan_final.jpg">
+<meta property="article:published_time" content="2021-08-28T03:27:39.000Z">
+<meta property="article:modified_time" content="2021-08-28T03:27:39.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="树莓派">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/raspberrypi/raspberrypi_fan.jpg">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2021-08-28/raspberrypi-autofan/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>（二）树莓派4B自动控制风扇开关 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2021-08-28/raspberrypi-autofan/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          （二）树莓派4B自动控制风扇开关
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-28 11:27:39" itemprop="dateCreated datePublished" datetime="2021-08-28T11:27:39+08:00">2021-08-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A0%91%E8%8E%93%E6%B4%BE/" itemprop="url" rel="index"><span itemprop="name">树莓派</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>树莓派4B性能强大，发热也大，我在上面跑可道云和aria2，在没有风扇的情况下基本都要到60-70℃了，通常都会买个外壳接一个小风扇用于散热，淘宝上有很多，挑一个自己喜欢的，我这台设备加了风扇后可以稳定在40-50之间</p>
+<p>默认情况下，风扇是随着电源开关控制的，即使关机了，风扇也会转，这里介绍使用三极管控制风扇开关的方法</p>
+<span id="more"></span>
+
+<img src="/images/post/raspberrypi/raspberrypi_fan.jpg" class="" width="300">
+
+<h2 id="接线引脚"><a href="#接线引脚" class="headerlink" title="接线引脚"></a>接线引脚</h2><p>树莓派4B的引脚如下图</p>
+<img src="/images/post/raspberrypi/raspberrypi_pin.png" class="" width="400">
+
+<p>买来的风扇的正负极接4, 6引脚</p>
+<h2 id="通过三极管添加控制线"><a href="#通过三极管添加控制线" class="headerlink" title="通过三极管添加控制线"></a>通过三极管添加控制线</h2><p>风扇接上树莓派引脚后就会开启，随电源开关，无法进行控制，关机的时候也会转，通常有两种方式</p>
+<ol>
+<li>使用三极管接线从而达到控制风扇的目的</li>
+<li>taobao买T9温控模块（<a target="_blank" rel="noopener" href="https://item.taobao.com/item.htm?id=553295324487%EF%BC%89">https://item.taobao.com/item.htm?id=553295324487）</a></li>
+</ol>
+<p>这里第一种方式，添加三极管</p>
+<ul>
+<li><code>三极管</code>，我这里用的是S8050（NPN型）的三极管<br>  我是在这里买的，2.8块钱50个</li>
+<li><code>杜邦线-公对母</code>: 2根</li>
+<li><code>杜邦线-母对母</code>: 2根</li>
+</ul>
+<p>三极管三级</p>
+<img src="/images/post/raspberrypi/triode.jpg" class="" width="250">
+
+<p>接线示意图（分别接到4，6，12号引脚上）</p>
+<img src="/images/post/raspberrypi/fan_wiring.png" class="" width="500">
+
+<p>效果图</p>
+<img src="/images/post/raspberrypi/raspberrypi_fan_final.jpg" class="" width="800">
+
+<blockquote>
+<p>有朋友可能买到的是S8850（PNP型）的三极管，接线和上面不一样，需要注意，可以参考这个链接，不过我没试过，<a target="_blank" rel="noopener" href="https://blog.csdn.net/Xxy605/article/details/115960846">https://blog.csdn.net/Xxy605/article/details/115960846</a></p>
+</blockquote>
+<p>接完之后开机，会发现风扇默认是不转的，我们需要手动控制风扇的开关</p>
+<h2 id="通过python脚本控制开关"><a href="#通过python脚本控制开关" class="headerlink" title="通过python脚本控制开关"></a>通过python脚本控制开关</h2><p>安装依赖文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt install python3-pip</span><br><span class="line"></span><br><span class="line">sudo apt -y install python3-rpi.gpio</span><br><span class="line">sudo pip install RPi.GPIO</span><br></pre></td></tr></table></figure>
+
+<p>下面脚本控制风扇开关</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> RPi.GPIO <span class="keyword">as</span> GPIO</span><br><span class="line"></span><br><span class="line"><span class="comment"># 控制线接的是12号引脚</span></span><br><span class="line">FAN = <span class="number">12</span></span><br><span class="line"></span><br><span class="line">GPIO.setwarnings(<span class="literal">False</span>)</span><br><span class="line">GPIO.setmode(GPIO.BOARD)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设为输出模式</span></span><br><span class="line">GPIO.setup(FAN, GPIO.OUT)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开风扇</span></span><br><span class="line">GPIO.output(FAN, GPIO.HIGH)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关风扇</span></span><br><span class="line">GPIO.output(FAN, GPIO.LOW)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设为输入模式</span></span><br><span class="line">GPIO.setup(FAN, GPIO.IN, pull_up_down=GPIO.PUD_UP)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取当前风扇状态</span></span><br><span class="line">isOff = GPIO.<span class="built_in">input</span>(FAN) == GPIO.LOW;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭</span></span><br><span class="line">GPIO.cleanup()</span><br></pre></td></tr></table></figure>
+
+<p>可以<code>PWM</code>控制风扇的风速</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pwm = GPIO.PWM(FAN, <span class="number">50</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 满速（0-100）</span></span><br><span class="line">pwm.start(<span class="number">100</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭</span></span><br><span class="line">pwm.stop()</span><br></pre></td></tr></table></figure>
+
+<h2 id="查看CPU温度"><a href="#查看CPU温度" class="headerlink" title="查看CPU温度"></a>查看CPU温度</h2><p>通过读取文件<code>/sys/class/thermal/thermal_zone0/temp</code>获得CPU温度</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前CPU温度</span></span><br><span class="line"><span class="built_in">cat</span> /sys/class/thermal/thermal_zone0/temp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 观察CPU温度，每秒更新一次</span></span><br><span class="line">watch -n 1 <span class="built_in">cat</span> /sys/class/thermal/thermal_zone0/temp</span><br></pre></td></tr></table></figure>
+
+<h2 id="温控风扇脚本"><a href="#温控风扇脚本" class="headerlink" title="温控风扇脚本"></a>温控风扇脚本</h2><p>下面是通过温度控制风扇开关的脚本（由于我的风扇比较小，就没有考虑控制风速，只做开关）</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> RPi.GPIO <span class="keyword">as</span> GPIO</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 控制风扇的GPIO</span></span><br><span class="line">FAN_GPIO = <span class="number">12</span></span><br><span class="line"><span class="comment"># 低温阈值，低于它则关闭风扇</span></span><br><span class="line">MIN_TEMP = <span class="number">45</span></span><br><span class="line"><span class="comment"># 高温阈值，高于它则全速运转</span></span><br><span class="line">MAX_TEMP = <span class="number">50</span></span><br><span class="line"><span class="comment"># 多长时间读取一次CPU温度，单位秒</span></span><br><span class="line">SAMPLING = <span class="number">60</span></span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="comment"># 单位为千分之一度</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_cpu_temp</span>():</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;/sys/class/thermal/thermal_zone0/temp&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        cpu_temp = <span class="built_in">int</span>(f.read())</span><br><span class="line">    <span class="keyword">return</span> cpu_temp</span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    GPIO.setwarnings(<span class="literal">False</span>)</span><br><span class="line">    GPIO.setmode(GPIO.BOARD)</span><br><span class="line">    GPIO.setup(FAN_GPIO, GPIO.OUT)</span><br><span class="line">    GPIO.output(FAN_GPIO, GPIO.LOW) </span><br><span class="line">    </span><br><span class="line">    time.sleep(<span class="number">5</span>)</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">            temp = get_cpu_temp()</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;CPU temperature:&#x27;</span>, temp)</span><br><span class="line">            <span class="keyword">if</span> temp &lt; MIN_TEMP * <span class="number">1000</span>:</span><br><span class="line">                GPIO.output(FAN_GPIO, <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">elif</span> temp &gt; MAX_TEMP * <span class="number">1000</span>:</span><br><span class="line">                GPIO.output(FAN_GPIO, <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="comment"># 中间地带，开</span></span><br><span class="line">                GPIO.output(FAN_GPIO, <span class="number">1</span>)</span><br><span class="line">            time.sleep(SAMPLING)</span><br><span class="line">    <span class="keyword">except</span> KeyboardInterrupt:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"> </span><br><span class="line">    GPIO.cleanup()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<p>脚本保存到<code>/home/ubuntu/server/fan/autofan.py</code></p>
+<h2 id="开机启动"><a href="#开机启动" class="headerlink" title="开机启动"></a>开机启动</h2><p>创建service（<code>/etc/systemd/system/autofan.service</code>）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=auto fan control</span><br><span class="line">After=syslog.target</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">RestartSec=2s</span><br><span class="line">User=root</span><br><span class="line">Group=root</span><br><span class="line">WorkingDirectory=/home/ubuntu/server/fan/</span><br><span class="line">ExecStart=/usr/bin/python3 /home/ubuntu/server/fan/autofan.py</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p>刷新并加载</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 重新加载配置  </span></span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line"><span class="comment"># 开机启动</span></span><br><span class="line">sudo systemctl <span class="built_in">enable</span> autofan</span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line">sudo systemctl start autofan</span><br><span class="line"><span class="comment"># 状态</span></span><br><span class="line">sudo systemctl status autofan</span><br></pre></td></tr></table></figure>
+
+<p>之后每次重启都会自动根据温度开关风扇了</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2021-08-28/raspberrypi-autofan/" title="（二）树莓派4B自动控制风扇开关">http://zhengbomo.github.io/2021-08-28/raspberrypi-autofan/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" rel="tag"># 树莓派</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021-08-27/raspberrypi-start/" rel="prev" title="（一）树莓派4B开机">
+      <i class="fa fa-chevron-left"></i> （一）树莓派4B开机
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021-09-02/raspberrypi-mount-disk/" rel="next" title="（三）树莓派开机自动挂载硬盘">
+      （三）树莓派开机自动挂载硬盘 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A5%E7%BA%BF%E5%BC%95%E8%84%9A"><span class="nav-number">1.</span> <span class="nav-text">接线引脚</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E4%B8%89%E6%9E%81%E7%AE%A1%E6%B7%BB%E5%8A%A0%E6%8E%A7%E5%88%B6%E7%BA%BF"><span class="nav-number">2.</span> <span class="nav-text">通过三极管添加控制线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87python%E8%84%9A%E6%9C%AC%E6%8E%A7%E5%88%B6%E5%BC%80%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text">通过python脚本控制开关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8BCPU%E6%B8%A9%E5%BA%A6"><span class="nav-number">4.</span> <span class="nav-text">查看CPU温度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%A9%E6%8E%A7%E9%A3%8E%E6%89%87%E8%84%9A%E6%9C%AC"><span class="nav-number">5.</span> <span class="nav-text">温控风扇脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E6%9C%BA%E5%90%AF%E5%8A%A8"><span class="nav-number">6.</span> <span class="nav-text">开机启动</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

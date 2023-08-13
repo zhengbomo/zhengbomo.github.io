@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="之前我们知道，我们可以使用lldb调试手机上的App，而Xcode就是用的lldb进行调试的，而且功能非常强大，例如查看UI层级结构，查看调用栈，打断点，lldb只能提示等等，使用起来比直接用lldb调试会方便很多，这里记录一下如何在XCode调试第三方App">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Xcode动态调试第三方App">
+<meta property="og:url" content="http://zhengbomo.github.io/2020-03-15/xcode-dynamic-debug/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="之前我们知道，我们可以使用lldb调试手机上的App，而Xcode就是用的lldb进行调试的，而且功能非常强大，例如查看UI层级结构，查看调用栈，打断点，lldb只能提示等等，使用起来比直接用lldb调试会方便很多，这里记录一下如何在XCode调试第三方App">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcode-symbol-breakpoint.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcode-ui-hierarchy.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcode-attachto-process.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcode-attach-debug.png">
+<meta property="article:published_time" content="2020-03-15T12:22:10.000Z">
+<meta property="article:modified_time" content="2020-03-15T12:22:10.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/xcode-symbol-breakpoint.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2020-03-15/xcode-dynamic-debug/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Xcode动态调试第三方App | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-03-15/xcode-dynamic-debug/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Xcode动态调试第三方App
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-15 20:22:10" itemprop="dateCreated datePublished" datetime="2020-03-15T20:22:10+08:00">2020-03-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>之前我们知道，我们可以使用lldb调试手机上的App，而Xcode就是用的lldb进行调试的，而且功能非常强大，例如查看UI层级结构，查看调用栈，打断点，lldb只能提示等等，使用起来比直接用lldb调试会方便很多，这里记录一下如何在XCode调试第三方App</p>
+<span id="more"></span>
+
+<h2 id="直接启动调试"><a href="#直接启动调试" class="headerlink" title="直接启动调试"></a>直接启动调试</h2><ol>
+<li><p>我们先拿到<code>脱壳</code>的第三方App（<code>WeChat</code>），进行<code>重签名</code>，得到<code>WeChat.app</code></p>
+<p> 有很多种脱壳的方式，笔者用的是<code>iOS13</code>，用的是<code>CrackerXI+</code>工具</p>
+</li>
+<li><p>新建一个新的工程，证书与重签名的一致，修改bundleId为<code>com.tencent.xin</code>，运行到手机上</p>
+</li>
+<li><p>把<code>WeChat.app</code>放到工程根目录，在工程添加<code>Run Script</code></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 运行之前换成第三方app，达到偷梁换柱的目的</span></span><br><span class="line"><span class="built_in">cp</span> -rf <span class="string">&quot;<span class="variable">$&#123;SRCROOT&#125;</span>/WeChat.app&quot;</span> <span class="string">&quot;<span class="variable">$&#123;BUILT_PRODUCTS_DIR&#125;</span>/&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接下来就跟我们平常调试应用一样，只是没有源码可以看</p>
+</li>
+</ol>
+<h3 id="添加断点"><a href="#添加断点" class="headerlink" title="添加断点"></a>添加断点</h3><p>通过Hopper查看方法的地址为: <code>0x0000000102a9602c</code></p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-[WCAccountLoginControlLogic onFirstViewLogin]:</span><br><span class="line">0000000102a9602c         stp        x22, x21, [sp, #-0x30]!</span><br><span class="line">0000000102a96030         stp        x20, x19, [sp, #0x10]</span><br><span class="line">0000000102a96034         stp        x29, x30, [sp, #0x20]</span><br></pre></td></tr></table></figure>
+
+<p>打断点</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 查看ASLR为：0x0000000000558000 = 0x0000000100558000 - 0x0000000100000000</span></span><br><span class="line">(lldb) image list | grep WeChat</span><br><span class="line">[  0] 7195B97E-9078-3119-9110-8BDA959283F0 0x0000000100558000 /Users/wendy/Library/Developer/Xcode/DerivedData/Test-haevfjompsameldsewkriqunrgfe/Build/Products/Debug-iphoneos/WeChat.app/WeChat</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 所以方法的内存地址为: 0x0000000102fee02c = 0x0000000000558000 + 0x0000000102a9602c</span></span><br><span class="line">(lldb) p/x 0x0000000000558000 + 0x0000000102a9602c</span><br><span class="line">(long) <span class="variable">$27</span> = 0x0000000102fee02c</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 添加地址断点</span></span><br><span class="line">(lldb) breakpoint <span class="built_in">set</span> -a 0x0000000102fee02c</span><br><span class="line">Breakpoint 5: <span class="built_in">where</span> = WeChat`___lldb_unnamed_symbol137105$<span class="variable">$WeChat</span>, address = 0x0000000102fee02c</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 添加符号断点（失败）</span></span><br><span class="line">(lldb) breakpoint <span class="built_in">set</span> -n <span class="string">&quot;-[WCAccountLoginControlLogic onFirstViewLogin]&quot;</span></span><br><span class="line">Breakpoint 8: no locations (pending).</span><br><span class="line">WARNING:  Unable to resolve breakpoint to any actual locations.</span><br></pre></td></tr></table></figure>
+
+<p>断点只能通过地址添加，并不能解析符号，另外Xcode也不能解析堆栈信息，我们可以用<code>restore-symbol</code>恢复符号表</p>
+<h3 id="恢复符号表"><a href="#恢复符号表" class="headerlink" title="恢复符号表"></a>恢复符号表</h3><p>为了方便调试，打断点，查看堆栈调用信息，我们可以使用<a target="_blank" rel="noopener" href="https://github.com/tobefuturer/restore-symbol"><code>restore-symbol</code></a>恢复符号表</p>
+<p>使用方法，网站上很详细了</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line">git <span class="built_in">clone</span> --recursive https://github.com/tobefuturer/restore-symbol.git</span><br><span class="line"><span class="comment"># 编译</span></span><br><span class="line"><span class="built_in">cd</span> restore-symbol &amp;&amp; make</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行（恢复OC符号表）</span></span><br><span class="line">./restore-symbol /pathto/origin_mach_o_file -o /pathto/mach_o_with_symbol</span><br></pre></td></tr></table></figure>
+
+<p>恢复block的符号表需要借助IDA导出映射关系，具体见网站说明，恢复符号表后需要<code>重签名</code></p>
+<h3 id="打符号断点"><a href="#打符号断点" class="headerlink" title="打符号断点"></a>打符号断点</h3><p><img src="/images/post/xcode-symbol-breakpoint.png" alt="symbol breakpoint"></p>
+<h3 id="UI-层级"><a href="#UI-层级" class="headerlink" title="UI 层级"></a>UI 层级</h3><p><img src="/images/post/xcode-ui-hierarchy.png" alt="uiview hierarchy"></p>
+<h2 id="远程附加调试"><a href="#远程附加调试" class="headerlink" title="远程附加调试"></a>远程附加调试</h2><p>先安装第三方App(<code>脱壳</code>)，然后新建一个新工程，运行</p>
+<p>在<code>XCode</code> -&gt; <code>DEBGU</code> -&gt; <code>Attach to Process</code>，然后选择对应的进程附加</p>
+<p><img src="/images/post/xcode-attachto-process.png" alt="attach to process"></p>
+<p>用起来和直接调试是一样</p>
+<p><img src="/images/post/xcode-attach-debug.png" alt="attach debug"></p>
+<blockquote>
+<p>附加调试有时候会很慢</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2020-03-15/xcode-dynamic-debug/" title="Xcode动态调试第三方App">http://zhengbomo.github.io/2020-03-15/xcode-dynamic-debug/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-03-13/ida7-catalina/" rel="prev" title="MacOS 10.15安装IDA7">
+      <i class="fa fa-chevron-left"></i> MacOS 10.15安装IDA7
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-03-30/ios-symbol-order-build/" rel="next" title="iOS二进制重排对缺页和启动时间的优化实践">
+      iOS二进制重排对缺页和启动时间的优化实践 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E5%90%AF%E5%8A%A8%E8%B0%83%E8%AF%95"><span class="nav-number">1.</span> <span class="nav-text">直接启动调试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%96%AD%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">添加断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%81%A2%E5%A4%8D%E7%AC%A6%E5%8F%B7%E8%A1%A8"><span class="nav-number">1.2.</span> <span class="nav-text">恢复符号表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%93%E7%AC%A6%E5%8F%B7%E6%96%AD%E7%82%B9"><span class="nav-number">1.3.</span> <span class="nav-text">打符号断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UI-%E5%B1%82%E7%BA%A7"><span class="nav-number">1.4.</span> <span class="nav-text">UI 层级</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9C%E7%A8%8B%E9%99%84%E5%8A%A0%E8%B0%83%E8%AF%95"><span class="nav-number">2.</span> <span class="nav-text">远程附加调试</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

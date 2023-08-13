@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="抖音团队去年针对系统虚拟内存缺页的情况，基于二进制重排的方案，给App启动速度提升了15%，各路大神也随后分享了几篇优质的二进制重排的文章，这里基于自己的项目做一下实践">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS二进制重排对缺页和启动时间的优化实践">
+<meta property="og:url" content="http://zhengbomo.github.io/2020-03-30/ios-symbol-order-build/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="抖音团队去年针对系统虚拟内存缺页的情况，基于二进制重排的方案，给App启动速度提升了15%，各路大神也随后分享了几篇优质的二进制重排的文章，这里基于自己的项目做一下实践">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/systemtrace-app-page-fault1.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/systemtrace-app-page-fault3.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/order-file-setting.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/trace-page-fault-diff.png">
+<meta property="article:published_time" content="2020-03-30T07:45:56.000Z">
+<meta property="article:modified_time" content="2020-03-30T07:45:56.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/systemtrace-app-page-fault1.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2020-03-30/ios-symbol-order-build/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>iOS二进制重排对缺页和启动时间的优化实践 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-03-30/ios-symbol-order-build/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS二进制重排对缺页和启动时间的优化实践
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-30 15:45:56" itemprop="dateCreated datePublished" datetime="2020-03-30T15:45:56+08:00">2020-03-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>抖音团队去年针对系统虚拟内存缺页的情况，基于二进制重排的方案，给App启动速度提升了15%，各路大神也随后分享了几篇优质的二进制重排的文章，这里基于自己的项目做一下实践</p>
+<span id="more"></span>
+
+<h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><ol>
+<li>进程运行时使用的内存是操作系统提供的<code>虚拟内存</code>，而不是直接操作物理内存</li>
+<li>从<code>虚拟内存</code>到<code>物理内存</code>有一个映射表(页表)</li>
+<li>进程的内存会进行<code>分页</code>管理，以页为单位</li>
+<li>程序启动的时候，<strong>并不会把所有内存都加载到物理内存中</strong>，而是用到的时候才加载，没有用到的内存，可能并没有加载到物理内存中</li>
+<li>当程序访问到的内存地址（虚拟内存），如果还没有加载到物理内存时，就会触发<code>Page Fault</code>，（对应<code>System Trace</code>的<code>File Backed Page In</code>），然后操作系统把数据加载到物理内存中，如果已经已经加载到物理内存了，则会触发<code>Page Cache Hit</code>，后者是比较快的，这也是热启动比冷启动快的原因之一</li>
+</ol>
+<blockquote>
+<ol>
+<li>基于上面原理. 我们的目标就是在启动的时候增加<code>Page Cache Hit</code>，减少<code>Page Fault</code>，从而达到优化启动时间的目的</li>
+<li>我们需要确定，在启动的时候，执行了哪些符号，尽可能让这些符号的内存集中在一起，减少占用的页数，就能减少<code>Page Fault</code>的命中次数</li>
+</ol>
+</blockquote>
+<h2 id="测试Page-Fault"><a href="#测试Page-Fault" class="headerlink" title="测试Page Fault"></a>测试Page Fault</h2><p>通过<code>Instrument / System Trace</code>工具，可以查看我们的App，在启动过程中的<code>Page Fault</code>数量(File Breaked Page In)</p>
+<p><img src="/images/post/systemtrace-app-page-fault1.png" alt="system trace page fault"></p>
+<blockquote>
+<p>如果App比较大，<code>Analizing</code>的过程会比较久，需要耐心等待</p>
+</blockquote>
+<p>这里有个注意点，为了<strong>确保App是真正的冷启动</strong>，需要把内存清干净，不然结果会不太准，下图是我直接杀掉App，重新打开得到的结果</p>
+<p><img src="/images/post/systemtrace-app-page-fault3.png" alt="_"></p>
+<p>可以看到，和第一次测试差的有点多，<strong>我们可以在杀掉App后，重新打开多个其他的App（尽可能多），把原来的内存都覆盖掉，这样在重新打开App的时候，就会重新加载物理内存</strong></p>
+<h2 id="确定代码执行顺序"><a href="#确定代码执行顺序" class="headerlink" title="确定代码执行顺序"></a>确定代码执行顺序</h2><p>接下来需要确定App在启动的时候，调用了哪些函数（使用了哪些符号），这里我们使用<a target="_blank" rel="noopener" href="http://yulingtianxia.com/">杨萧玉</a>写的一个工具<a target="_blank" rel="noopener" href="https://github.com/yulingtianxia/AppOrderFiles">AppOrderFiles</a>，使用<code>Clang SanitizerCoverage</code>，通过编译器插装的方式，获取到调用函数的符号顺序</p>
+<p>通过pod引入</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod <span class="string">&#x27;AppOrderFiles&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>并且添加编译宏<code>OTHER_CFLAGS</code>和<code>OTHER_SWIFT_FLAGS</code>（只在Debug生效即可）</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">post_install <span class="keyword">do</span> |<span class="params">installer</span>|</span><br><span class="line">  installer.pods_project.targets.each <span class="keyword">do</span> |<span class="params">target</span>|</span><br><span class="line">    target.build_configurations.each <span class="keyword">do</span> |<span class="params">config</span>|</span><br><span class="line">      <span class="keyword">case</span> config.name</span><br><span class="line">        <span class="keyword">when</span> <span class="string">&quot;Debug&quot;</span></span><br><span class="line">        config.build_settings[<span class="string">&#x27;OTHER_CFLAGS&#x27;</span>] = <span class="string">&#x27;-fsanitize-coverage=func,trace-pc-guard&#x27;</span></span><br><span class="line">        config.build_settings[<span class="string">&#x27;OTHER_SWIFT_FLAGS&#x27;</span>] = <span class="string">&#x27;-sanitize-coverage=func -sanitize=undefined&#x27;</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>在App启动后，到第一个页面（HomePage）的viewDidLoad方法</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> AppOrderFiles</span><br><span class="line"></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">viewDidLoad</span>() &#123;</span><br><span class="line">    <span class="keyword">super</span>.viewDidLoad()</span><br><span class="line"></span><br><span class="line">    <span class="operator">...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">    <span class="comment">// 延迟一下，让运行实践长一点，避免进入后因为PageFault造成卡顿</span></span><br><span class="line">    <span class="type">DispatchQueue</span>.main.asyncAfter(deadline: <span class="type">DispatchTime</span>.now() <span class="operator">+</span> <span class="number">0.5</span>, execute: &#123;</span><br><span class="line">        <span class="type">AppOrderFiles</span> &#123; (filePath) <span class="keyword">in</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> p <span class="operator">=</span> filePath &#123;</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;output order file <span class="subst">\(p)</span>&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">#endif</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出的文件在App沙盒，用模拟器运行更方便，得到文件<code>app.order</code>，这里面就是排好序的符号列表，根据App的执行顺序，如果项目比较大的话，会比较久</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">___swift_instantiateConcreteTypeFromMangledName</span><br><span class="line">_main</span><br><span class="line">_$s3jcm11AppDelegateCMa</span><br><span class="line">_$s3jcm11AppDelegateCACycfcTo</span><br><span class="line">_$s3jcm11AppDelegateCACycfc</span><br><span class="line">_$s3jcm11AppDelegateC11application_29didFinishLaunchingWithOptionsSbSo13UIApplicationC_SDySo0j6LaunchI3KeyaypGSgtFTo</span><br><span class="line">_$s3jcm11AppDelegateC11application_29didFinishLaunchingWithOptionsSbSo13UIApplicationC_SDySo0j6LaunchI3KeyaypGSgtF</span><br><span class="line">_$s3jcm11AppDelegateC5setup13launchOptionsySDySo019UIApplicationLaunchF3KeyaypGSg_tF</span><br><span class="line">_$s3jcm5ConstV11wechatAppIdSSvau</span><br><span class="line">_globalinit_33_27D199AC10BAAE2783814C508183B809_func13</span><br><span class="line">_$s3jcm5ConstV19wechatUniversalLinkSSvau</span><br><span class="line">_globalinit_33_27D199AC10BAAE2783814C508183B809_func15</span><br><span class="line">_$sSo12BaiduMobStatCMa</span><br><span class="line">_$sSo12BaiduMobStatCs5Error_pIggzo_ABsAC_pIegnzo_TRTA</span><br><span class="line">_$sSo12BaiduMobStatCs5Error_pIggzo_ABsAC_pIegnzo_TR</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>把<code>app.order</code>放到工程目录，配置到Xcode里面<code>Build Setting</code> -&gt; <code>Order File</code> -&gt; <code>$(PROJECT_DIR)/app.order</code></p>
+<p><img src="/images/post/order-file-setting.png" alt="order file setting"></p>
+<h2 id="验证是否生效"><a href="#验证是否生效" class="headerlink" title="验证是否生效"></a>验证是否生效</h2><p>Xcode里面<code>Build Setting</code>有个<code>Write Link Map File</code>，可以生成Link Map文件的选项，路径如下</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Link Map文件</span></span><br><span class="line">Intermediates.noindex/xxxx.build/Debug-iphoneos/xxx.build/xxx-LinkMap-normal-arm64.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成app文件路径</span></span><br><span class="line">Products/Debug-iphoneos/xxx.app</span><br></pre></td></tr></table></figure>
+
+<p>文件内容其实是描述链接器连接的详情，对应的是MachO文件的内存分布，文件如下</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"># Path: /Users/bomo/Library/Developer/Xcode/DerivedData/SwiftScaffold-fdswirgebkkdidcxcpxdffxxvxye/Build/Products/Debug-iphoneos/jcm.app/jcm</span><br><span class="line"># Arch: arm64</span><br><span class="line"># Object files:</span><br><span class="line">[  0] linker synthesized</span><br><span class="line">[  1] /Users/bomo/Library/Developer/Xcode/DerivedData/SwiftScaffold-fdswirgebkkdidcxcpxdffxxvxye/Build/Intermediates.noindex/SwiftScaffold.build/Debug-iphoneos/jcm.build/Objects-normal/arm64/JHCollectionViewFlowLayout.o</span><br><span class="line">[  2] /Users/bomo/Library/Developer/Xcode/DerivedData/SwiftScaffold-fdswirgebkkdidcxcpxdffxxvxye/Build/Intermediates.noindex/SwiftScaffold.build/Debug-iphoneos/jcm.build/Objects-normal/arm64/JHCollectionReusableView.o</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"># Sections:</span><br><span class="line"># Address   Size        Segment Section</span><br><span class="line">0x100004928 0x00ED5B08  __TEXT  __text</span><br><span class="line">0x100EDA430 0x00005550  __TEXT  __stubs</span><br><span class="line">0x100EDF980 0x00005190  __TEXT  __stub_helper</span><br><span class="line">0x100EE4B10 0x000684D9  __TEXT  __cstring</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"># Symbols:</span><br><span class="line"># Address   Size        File  Name</span><br><span class="line">0x100004928 0x00000094  [  6] ___swift_instantiateConcreteTypeFromMangledName</span><br><span class="line">0x1000049BC 0x00000088  [ 78] _main</span><br><span class="line">0x100004A44 0x00000070  [ 78] _$s3jcm11AppDelegateCMa</span><br><span class="line">0x100004AB4 0x00000044  [ 78] _$s3jcm11AppDelegateCACycfcTo</span><br><span class="line">0x100004AF8 0x00000108  [ 78] _$s3jcm11AppDelegateCACycfc</span><br><span class="line">0x100004C00 0x00000144  [ 78] _$s3jcm11AppDelegateC11application_29didFinishLaunchingWithOptionsSbSo13UIApplicationC_SDySo0j6LaunchI3KeyaypGSgtFTo</span><br><span class="line">0x100004D44 0x00000430  [ 78] _$s3jcm11AppDelegateC11application_29didFinishLaunchingWithOptionsSbSo13UIApplicationC_SDySo0j6LaunchI3KeyaypGSgtF</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"># Dead Stripped Symbols:</span><br><span class="line">#           Size        File  Name</span><br><span class="line">&lt;&lt;dead&gt;&gt;    0x00000006  [  2] literal string: class</span><br><span class="line">&lt;&lt;dead&gt;&gt;    0x00000014  [  2] literal string: setBackgroundColor:</span><br><span class="line">&lt;&lt;dead&gt;&gt;    0x0000000B  [  2] literal string: v24@0:8@16</span><br><span class="line">&lt;&lt;dead&gt;&gt;    0x00000010  [  3] literal string: backgroundColor</span><br><span class="line">&lt;&lt;dead&gt;&gt;    0x00000014  [  3] literal string: setBackgroundColor:</span><br><span class="line">&lt;&lt;dead&gt;&gt;    0x0000000E  [  3] literal string: .cxx_destruct</span><br><span class="line">&lt;&lt;dead&gt;&gt;    0x00000008  [  3] literal string: @16@0:8</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>这里我们只关注符号表<code>Symbols</code>，这里的顺序就是MachO文件对应的顺序，如果与<code>app.order</code>的顺序一致，就表明改成功了</p>
+<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><p>通过<code>System Trace</code>工具测试修改前后对比</p>
+<p><img src="/images/post/trace-page-fault-diff.png" alt="system trace page fault diff"></p>
+<p><code>page fault</code>减少了900，速度提升<code>225ms</code>，这里的时间与具体的运行环境有关系，建议多次测试</p>
+<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI1MzYzMjE0MQ==&mid=2247485101&idx=1&sn=abbbb6da1aba37a04047fc210363bcc9&scene=21&token=2051547505&lang=zh_CN#wechat_redirect">抖音研发实践：基于二进制文件重排的解决方案 APP启动速度提升超15%</a></li>
+<li><a target="_blank" rel="noopener" href="http://yulingtianxia.com/blog/2019/09/01/App-Order-Files/">App 二进制文件重排已经被玩坏了</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2020-03-30/ios-symbol-order-build/" title="iOS二进制重排对缺页和启动时间的优化实践">http://zhengbomo.github.io/2020-03-30/ios-symbol-order-build/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-03-15/xcode-dynamic-debug/" rel="prev" title="Xcode动态调试第三方App">
+      <i class="fa fa-chevron-left"></i> Xcode动态调试第三方App
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-04-06/cpp-learn-1/" rel="next" title="重学C++学习笔记（一）">
+      重学C++学习笔记（一） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">基本原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95Page-Fault"><span class="nav-number">2.</span> <span class="nav-text">测试Page Fault</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AE%E5%AE%9A%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="nav-number">3.</span> <span class="nav-text">确定代码执行顺序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E6%98%AF%E5%90%A6%E7%94%9F%E6%95%88"><span class="nav-number">4.</span> <span class="nav-text">验证是否生效</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94"><span class="nav-number">5.</span> <span class="nav-text">对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">引用</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

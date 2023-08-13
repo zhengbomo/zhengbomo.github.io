@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="基于现有的项目接入flutter，官方提供的一个比较完整的接入方案，但是存在一个问题，由于FlutterEngine很重，而多个FlutterViewController共享一个Engine，并且同一时间下，一个engine只能与一个viewcontroller绑定，在管理起来，特别是对于多层跳转（native-&gt;flutter-&gt;native-&gt;flutter）非常麻烦，而如果">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flutter_boost混编实践">
+<meta property="og:url" content="http://zhengbomo.github.io/2020-06-07/flutter-boost-integration/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="基于现有的项目接入flutter，官方提供的一个比较完整的接入方案，但是存在一个问题，由于FlutterEngine很重，而多个FlutterViewController共享一个Engine，并且同一时间下，一个engine只能与一个viewcontroller绑定，在管理起来，特别是对于多层跳转（native-&gt;flutter-&gt;native-&gt;flutter）非常麻烦，而如果">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/flutter_boost_demo.gif">
+<meta property="article:published_time" content="2020-06-07T02:15:43.000Z">
+<meta property="article:modified_time" content="2020-06-07T02:15:43.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="flutter">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/flutter_boost_demo.gif">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2020-06-07/flutter-boost-integration/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>flutter_boost混编实践 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-06-07/flutter-boost-integration/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          flutter_boost混编实践
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-07 10:15:43" itemprop="dateCreated datePublished" datetime="2020-06-07T10:15:43+08:00">2020-06-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flutter/" itemprop="url" rel="index"><span itemprop="name">flutter</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>基于现有的项目接入flutter，官方提供的一个比较完整的接入方案，但是存在一个问题，由于<code>FlutterEngine</code>很重，而多个<code>FlutterViewController</code>共享一个Engine，并且同一时间下，一个engine只能与一个viewcontroller绑定，在管理起来，特别是对于多层跳转（native-&gt;flutter-&gt;native-&gt;flutter）非常麻烦，而如果创建多个<code>FlutterEngine</code>，就会带来很大的开销，导致内存暴涨，而<code>flutter_boost</code>提供了像WebView的方式操作FlutterViewController，可以存在多个FlutterViewController，这里基于一个现有的demo继承flutter_boost并解决侧滑手势冲突的问题</p>
+<span id="more"></span>
+
+<h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p><a target="_blank" rel="noopener" href="https://flutter.dev/docs/development/add-to-app/ios/project-setup">官方</a>的流程的教程很详细，这里简单说明</p>
+<ol>
+<li><p>创建flutter模块（这里取为<code>my_flutter</code>）</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> some/path/</span><br><span class="line">flutter create --template module my_flutter</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>从原来的项目的<code>Podfile</code>添加引用</p>
+ <figure class="highlight rb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">source <span class="string">&#x27;https://github.com/CocoaPods/Specs.git&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">platform:</span>ios,<span class="string">&#x27;10.0&#x27;</span></span><br><span class="line"><span class="comment"># 不用动态库，动态库多了影响启动速度</span></span><br><span class="line"><span class="comment"># use_frameworks!</span></span><br><span class="line">use_modular_headers!</span><br><span class="line">inhibit_all_warnings!</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加上flutter脚本</span></span><br><span class="line">flutter_application_path = <span class="string">&#x27;../my_flutter&#x27;</span></span><br><span class="line">load File.join(flutter_application_path, <span class="string">&#x27;.ios&#x27;</span>, <span class="string">&#x27;Flutter&#x27;</span>, <span class="string">&#x27;podhelper.rb&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">target <span class="string">&#x27;Demo&#x27;</span> <span class="keyword">do</span></span><br><span class="line">    <span class="comment"># 其他native用到的第三方库</span></span><br><span class="line">    pod <span class="string">&#x27;SnapKit&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># flutter pod</span></span><br><span class="line">    install_all_flutter_pods(flutter_application_path)</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>先运行<code>flutter pub get</code>，再运行pod（最好先运行一下<code>my_flutter</code>）</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /path/to/flutter_module</span><br><span class="line">flutter pub get</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /path/to/iosproject</span><br><span class="line">pod install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接下来就可以直接在Xcode运行了</p>
+</li>
+</ol>
+<blockquote>
+<p>当然还有其他的接入方式，笔者认为这个方式比较简单，具体可以参考<a target="_blank" rel="noopener" href="https://flutter.dev/docs/development/add-to-app/ios/project-setup">官方教程</a></p>
+</blockquote>
+<h2 id="开始接入"><a href="#开始接入" class="headerlink" title="开始接入"></a>开始接入</h2><p>为了更方便的管理<code>FlutterEngine</code>和<code>FlutterViewController</code>，这里使用<code>flutter_boost</code>来管理</p>
+<ol>
+<li><p>为了方便管理，我们对<code>FLBFlutterViewContainer</code>进行封装</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FlutterVC</span>: <span class="title class_">FLBFlutterViewContainer</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">loadView</span>() &#123;</span><br><span class="line">        <span class="keyword">super</span>.loadView()</span><br><span class="line">        <span class="comment">// 隐藏navigationbar</span></span><br><span class="line">        <span class="keyword">self</span>.navigationController<span class="operator">?</span>.navigationBar.isHidden <span class="operator">=</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>实现flutter到本地的路由（<code>NavigationHelper</code>为帮助类，具体见后面源码链接）</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PlatformRouterImp</span>: <span class="title class_">NSObject</span>, <span class="title class_">FLBPlatform</span> &#123;</span><br><span class="line">    <span class="comment">// 从flutter传过来的push页面需求</span></span><br><span class="line">    <span class="comment">// await FlutterBoost.singleton.open(&quot;nativePage&quot;, urlParams: &#123;&quot;a&quot;: 1&#125;, exts: &#123;&quot;b&quot;: 2&#125;);</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">open</span>(<span class="keyword">_</span> <span class="params">url</span>: <span class="type">String</span>, <span class="params">urlParams</span>: [<span class="params">AnyHashable</span> : <span class="keyword">Any</span>], <span class="params">exts</span>: [<span class="params">AnyHashable</span> : <span class="keyword">Any</span>], <span class="params">completion</span>: <span class="keyword">@escaping</span> (<span class="type">Bool</span>) -&gt; <span class="type">Void</span>) &#123;</span><br><span class="line">        <span class="keyword">switch</span> url &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;nativePage&quot;</span>:</span><br><span class="line">            <span class="comment">// 跳转到本地页面</span></span><br><span class="line">            <span class="keyword">let</span> vc <span class="operator">=</span> <span class="type">HomeVC</span>()</span><br><span class="line">            <span class="type">NavigationHelper</span>.nav2VC(vc)</span><br><span class="line">            completion(<span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            completion(<span class="literal">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">present</span>(<span class="keyword">_</span> <span class="params">url</span>: <span class="type">String</span>, <span class="params">urlParams</span>: [<span class="params">AnyHashable</span> : <span class="keyword">Any</span>], <span class="params">exts</span>: [<span class="params">AnyHashable</span> : <span class="keyword">Any</span>], <span class="params">completion</span>: <span class="keyword">@escaping</span> (<span class="type">Bool</span>) -&gt; <span class="type">Void</span>) &#123;</span><br><span class="line">        <span class="keyword">switch</span> url &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;nativeFlutterPage&quot;</span>:</span><br><span class="line">            <span class="comment">// 创建新的FlutterVC</span></span><br><span class="line">            <span class="keyword">let</span> vc <span class="operator">=</span> <span class="type">FlutterVC</span>();</span><br><span class="line">            vc.setName(<span class="string">&quot;home&quot;</span>, params: urlParams);</span><br><span class="line">            <span class="keyword">let</span> navVC <span class="operator">=</span> <span class="type">UINavigationController</span>(rootViewController: vc)</span><br><span class="line">            <span class="type">NavigationHelper</span>.presentVC(navVC)</span><br><span class="line">            completion(<span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            completion(<span class="literal">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">close</span>(<span class="keyword">_</span> <span class="params">uid</span>: <span class="type">String</span>, <span class="params">result</span>: [<span class="params">AnyHashable</span> : <span class="keyword">Any</span>], <span class="params">exts</span>: [<span class="params">AnyHashable</span> : <span class="keyword">Any</span>], <span class="params">completion</span>: <span class="keyword">@escaping</span> (<span class="type">Bool</span>) -&gt; <span class="type">Void</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> topVC <span class="operator">=</span> <span class="type">NavigationHelper</span>.getTopVC()</span><br><span class="line">        <span class="keyword">let</span> presentVC <span class="operator">=</span> topVC.presentingViewController</span><br><span class="line">        <span class="comment">// 判断是否时present</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> <span class="keyword">_</span> <span class="operator">=</span> presentVC &#123;</span><br><span class="line">            topVC.dismiss(animated: <span class="literal">true</span>, completion: &#123; [<span class="keyword">unowned</span> topVC] <span class="keyword">in</span></span><br><span class="line">                topVC.removeFromParent()</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            topVC.navigationController<span class="operator">?</span>.popViewController(animated: <span class="literal">true</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化，可以放在<code>application:didFinishLaunchingWithOptions:</code>，定义一个名为<code>myflutter_method_channel</code>的MethodChannel，用于通信</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用于处理flutter发送的页面跳转消息</span></span><br><span class="line"><span class="keyword">let</span> router <span class="operator">=</span> <span class="type">PlatformRouterImp</span>.<span class="keyword">init</span>();</span><br><span class="line"></span><br><span class="line"><span class="type">FlutterBoostPlugin</span>.sharedInstance().startFlutter(with: router, onStart: &#123; (engine) <span class="keyword">in</span></span><br><span class="line">    <span class="comment">// 配置channel，用于通信</span></span><br><span class="line">    <span class="keyword">let</span> batteryChannel <span class="operator">=</span> <span class="type">FlutterMethodChannel</span>(name: <span class="string">&quot;myflutter_method_channel&quot;</span>,</span><br><span class="line">                                                binaryMessenger: engine.binaryMessenger)</span><br><span class="line">    batteryChannel.setMethodCallHandler(&#123; (call: <span class="type">FlutterMethodCall</span>, result: <span class="keyword">@escaping</span> <span class="type">FlutterResult</span>) -&gt; <span class="type">Void</span> <span class="keyword">in</span></span><br><span class="line">        <span class="keyword">switch</span> call.method &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;alert&quot;</span>:</span><br><span class="line">            <span class="comment">// native弹窗</span></span><br><span class="line">            <span class="keyword">let</span> vc <span class="operator">=</span> <span class="type">UIAlertController</span>(title: <span class="string">&quot;测试弹窗&quot;</span>, message: <span class="string">&quot;弹窗内容&quot;</span>, preferredStyle: .alert)</span><br><span class="line">            vc.addAction(<span class="type">UIAlertAction</span>(title: <span class="string">&quot;取消&quot;</span>, style: .cancel, handler: <span class="literal">nil</span>))</span><br><span class="line">            <span class="type">NavigationHelper</span>.getTopVC().present(vc, animated: <span class="literal">true</span>, completion: <span class="literal">nil</span>)</span><br><span class="line">            result(<span class="literal">true</span>)</span><br><span class="line">        default:</span><br><span class="line">            result(<span class="literal">false</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在Dart初始化<code>flutter_boost</code></p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">void main() &#123;</span><br><span class="line">    runApp(<span class="type">MyApp</span>());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyApp</span> <span class="title class_">extends</span> <span class="title class_">StatefulWidget</span> &#123;</span><br><span class="line">    <span class="meta">@override</span></span><br><span class="line">    _MyAppState createState() <span class="operator">=&gt;</span> _MyAppState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">_MyAppState</span> <span class="title class_">extends</span> <span class="title class_">State</span>&lt;<span class="title class_">MyApp</span>&gt; &#123;</span><br><span class="line">    <span class="meta">@override</span></span><br><span class="line">    void initState() &#123;</span><br><span class="line">        <span class="comment">// 注册Page，用于native跳转</span></span><br><span class="line">        <span class="type">FlutterBoost</span>.singleton.registerPageBuilders(<span class="operator">&lt;</span><span class="type">String</span>, <span class="type">PageBuilder</span><span class="operator">&gt;</span>&#123;</span><br><span class="line">            &#x27;home&#x27;: (<span class="type">String</span> pageName, <span class="type">Map</span> params, <span class="type">String</span> uniqueId) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="type">HomePage</span>();</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">&quot;me&quot;</span>: (<span class="type">String</span> pageName, <span class="type">Map</span> params, <span class="type">String</span> uniqueId) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="type">MePage</span>();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">super</span>.initState();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@override</span></span><br><span class="line">    <span class="type">Widget</span> build(<span class="type">BuildContext</span> context) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">MaterialApp</span>(</span><br><span class="line">        title: &#x27;<span class="type">Demo</span>&#x27;,</span><br><span class="line">        theme: <span class="type">ThemeData</span>(</span><br><span class="line">            primarySwatch: <span class="type">Colors</span>.blue,</span><br><span class="line">        ),</span><br><span class="line">        <span class="comment">// 使用FlutterBoost作为builder</span></span><br><span class="line">        builder: <span class="type">FlutterBoost</span>.<span class="keyword">init</span>(),</span><br><span class="line">        home: <span class="type">HomePage</span>(),</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>flutter给native发消息</p>
+ <figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 给native发消息</span></span><br><span class="line">    <span class="keyword">final</span> <span class="built_in">bool</span> result = <span class="keyword">await</span> method_channel.invokeMethod(<span class="string">&quot;alert&quot;</span>, &lt;<span class="built_in">String</span>, <span class="built_in">dynamic</span>&gt;&#123; <span class="string">&quot;a&quot;</span>: <span class="number">1</span> &#125;);</span><br><span class="line">    <span class="built_in">print</span>(result);</span><br><span class="line">&#125; <span class="keyword">on</span> Exception <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="built_in">print</span>(e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>native给flutter发消息</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">FlutterBoostPlugin</span>.sharedInstance().sendEvent(<span class="string">&quot;showToast&quot;</span>, arguments: [<span class="string">&quot;message&quot;</span>: <span class="string">&quot;native消息&quot;</span>]);</span><br></pre></td></tr></table></figure>
+
+<p> flutter 监听消息</p>
+ <figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 监听消息，返回值是个匿名方法，可以取消监听</span></span><br><span class="line">_listenCancelable = FlutterBoost.singleton.channel.addEventListener(<span class="string">&#x27;showToast&#x27;</span>, (name, arguments) <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> msg = arguments[<span class="string">&quot;message&quot;</span>];</span><br><span class="line">    <span class="keyword">if</span> (msg != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">await</span> _hudKey.currentState.showAndDismiss(ProgressHudType.success, msg);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 取消监听</span></span><br><span class="line">_listenCancelable.call()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>flutter给native发消息</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> cancelable: <span class="type">FLBVoidCallback</span>?</span><br><span class="line"></span><br><span class="line"><span class="operator">...</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听flutter发来的消息</span></span><br><span class="line">cancelable <span class="operator">=</span> <span class="type">FlutterBoostPlugin</span>.sharedInstance().addEventListener(&#123; [<span class="keyword">weak</span> <span class="keyword">self</span>] (name, arguments) <span class="keyword">in</span></span><br><span class="line">    <span class="keyword">guard</span> <span class="keyword">let</span> <span class="keyword">self</span> <span class="operator">=</span> <span class="keyword">self</span> <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> arguments <span class="operator">=</span> arguments, <span class="keyword">let</span> msg <span class="operator">=</span> arguments[<span class="string">&quot;message&quot;</span>] <span class="keyword">as?</span> <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> vc <span class="operator">=</span> <span class="type">UIAlertController</span>(title: <span class="string">&quot;tip&quot;</span>, message: msg, preferredStyle: .alert)</span><br><span class="line">        vc.addAction(<span class="type">UIAlertAction</span>(title: <span class="string">&quot;cancel&quot;</span>, style: .default, handler: <span class="literal">nil</span>))</span><br><span class="line">        <span class="keyword">self</span>.present(vc, animated: <span class="literal">true</span>, completion: <span class="literal">nil</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;, forName: <span class="string">&quot;alert&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="operator">...</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 取消监听</span></span><br><span class="line">cancelable<span class="operator">?</span>()</span><br></pre></td></tr></table></figure>
+
+<p> flutter发送消息</p>
+ <figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FlutterBoost.singleton.channel.sendEvent(<span class="string">&quot;alert&quot;</span>, &#123;<span class="string">&quot;message&quot;</span>: <span class="string">&quot;flutter消息&quot;</span>&#125;);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<blockquote>
+<p>flutter给native发消息交互也可以使用<code>FlutterMethodChannel</code></p>
+</blockquote>
+<h3 id="兼容侧滑返回"><a href="#兼容侧滑返回" class="headerlink" title="兼容侧滑返回"></a>兼容侧滑返回</h3><p>iOS的<code>UINavigationController</code>默认支持侧滑返回，flutter的<code>MaterialApp</code>在iOS上也支持侧滑返回，由于flutter运行在FlutterViewController上，所以默认情况下侧滑走的是UINavigationController，为了让侧滑可以衔接起来，我们需要</p>
+<ul>
+<li>当<code>MaterialApp</code>的只有一个页面的时候，使用native侧滑</li>
+<li>当<code>MaterialApp</code>有不止一个页面的时候，禁用native的侧滑操作</li>
+</ul>
+<p>我们在<code>MaterialApp</code>添加一个observer</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:flutter/material.dart&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// native通信channel</span></span><br><span class="line"><span class="keyword">const</span> method_channel = <span class="keyword">const</span> MethodChannel(<span class="string">&#x27;myflutter_method_channel&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyNavigatorObserver</span> <span class="keyword">extends</span> <span class="title">NavigatorObserver</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 在push和pop的时候，更新native的侧滑操作</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@override</span></span><br><span class="line">    <span class="keyword">void</span> didPush(Route&lt;<span class="built_in">dynamic</span>&gt; route, Route&lt;<span class="built_in">dynamic</span>&gt; previousRoute) &#123;</span><br><span class="line">        method_channel.invokeMethod(<span class="string">&quot;flutter_page_changed&quot;</span>, &#123;</span><br><span class="line">            <span class="string">&#x27;type&#x27;</span>: <span class="string">&#x27;push&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;canPop&#x27;</span>: route.navigator.canPop()</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@override</span></span><br><span class="line">    <span class="keyword">void</span> didPop(Route&lt;<span class="built_in">dynamic</span>&gt; route, Route&lt;<span class="built_in">dynamic</span>&gt; previousRoute) &#123;</span><br><span class="line">        method_channel.invokeMethod(<span class="string">&quot;flutter_page_changed&quot;</span>, &#123;</span><br><span class="line">            <span class="string">&#x27;type&#x27;</span>: <span class="string">&#x27;pop&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;canPop&#x27;</span>: route.navigator.canPop()</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于<code>flutter_boost</code>会接管<code>MeterialApp</code>自带的observer，并且提供了对应的方法（设置在MaterialApp会无效）</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 添加navigationObserver，用于控制返回操作</span></span><br><span class="line">FlutterBoost.singleton.addBoostNavigatorObserver(myObserver);</span><br></pre></td></tr></table></figure>
+
+<p>在<code>FlutterVC</code>添加<code>popGestureRecognizerEnabled</code>用于设置native侧滑功能</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FlutterVC</span>: <span class="title class_">FLBFlutterViewContainer</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> popGestureRecognizerEnabled <span class="operator">=</span> <span class="literal">true</span> &#123;</span><br><span class="line">        <span class="keyword">didSet</span> &#123;</span><br><span class="line">            <span class="keyword">self</span>.navigationController<span class="operator">?</span>.interactivePopGestureRecognizer<span class="operator">?</span>.isEnabled <span class="operator">=</span> popGestureRecognizerEnabled</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于<code>UINavigationController</code>是多个<code>viewController</code>共用的，所以在本地页面跳转的时候，也需要更新<code>popGestureRecognizerEnabled</code></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protocol</span> <span class="title class_">PopGestureEnable</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> popGestureRecognizerEnabled: <span class="type">Bool</span> &#123; <span class="keyword">get</span> <span class="keyword">set</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FlutterVC</span>: <span class="title class_">FLBFlutterViewContainer</span>, <span class="title class_">PopGestureEnable</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> popGestureRecognizerEnabled <span class="operator">=</span> <span class="literal">true</span> &#123;</span><br><span class="line">        <span class="keyword">didSet</span> &#123;</span><br><span class="line">            <span class="keyword">self</span>.navigationController<span class="operator">?</span>.interactivePopGestureRecognizer<span class="operator">?</span>.isEnabled <span class="operator">=</span> popGestureRecognizerEnabled</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 由于navigationController是多个viewController共享的，所以在页面跳转的时候，也需要进行更新</span></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">viewDidAppear</span>(<span class="keyword">_</span> <span class="params">animated</span>: <span class="type">Bool</span>) &#123;</span><br><span class="line">        <span class="keyword">super</span>.viewDidAppear(animated)</span><br><span class="line">         <span class="keyword">self</span>.navigationController<span class="operator">?</span>.interactivePopGestureRecognizer<span class="operator">?</span>.isEnabled <span class="operator">=</span> <span class="keyword">self</span>.popGestureRecognizerEnabled</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ViewController</span>: <span class="title class_">UIViewController</span>, <span class="title class_">PopGestureEnable</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> popGestureRecognizerEnabled <span class="operator">=</span> <span class="literal">true</span> &#123;</span><br><span class="line">        <span class="keyword">didSet</span> &#123;</span><br><span class="line">            <span class="keyword">self</span>.navigationController<span class="operator">?</span>.interactivePopGestureRecognizer<span class="operator">?</span>.isEnabled <span class="operator">=</span> popGestureRecognizerEnabled</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">viewDidAppear</span>(<span class="keyword">_</span> <span class="params">animated</span>: <span class="type">Bool</span>) &#123;</span><br><span class="line">        <span class="keyword">super</span>.viewDidAppear(animated)</span><br><span class="line">        <span class="comment">// 页面显示的时候更新一下</span></span><br><span class="line">        <span class="keyword">self</span>.navigationController<span class="operator">?</span>.interactivePopGestureRecognizer<span class="operator">?</span>.isEnabled <span class="operator">=</span> <span class="keyword">self</span>.popGestureRecognizerEnabled</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>添加消息handle</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 配置channel</span></span><br><span class="line"><span class="keyword">let</span> batteryChannel <span class="operator">=</span> <span class="type">FlutterMethodChannel</span>(name: <span class="string">&quot;myflutter_method_channel&quot;</span>,</span><br><span class="line">                                            binaryMessenger: engine.binaryMessenger)</span><br><span class="line">batteryChannel.setMethodCallHandler(&#123; (call: <span class="type">FlutterMethodCall</span>, result: <span class="keyword">@escaping</span> <span class="type">FlutterResult</span>) -&gt; <span class="type">Void</span> <span class="keyword">in</span></span><br><span class="line">    <span class="keyword">switch</span> call.method &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&quot;flutter_page_changed&quot;</span>:</span><br><span class="line">        <span class="comment">// 修改native页面的侧滑</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> argument <span class="operator">=</span> call.arguments <span class="keyword">as?</span> [String: <span class="keyword">Any</span>],</span><br><span class="line">            <span class="keyword">let</span> canPop <span class="operator">=</span> argument[<span class="string">&quot;canPop&quot;</span>] <span class="keyword">as?</span> <span class="type">Bool</span> &#123;</span><br><span class="line">            <span class="comment">// 取出最上面的Controller</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> vc <span class="operator">=</span> <span class="type">NavigationHelper</span>.getTopVC() <span class="keyword">as?</span> <span class="type">FlutterVC</span> &#123;</span><br><span class="line">                <span class="comment">// 修改侧滑enabled</span></span><br><span class="line">                vc.popGestureRecognizerEnabled <span class="operator">=</span> <span class="operator">!</span>canPop</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        result(<span class="literal">nil</span>)</span><br><span class="line">    default:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<img src="/images/post/flutter_boost_demo.gif" class="" width="300">
+
+<p>代码在这里: <a target="_blank" rel="noopener" href="https://github.com/zhengbomo/flutter_boost_demo">https://github.com/zhengbomo/flutter_boost_demo</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2020-06-07/flutter-boost-integration/" title="flutter_boost混编实践">http://zhengbomo.github.io/2020-06-07/flutter-boost-integration/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/flutter/" rel="tag"># flutter</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-06-01/swift-performance/" rel="prev" title="Swift性能优化（一）">
+      <i class="fa fa-chevron-left"></i> Swift性能优化（一）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-06-10/flutter-thread/" rel="next" title="Flutter异步编程">
+      Flutter异步编程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">环境配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E6%8E%A5%E5%85%A5"><span class="nav-number">2.</span> <span class="nav-text">开始接入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%BC%E5%AE%B9%E4%BE%A7%E6%BB%91%E8%BF%94%E5%9B%9E"><span class="nav-number">2.1.</span> <span class="nav-text">兼容侧滑返回</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

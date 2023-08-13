@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="最近上手了一个树莓派4B，这里记录安装系统和连接的过程的，由于没有mini hdmi线，需要提前做一些设置">
+<meta property="og:type" content="article">
+<meta property="og:title" content="（一）树莓派4B开机">
+<meta property="og:url" content="http://zhengbomo.github.io/2021-08-27/raspberrypi-start/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="最近上手了一个树莓派4B，这里记录安装系统和连接的过程的，由于没有mini hdmi线，需要提前做一些设置">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/raspberrypi/raspberrypi_burn.png">
+<meta property="article:published_time" content="2021-08-27T02:42:56.000Z">
+<meta property="article:modified_time" content="2021-08-27T02:42:56.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="树莓派">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/raspberrypi/raspberrypi_burn.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2021-08-27/raspberrypi-start/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>（一）树莓派4B开机 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2021-08-27/raspberrypi-start/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          （一）树莓派4B开机
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-27 10:42:56" itemprop="dateCreated datePublished" datetime="2021-08-27T10:42:56+08:00">2021-08-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A0%91%E8%8E%93%E6%B4%BE/" itemprop="url" rel="index"><span itemprop="name">树莓派</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近上手了一个树莓派4B，这里记录安装系统和连接的过程的，由于没有mini hdmi线，需要提前做一些设置</p>
+<span id="more"></span>
+
+<h2 id="安装系统"><a href="#安装系统" class="headerlink" title="安装系统"></a>安装系统</h2><h3 id="1-下载镜像写入工具"><a href="#1-下载镜像写入工具" class="headerlink" title="1. 下载镜像写入工具"></a>1. 下载镜像写入工具</h3><p>用官方的<a target="_blank" rel="noopener" href="https://www.raspberrypi.org/software">Raspberry Pi Imager</a>就行</p>
+<h3 id="2-下载系统"><a href="#2-下载系统" class="headerlink" title="2. 下载系统"></a>2. 下载系统</h3><ul>
+<li>官方系统: <a target="_blank" rel="noopener" href="https://www.raspberrypi.org/software/operating-systems">https://www.raspberrypi.org/software/operating-systems</a></li>
+<li>ubuntu: <a target="_blank" rel="noopener" href="https://ubuntu.com/download/raspberry-pi">https://ubuntu.com/download/raspberry-pi</a></li>
+<li>其他: <a target="_blank" rel="noopener" href="https://www.raspberrypi.org/software/operating-systems">https://www.raspberrypi.org/software/operating-systems</a></li>
+</ul>
+<p>树莓派虽然很强大，但还是很难作为真正的生产力，大多数情况还是作为服务，我没有选择Desktop版本，而是选择<code>Ubuntu Server 20.04 TLS</code></p>
+<h3 id="3-写入TF卡"><a href="#3-写入TF卡" class="headerlink" title="3. 写入TF卡"></a>3. 写入TF卡</h3><img src="/images/post/raspberrypi/raspberrypi_burn.png" class="" width="500">
+
+
+<h3 id="4-SSH连接"><a href="#4-SSH连接" class="headerlink" title="4. SSH连接"></a>4. SSH连接</h3><p>特别是没法外接显示器的，第一步只能通过SSH连接，烧录完成后，先不急着开机，会提示拔出卡，重新插入tf卡，可以看到<code>system-boot</code>分区，这里我们在里面新建一个空的文本文件，命名为<code>SSH</code>，这样开机后就可以通过SSH连接了</p>
+<h3 id="5-wifi设置"><a href="#5-wifi设置" class="headerlink" title="5. wifi设置"></a>5. wifi设置</h3><p>如果你<code>没有网线</code>，也没有外接屏幕，可以设置wifi信息，树莓派在启动后会自动连接wifi，在<code>system-boot</code>分区根目录有个<code>network-config</code>文件，可以配置无线网络，找到<code>wifis</code>相关配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">wifis:</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"> wlan0:</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">   dhcp4: <span class="literal">true</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">   optional: <span class="literal">true</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">   access-points:</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">     myhomewifi:</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">       password: <span class="string">&quot;S3kr1t&quot;</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">     myworkwifi:</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">       password: <span class="string">&quot;correct battery horse staple&quot;</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">     workssid:</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">       auth:</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">         key-management: eap</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">         method: peap</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">         identity: <span class="string">&quot;me@example.com&quot;</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">         password: <span class="string">&quot;passw0rd&quot;</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">         ca-certificate: /etc/my_ca.pem</span></span><br></pre></td></tr></table></figure>
+<p>修改为（SSID: HomeWifi，密码：12345678）</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">wifis:</span></span><br><span class="line">  <span class="attr">wlan0:</span></span><br><span class="line">    <span class="attr">dhcp4:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">optional:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">access-points:</span></span><br><span class="line">      <span class="attr">&quot;HomeWifi&quot;:</span></span><br><span class="line">        <span class="attr">password:</span> <span class="string">&quot;12345678&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-关闭LED指示灯"><a href="#6-关闭LED指示灯" class="headerlink" title="6. 关闭LED指示灯"></a>6. 关闭LED指示灯</h3><p>可以通过<code>config.txt</code>文件的<code>[pi4]</code>下面添加下面命令关闭</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 关闭电源指示灯(红色)</span><br><span class="line">dtparam=pwr_led_trigger=none</span><br><span class="line">dtparam=pwr_led_activelow=off</span><br><span class="line"></span><br><span class="line"># 关闭活动指示灯(绿色)</span><br><span class="line">dtparam=act_led_trigger=none</span><br><span class="line">dtparam=act_led_activelow=off</span><br><span class="line"></span><br><span class="line"># 关闭网线口指示灯</span><br><span class="line">dtparam=eth_led0=4</span><br><span class="line">dtparam=eth_led1=4</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>TF卡插入树莓派通电即可，通过<code>路由器</code>可以看到树莓派连接的IP地址（如：192.168.2.*），通过ssh连接</p>
+<ul>
+<li><code>ubuntu</code>系统默认用户名和密码都是<code>ubuntu</code></li>
+<li>官方系统的默认用户名和密码是<code>pi</code>和<code>raspberry</code></li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh ubuntu@192.168.2.*</span><br></pre></td></tr></table></figure>
+
+<p>接下来就可以愉快的玩耍了</p>
+<h2 id="通过VNC连接"><a href="#通过VNC连接" class="headerlink" title="通过VNC连接"></a>通过VNC连接</h2><p>如果你安装的是官方的系统，则可以通过VNC连接到树莓派，而不用外接屏幕</p>
+<p>通过ssh连接到树莓派后，进入设置</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo raspi-config</span><br></pre></td></tr></table></figure>
+
+<p>选择<code>Interfacing Options</code> -&gt; <code>VNC</code>-&gt; （询问是否enabled）<code>Yes</code></p>
+<p>之后直接用<a target="_blank" rel="noopener" href="https://www.realvnc.com/en/connect/download/viewer/">VNC Viewer</a>，就可以连接到树莓派了</p>
+<h3 id="黑屏"><a href="#黑屏" class="headerlink" title="黑屏"></a>黑屏</h3><p>这里可能会遇到黑屏的情况，还是进入<code>raspi-config</code>，选择<code>Advanced Options</code> -&gt; <code>Resolution</code> -&gt; <code>1280x720</code>（随便选择一个分辨率，不要选Default）</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>查看硬件版本，我的是<code>1.4</code>版本的，另外还有1.1和1.2版本</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /sys/firmware/devicetree/base/model</span><br><span class="line">Raspberry Pi 4 Model B Rev 1.4</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2021-08-27/raspberrypi-start/" title="（一）树莓派4B开机">http://zhengbomo.github.io/2021-08-27/raspberrypi-start/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" rel="tag"># 树莓派</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-07-20/opengl-demo5/" rel="prev" title="【OpenGL案例5】球的自转和公转">
+      <i class="fa fa-chevron-left"></i> 【OpenGL案例5】球的自转和公转
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021-08-28/raspberrypi-autofan/" rel="next" title="（二）树莓派4B自动控制风扇开关">
+      （二）树莓派4B自动控制风扇开关 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.</span> <span class="nav-text">安装系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8B%E8%BD%BD%E9%95%9C%E5%83%8F%E5%86%99%E5%85%A5%E5%B7%A5%E5%85%B7"><span class="nav-number">1.1.</span> <span class="nav-text">1. 下载镜像写入工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%B8%8B%E8%BD%BD%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.2.</span> <span class="nav-text">2. 下载系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%86%99%E5%85%A5TF%E5%8D%A1"><span class="nav-number">1.3.</span> <span class="nav-text">3. 写入TF卡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-SSH%E8%BF%9E%E6%8E%A5"><span class="nav-number">1.4.</span> <span class="nav-text">4. SSH连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-wifi%E8%AE%BE%E7%BD%AE"><span class="nav-number">1.5.</span> <span class="nav-text">5. wifi设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%85%B3%E9%97%ADLED%E6%8C%87%E7%A4%BA%E7%81%AF"><span class="nav-number">1.6.</span> <span class="nav-text">6. 关闭LED指示灯</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87VNC%E8%BF%9E%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">通过VNC连接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%BB%91%E5%B1%8F"><span class="nav-number">3.1.</span> <span class="nav-text">黑屏</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">4.</span> <span class="nav-text">其他</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

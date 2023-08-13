@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="通过使用OpenGL绘制一个三角形，了解OpenGL的一些常用API和绘制流程，这里使用了GLUT（OpenGL Utility Toolkit）的API，GLUT是OpenGL官方提供的OpenGL工具箱，封装了一些有用的工具，用于辅助操作OpenGL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【OpenGL案例1】绘制一个三角形">
+<meta property="og:url" content="http://zhengbomo.github.io/2020-07-11/opengl-triangle-demo/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="通过使用OpenGL绘制一个三角形，了解OpenGL的一些常用API和绘制流程，这里使用了GLUT（OpenGL Utility Toolkit）的API，GLUT是OpenGL官方提供的OpenGL工具箱，封装了一些有用的工具，用于辅助操作OpenGL">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/primitive-assembly.jpg">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/triangle-demo.png">
+<meta property="article:published_time" content="2020-07-11T13:42:13.000Z">
+<meta property="article:modified_time" content="2020-07-11T13:42:13.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="OpenGL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/opengl/primitive-assembly.jpg">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2020-07-11/opengl-triangle-demo/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【OpenGL案例1】绘制一个三角形 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-07-11/opengl-triangle-demo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【OpenGL案例1】绘制一个三角形
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-11 21:42:13" itemprop="dateCreated datePublished" datetime="2020-07-11T21:42:13+08:00">2020-07-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OpenGL/" itemprop="url" rel="index"><span itemprop="name">OpenGL</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>通过使用OpenGL绘制一个三角形，了解OpenGL的一些常用API和绘制流程，这里使用了<a target="_blank" rel="noopener" href="https://www.opengl.org/resources/libraries/glut/">GLUT</a>（OpenGL Utility Toolkit）的API，<code>GLUT</code>是OpenGL官方提供的OpenGL工具箱，封装了一些有用的工具，用于辅助操作OpenGL</p>
+<span id="more"></span>
+
+<h2 id="工具API"><a href="#工具API" class="headerlink" title="工具API"></a>工具API</h2><p>本案例也使用<code>GLUT</code>工具进行绘制，使用最基本的固定着色器来绘制，本案例会用到下面几个头文件</p>
+<table>
+<thead>
+<tr>
+<th>头文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GLShaderManager.h</td>
+<td>着色器管理类，用于创建和管理着色器，还提供一组内置的存储着色器（固定管线着色器）</td>
+</tr>
+<tr>
+<td>GLTools.h</td>
+<td>包含大部分类似C语⾔的独⽴函数</td>
+</tr>
+<tr>
+<td>GLUT.h</td>
+<td>OpenGL工具箱</td>
+</tr>
+</tbody></table>
+<h2 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h2><p>这里会注册两个函数用于绘制</p>
+<ul>
+<li><code>renderSence</code>: 类似于iOS的类似于<code>drawRect</code>，每次View需要重新绘制的时候，会被调用</li>
+<li><code>changeSize</code>: 窗口大小变化的时候被调用，通常用于调整glview的视口</li>
+</ul>
+<p>定义两个变量用于<code>管理着色器</code>和<code>顶点数据</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;GLShaderManager.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;GLTools.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;GLUT/GLUT.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个，着色管理器</span></span><br><span class="line">GLShaderManager shaderManager;</span><br><span class="line"><span class="comment">// 简单的批次容器，用于将顶点数据提交给着色器使用</span></span><br><span class="line">GLBatch triangleBatch;</span><br></pre></td></tr></table></figure>
+
+<h3 id="main"><a href="#main" class="headerlink" title="main"></a>main</h3><p>程序启动的时候，我们需要做一些初始化操作</p>
+<ol>
+<li>初始化<code>glutInit</code></li>
+<li>初始化双缓冲区，颜色模式，深度，模板</li>
+<li>设置窗口信息（大小，标题）</li>
+<li>注册生命周期函数：<code>renderSence</code>和<code>changeSize</code></li>
+<li>测试驱动可用性: 通过<code>glewInit</code>结果判断</li>
+<li>初始化渲染数据<code>setupRC</code></li>
+<li>开启事件循环</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc,<span class="type">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">    <span class="comment">//初始化GLUT库,这个函数只是传说命令参数并且初始化glut库</span></span><br><span class="line">    <span class="built_in">glutInit</span>(&amp;argc, argv);</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     初始化双缓冲窗口，其中标志GLUT_DOUBLE、GLUT_RGBA、GLUT_DEPTH、GLUT_STENCIL分别指</span></span><br><span class="line"><span class="comment">     双缓冲窗口、RGBA颜色模式、深度测试、模板缓冲区</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">     --GLUT_DOUBLE`：双缓存窗口，是指绘图命令实际上是离屏缓存区执行的，然后迅速转换成窗口视图，这种方式，经常用来生成动画效果；</span></span><br><span class="line"><span class="comment">     --GLUT_DEPTH`：标志将一个深度缓存区分配为显示的一部分，因此我们能够执行深度测试；</span></span><br><span class="line"><span class="comment">     --GLUT_STENCIL`：确保我们也会有一个可用的模板缓存区。</span></span><br><span class="line"><span class="comment">     深度、模板测试后面会细致讲到</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="built_in">glutInitDisplayMode</span>(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH|GLUT_STENCIL);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//GLUT窗口大小、窗口标题</span></span><br><span class="line">    <span class="built_in">glutInitWindowSize</span>(<span class="number">800</span>, <span class="number">600</span>);</span><br><span class="line">    <span class="built_in">glutCreateWindow</span>(<span class="string">&quot;Triangle&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册窗口改变事件</span></span><br><span class="line">    <span class="built_in">glutReshapeFunc</span>(changeSize);</span><br><span class="line">    <span class="comment">// 注册显示函数，当需要重新绘制的时候，会调用</span></span><br><span class="line">    <span class="built_in">glutDisplayFunc</span>(renderScene);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化一个GLEW库，测试是否报错，确保OpenGL API对程序完全可用。</span></span><br><span class="line">    GLenum status = <span class="built_in">glewInit</span>();</span><br><span class="line">    <span class="keyword">if</span> (GLEW_OK != status) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;GLEW Error:%s\n&quot;</span>,<span class="built_in">glewGetErrorString</span>(status));</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 准备我们需要渲染的数据</span></span><br><span class="line">    <span class="built_in">setupRC</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 开启事件循环，相当于iOS的runloop</span></span><br><span class="line">    <span class="built_in">glutMainLoop</span>();</span><br><span class="line">    <span class="keyword">return</span>  <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="setupRC"><a href="#setupRC" class="headerlink" title="setupRC"></a>setupRC</h3><p>我们要画一个<code>三角形</code>，可以在这里做一些准备工作</p>
+<ul>
+<li>设置清屏颜色</li>
+<li>初始化着色器</li>
+<li>初始化顶点数据</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">setupRC</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 设置清屏颜色（背景颜色，白色）</span></span><br><span class="line">    <span class="built_in">glClearColor</span>(<span class="number">1.0f</span>, <span class="number">1.0f</span>, <span class="number">1.0f</span>, <span class="number">1.0f</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 没有着色器，在OpenGL 核心框架中是无法进行任何渲染的。这里初始化一个渲染管理器，在renderSence会用到。这里使用固定管线着色器</span></span><br><span class="line">    shaderManager.<span class="built_in">InitializeStockShaders</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 三角形顶点</span></span><br><span class="line">    GLfloat vVerts[] = &#123;</span><br><span class="line">        <span class="number">-0.5f</span>,<span class="number">0.0f</span>,<span class="number">0.0f</span>,</span><br><span class="line">        <span class="number">0.5f</span>,<span class="number">0.0f</span>,<span class="number">0.0f</span>,</span><br><span class="line">        <span class="number">0.0f</span>,<span class="number">0.5f</span>,<span class="number">0.0f</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将顶点数据传递到三角形批次类中</span></span><br><span class="line">    triangleBatch.<span class="built_in">Begin</span>(GL_TRIANGLES, <span class="number">3</span>);</span><br><span class="line">    triangleBatch.<span class="built_in">CopyVertexData3f</span>(vVerts);</span><br><span class="line">    triangleBatch.<span class="built_in">End</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里<code>triangleBatch</code>在Begin的时候设置了一个图元装配方式为<code>GL_TRIANGLES</code>，在OpenGL中，相同的顶点可以有不同的装配方式，如下图</p>
+<img src="/images/post/opengl/primitive-assembly.jpg" class="" width="800">
+
+<table>
+<thead>
+<tr>
+<th>图元</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GL_POINTS</td>
+<td>每个顶点在屏幕上都是单独点</td>
+</tr>
+<tr>
+<td>GL_LINES</td>
+<td>每⼀对顶点定义⼀个线段</td>
+</tr>
+<tr>
+<td>GL_LINE_STRIP</td>
+<td>一个从第⼀个顶点依次经过每⼀个后续顶点而绘制的线条</td>
+</tr>
+<tr>
+<td>GL_LINE_LOOP</td>
+<td>和GL_LINE_STRIP相同，但是最后⼀个顶点和第⼀个顶点连接起来了</td>
+</tr>
+<tr>
+<td>GL_TRIANGLES</td>
+<td>每3个顶点定义⼀个新的三角形</td>
+</tr>
+<tr>
+<td>GL_TRIANGLE_STRIP</td>
+<td>共⽤一个条带(strip)上的顶点的一组三⻆形</td>
+</tr>
+<tr>
+<td>GL_TRIANGLE_FAN</td>
+<td>以⼀个圆点为中⼼呈扇形排列，共⽤相邻顶点的⼀组三⻆形</td>
+</tr>
+</tbody></table>
+<h3 id="renderSence"><a href="#renderSence" class="headerlink" title="renderSence"></a>renderSence</h3><p>准备好数据之后，就可以开始绘制了，核心代码在之前注册的<code>renderSence</code>里面</p>
+<ul>
+<li>清空缓冲区（颜色缓冲区，深度缓冲区，模板缓冲区），避免脏数据</li>
+<li>使用<code>着色器</code>填充颜色</li>
+<li>批次类将<code>顶点数据</code>提交到<code>着色器</code>上绘制</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">RenderScene</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1.清除一个或者一组特定的缓存区，如果后面需要用到这些缓冲区，就需要清空，不然会出现之前使用的脏数据（如深度缓冲区，颜色缓冲区，模板缓冲区等）</span></span><br><span class="line">    <span class="built_in">glClear</span>(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2.设置一个颜色用来填充三角形</span></span><br><span class="line">    GLfloat vRed[] = &#123;<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0f</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 使用单元着色器，来对图形进行着色，即GLT_SHADER_IDENTITY着色器，这个着色器只是使用指定颜色以默认笛卡尔坐标第在屏幕上渲染几何图形</span></span><br><span class="line">    shaderManager.<span class="built_in">UseStockShader</span>(GLT_SHADER_IDENTITY, vRed);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4. 提交顶点数据到着色器，进行绘制</span></span><br><span class="line">    triangleBatch.<span class="built_in">Draw</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在开始的设置openGL 窗口的时候，我们指定要一个双缓冲区的渲染环境。这就意味着将在后台缓冲区进行渲染，渲染结束后交换给前台。</span></span><br><span class="line">    <span class="built_in">glutSwapBuffers</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="changeSize"><a href="#changeSize" class="headerlink" title="changeSize"></a>changeSize</h3><p>当窗口大小改变的时候，我们需要重新调整视口大小</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">changeSize</span><span class="params">(<span class="type">int</span> w,<span class="type">int</span> h)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// x,y 参数代表窗口中视图的左下角坐标，而宽度、高度是像素为表示，通常x,y 都是为0</span></span><br><span class="line">    <span class="built_in">glViewport</span>(<span class="number">0</span>, <span class="number">0</span>, w, h);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><img src="/images/post/opengl/triangle-demo.png" class="" width="600" title="三角形">
+
+<p>完整demo在<a target="_blank" rel="noopener" href="https://github.com/zhengbomo/OpenGLDemo/tree/master/001--%E5%AE%8C%E6%95%B4%E6%B8%B2%E6%9F%93%E4%B8%89%E8%A7%92%E5%BD%A2">这里</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2020-07-11/opengl-triangle-demo/" title="【OpenGL案例1】绘制一个三角形">http://zhengbomo.github.io/2020-07-11/opengl-triangle-demo/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/OpenGL/" rel="tag"># OpenGL</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-07-10/ios-render/" rel="prev" title="iOS图像渲染原理解析">
+      <i class="fa fa-chevron-left"></i> iOS图像渲染原理解析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-07-12/opengl-triangle-demo2/" rel="next" title="【OpenGL案例2】正方形键位控制">
+      【OpenGL案例2】正方形键位控制 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7API"><span class="nav-number">1.</span> <span class="nav-text">工具API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">相关函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#main"><span class="nav-number">2.1.</span> <span class="nav-text">main</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#setupRC"><span class="nav-number">2.2.</span> <span class="nav-text">setupRC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#renderSence"><span class="nav-number">2.3.</span> <span class="nav-text">renderSence</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#changeSize"><span class="nav-number">2.4.</span> <span class="nav-text">changeSize</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C"><span class="nav-number">3.</span> <span class="nav-text">运行</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

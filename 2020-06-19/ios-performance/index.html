@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="性能优化是一个开发者不可避开的话题，本文讨论iOS的性能体现在以下几个方面  CPU占用率 内存占用率 卡顿监控&#x2F;FPS GPU离屏渲染 耗电监控 启动时间">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS性能优化">
+<meta property="og:url" content="http://zhengbomo.github.io/2020-06-19/ios-performance/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="性能优化是一个开发者不可避开的话题，本文讨论iOS的性能体现在以下几个方面  CPU占用率 内存占用率 卡顿监控&#x2F;FPS GPU离屏渲染 耗电监控 启动时间">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/ios_frame_drop.png">
+<meta property="article:published_time" content="2020-06-19T00:37:40.000Z">
+<meta property="article:modified_time" content="2020-06-19T00:37:40.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/ios_frame_drop.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2020-06-19/ios-performance/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>iOS性能优化 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-06-19/ios-performance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS性能优化
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-19 08:37:40" itemprop="dateCreated datePublished" datetime="2020-06-19T08:37:40+08:00">2020-06-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>性能优化是一个开发者不可避开的话题，本文讨论iOS的性能体现在以下几个方面</p>
+<ul>
+<li>CPU占用率</li>
+<li>内存占用率</li>
+<li>卡顿监控&#x2F;FPS</li>
+<li>GPU离屏渲染</li>
+<li>耗电监控</li>
+<li>启动时间</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="CPU占用率"><a href="#CPU占用率" class="headerlink" title="CPU占用率"></a>CPU占用率</h2><p>CPU占用率是测试性能的其中一个指标，CPU作为手机最重要的组成部分，所有计算都是通过CPU进行，手机上耗电最大的应该就是CPU了，如果我们的App设计不当，会出现</p>
+<ul>
+<li>界面卡顿</li>
+<li>电量消耗过快</li>
+<li>手机发热发烫</li>
+</ul>
+<p>Xcode可以直接看到App的内存占用，我们也可以通过系统方法获取到CPU占用率</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="string">&lt;mach/task.h&gt;</span></span></span><br><span class="line"><span class="meta">#import <span class="string">&lt;mach/vm_map.h&gt;</span></span></span><br><span class="line"><span class="meta">#import <span class="string">&lt;mach/mach_init.h&gt;</span></span></span><br><span class="line"><span class="meta">#import <span class="string">&lt;mach/thread_act.h&gt;</span></span></span><br><span class="line"><span class="meta">#import <span class="string">&lt;mach/thread_info.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">+ (<span class="type">double</span>)getCpuUsage &#123;</span><br><span class="line">    kern_return_t           kr;</span><br><span class="line">    thread_array_t          threadList;         <span class="comment">// 保存当前Mach task的线程列表</span></span><br><span class="line">    mach_msg_type_number_t  threadCount;        <span class="comment">// 保存当前Mach task的线程个数</span></span><br><span class="line">    thread_info_data_t      threadInfo;         <span class="comment">// 保存单个线程的信息列表</span></span><br><span class="line">    mach_msg_type_number_t  threadInfoCount;    <span class="comment">// 保存当前线程的信息列表大小</span></span><br><span class="line">    thread_basic_info_t     threadBasicInfo;    <span class="comment">// 线程的基本信息</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过“task_threads”API调用获取指定 task 的线程列表</span></span><br><span class="line">    <span class="comment">//  mach_task_self_，表示获取当前的 Mach task</span></span><br><span class="line">    kr = task_threads(mach_task_self(), &amp;threadList, &amp;threadCount);</span><br><span class="line">    <span class="keyword">if</span> (kr != KERN_SUCCESS) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">double</span> cpuUsage = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; threadCount; i++) &#123;</span><br><span class="line">        threadInfoCount = THREAD_INFO_MAX;</span><br><span class="line">        <span class="comment">// 通过“thread_info”API调用来查询指定线程的信息</span></span><br><span class="line">        <span class="comment">//  flavor参数传的是THREAD_BASIC_INFO，使用这个类型会返回线程的基本信息，</span></span><br><span class="line">        <span class="comment">//  定义在 thread_basic_info_t 结构体，包含了用户和系统的运行时间、运行状态和调度优先级等</span></span><br><span class="line">        kr = thread_info(threadList[i], THREAD_BASIC_INFO, (thread_info_t)threadInfo, &amp;threadInfoCount);</span><br><span class="line">        <span class="keyword">if</span> (kr != KERN_SUCCESS) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        threadBasicInfo = (thread_basic_info_t)threadInfo;</span><br><span class="line">        <span class="keyword">if</span> (!(threadBasicInfo-&gt;flags &amp; TH_FLAGS_IDLE)) &#123;</span><br><span class="line">            cpuUsage += threadBasicInfo-&gt;cpu_usage;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 回收内存，防止内存泄漏</span></span><br><span class="line">    vm_deallocate(mach_task_self(), (vm_offset_t)threadList, threadCount * <span class="keyword">sizeof</span>(thread_t));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> cpuUsage / (<span class="type">double</span>)TH_USAGE_SCALE * <span class="number">100.0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="内存占用率"><a href="#内存占用率" class="headerlink" title="内存占用率"></a>内存占用率</h2><p>常见的内存问题是内存泄露，内存只增不减，严重时，造成OOM被系统杀掉，在iOS开发中常见的是<code>循环引用</code>，对于大内存的对象（例如图片）在不需要的时候应该及时释放，避免内存长期占用，内存泄露还可能带来一些业务上的问题</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="type">double</span>)getMemoryUsage &#123;</span><br><span class="line">    task_vm_info_data_t vmInfo;</span><br><span class="line">    mach_msg_type_number_t count = TASK_VM_INFO_COUNT;</span><br><span class="line">    <span class="keyword">if</span>(task_info(mach_task_self(), TASK_VM_INFO, (task_info_t) &amp;vmInfo, &amp;count) == KERN_SUCCESS) &#123;</span><br><span class="line">        <span class="keyword">return</span> (<span class="type">double</span>)vmInfo.phys_footprint / (<span class="number">1024</span> * <span class="number">1024</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1.0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="卡顿"><a href="#卡顿" class="headerlink" title="卡顿"></a>卡顿</h2><p>屏幕控制器，根据屏幕刷新率，每隔一段时间就会发送一个屏幕垂直信号<code>VSync</code>，在VSync到来的时候</p>
+<ol>
+<li>CPU计算图层树布局，图片解码，文字渲染，然后交给GPU</li>
+<li>GPU渲染图层树，然后放到屏幕缓冲区上</li>
+</ol>
+<p>下一个VSync到来的时候，如果CPU或GPU消耗的时间过长，GPU还来不及渲染到缓冲区中，视频控制器从屏幕缓冲区读不到数据，就会导致掉帧卡顿</p>
+<img src="/images/post/ios_frame_drop.png" class="">
+
+<h3 id="FPS"><a href="#FPS" class="headerlink" title="FPS"></a>FPS</h3><p><code>FPS</code>是卡顿的监控指标，FPS如果能稳定在50-60帧，基本可以认为是流畅的，通常我们通过<code>CADisplayLink</code>来监听页面刷新率，可以参考<a target="_blank" rel="noopener" href="https://github.com/zhengbomo/FluencyMonitor/blob/master/Demo/Demo/Utils/FPS.swift">这里</a></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 每秒回调一次</span></span><br><span class="line"><span class="keyword">let</span> fps <span class="operator">=</span> <span class="type">FPS</span> &#123; fps <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;当前帧率为<span class="subst">\(fps)</span>fps&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Runloop"><a href="#Runloop" class="headerlink" title="Runloop"></a>Runloop</h3><p>FPS只是一个宏观的指标，而对于开发者来说，除了知道FPS，我们是希望定位到卡顿的位置，这个时候我们可以通过监听Runloop事件循环来实现，当发现卡顿的时候，获取主线程的调用堆栈，能获得卡顿的函数</p>
+<p>卡顿监控还可以通过监听Runloop事件来实现，具体可以参考<a target="_blank" rel="noopener" href="https://github.com/zhengbomo/FluencyMonitor/blob/master/Demo/Demo/Utils/FluencyMonitor.swift">这里</a></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 开启监控</span></span><br><span class="line"><span class="type">FluencyMonitor</span>.shared.start()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 关闭监控</span></span><br><span class="line"><span class="type">FluencyMonitor</span>.shared.stop()</span><br></pre></td></tr></table></figure>
+
+<p>出现卡顿时输出</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">0   libsystem_c.dylib                   0x00007fff51aed510 usleep + 53</span><br><span class="line">1   Demo                                0x000000010fab7479 Demo.ViewController.tableView(_: __C.UITableView, cellForRowAt: Foundation.IndexPath) -&gt; __C.UITableViewCell + 1193</span><br><span class="line">2   Demo                                0x000000010fab7545 @objc Demo.ViewController.tableView(_: __C.UITableView, cellForRowAt: Foundation.IndexPath) -&gt; __C.UITableViewCell + 165</span><br><span class="line">3   UIKitCore                           0x00007fff48ea3f1a -[UITableView _createPreparedCellForGlobalRow:withIndexPath:willDisplay:] + 867</span><br><span class="line">4   UIKitCore                           0x00007fff48e6d5a6 -[UITableView _updateVisibleCellsNow:] + 3010</span><br><span class="line">5   UIKitCore                           0x00007fff48e8d2d2 -[UITableView layoutSubviews] + 194</span><br><span class="line">6   UIKitCore                           0x00007fff49193678 -[UIView(CALayerDelegate) layoutSublayersOfLayer:] + 2478</span><br><span class="line">7   QuartzCore                          0x00007fff2b4c6398 -[CALayer layoutSublayers] + 255</span><br><span class="line">8   QuartzCore                          0x00007fff2b4cc523 _ZN2CA5Layer16layout_if_neededEPNS_11TransactionE + 523</span><br><span class="line">9   QuartzCore                          0x00007fff2b4d7bba _ZN2CA5Layer28layout_and_display_if_neededEPNS_11TransactionE + 80</span><br><span class="line">10  QuartzCore                          0x00007fff2b420c04 _ZN2CA7Context18commit_transactionEPNS_11TransactionEd + 324</span><br><span class="line">11  QuartzCore                          0x00007fff2b4545ef _ZN2CA11Transaction6commitEv + 649</span><br><span class="line">12  QuartzCore                          0x00007fff2b381645 _ZN2CA7Display11DisplayLink14dispatch_itemsEyyy + 921</span><br><span class="line">13  QuartzCore                          0x00007fff2b4588f0 _ZL22display_timer_callbackP12__CFMachPortPvlS1_ + 299</span><br><span class="line">14  CoreFoundation                      0x00007fff23d6187d __CFMachPortPerform + 157</span><br><span class="line">15  CoreFoundation                      0x00007fff23da14e9 __CFRUNLOOP_IS_CALLING_OUT_TO_A_SOURCE1_PERFORM_FUNCTION__ + 41</span><br><span class="line">16  CoreFoundation                      0x00007fff23da0ae8 __CFRunLoopDoSource1 + 472</span><br><span class="line">17  CoreFoundation                      0x00007fff23d9b514 __CFRunLoopRun + 2228</span><br><span class="line">18  CoreFoundation                      0x00007fff23d9a944 CFRunLoopRunSpecific + 404</span><br><span class="line">19  GraphicsServices                    0x00007fff38ba6c1a GSEventRunModal + 139</span><br><span class="line">20  UIKitCore                           0x00007fff48c8b9ec UIApplicationMain + 1605</span><br><span class="line">21  Demo                                0x000000010fabaf4b main + 75</span><br><span class="line">22  libdyld.dylib                       0x00007fff51a231fd start + 1</span><br></pre></td></tr></table></figure>
+
+<h3 id="离屏渲染（Offscreen-Rrendering）"><a href="#离屏渲染（Offscreen-Rrendering）" class="headerlink" title="离屏渲染（Offscreen Rrendering）"></a>离屏渲染（Offscreen Rrendering）</h3><p>这里只讨论GPU上的离屏渲染</p>
+<ul>
+<li>离屏渲染是屏幕缓冲区外的渲染</li>
+<li>GPU渲染图层是一层一层渲染的，下面的图层先渲染，上面的图层后渲染</li>
+<li>GPU渲染图层时，当上面的图层渲染时，不能再去修改下面图层的</li>
+<li>所以当遇到superlayer依赖sublayer的时候，例如阴影（依赖sublayer的形状），就无法直接渲染到屏幕缓冲区，这个时候，GPU就会在内存中另外开辟一个缓冲区，用于渲染阴影，渲染完成后再放回到屏幕缓冲区，这个渲染操作称为离屏渲染</li>
+<li>GPU渲染的时候，只有一个上下文，当出现离屏渲染的时候，需要进行上下文的切换，由于上下文对象比较大，这个成本会比较高，开辟内存空间也需要消耗性能，离屏渲染多了就会导致每一帧渲染时间过长，造成卡顿</li>
+<li>由于物理限制，某些场景下离屏渲染是不可避免，我们可以通过一些手段避免</li>
+</ul>
+<p>在iOS上，下面操作会导致离屏渲染</p>
+<ul>
+<li>圆角（<code>masksToBounds+cornerRadius</code>），在iOS9之后，UIImageView使用<code>masksToBounds+cornerRadius</code>不会触发离屏渲染，其他View仍然会，避免两个属性组合使用，例如图片在内存中切好后再放到View上，对于不需要背景透明的地方，可以放一张图片罩着实现圆角</li>
+<li>光栅化（<code>shouldRasterize</code>）：会触发离屏渲染，并且会缓存结果，避免每一帧都触发离屏渲染，可以用于优化离屏渲染</li>
+<li>遮罩（<code>masks</code>）：尽量减少使用</li>
+<li>阴影（<code>shadow</code>）：如果设置了<code>shadowPath</code>，则不会触发离屏渲染</li>
+<li>抗锯齿（<code>allowsEdgeAntialiasing</code>）：默认关闭抗锯齿，开启会触发离屏渲染</li>
+<li>组透明度（<code>allowsGroupOpacity</code>）: 默认开启，可以关闭来避免离屏渲染</li>
+</ul>
+<h3 id="卡顿优化"><a href="#卡顿优化" class="headerlink" title="卡顿优化"></a>卡顿优化</h3><p>卡顿优化方向主要是减少CPU和GPU的处理时间</p>
+<ol>
+<li><p><code>CPU优化</code></p>
+<ul>
+<li>使用CALayer代替UIView，不用响应事件的View设置<code>isUserInteractionEnabled = true</code></li>
+<li>不要频繁地修改UIView的位置，和变换属性，比如frame、bounds、transform等</li>
+<li>对于复杂的布局，尽量提前计算好布局，并且使用缓存，集中计算，不要频繁改动</li>
+<li>Autolayout会比直接设置frame消耗更多的CPU资源，对于复杂的布局，使用frame替代autolayout</li>
+<li>图片的size最好刚好跟UIImageView的size保持一致，或者不要差太多</li>
+<li>减少一下线程的最大并发数量</li>
+<li>尽量把耗时的操作放到子线程（文本处理，图片编解码）</li>
+</ul>
+</li>
+<li><p><code>GPU优化</code></p>
+<ul>
+<li>尽量减少视图数量和嵌套层次</li>
+<li>GPU能处理的最大纹理尺寸是4096x4096，一旦超过这个尺寸，就会占用CPU资源进行处理，所以纹理尽量不要超过这个尺寸</li>
+<li>尽量避免短时间内大量图片的显示，尽可能将多张图片合成一张图片显示</li>
+<li>减少透明的视图（alpha&lt;1），不透明的就设置opaque为yes，减少颜色混合操作</li>
+<li>尽量避免出现离屏渲染</li>
+</ul>
+</li>
+</ol>
+<h2 id="耗电优化"><a href="#耗电优化" class="headerlink" title="耗电优化"></a>耗电优化</h2><ul>
+<li>优化代码逻辑，减少不必要的计算</li>
+<li>减少使用定时器</li>
+</ul>
+<h3 id="I-x2F-O"><a href="#I-x2F-O" class="headerlink" title="I&#x2F;O"></a>I&#x2F;O</h3><ul>
+<li>避免频繁的I&#x2F;O操作，考虑批量操作</li>
+<li>数据量比较大的局部读写，建议使用数据库，数据库对局部读写有专门的优化</li>
+<li>对于读写比较大的文件数据的时候，可以考虑使用<code>dispatch_io</code>，使用GCD异步并行读写，速度更快</li>
+</ul>
+<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><ul>
+<li>大文件使用断点续传，减少重复传输</li>
+<li>及时<code>cancel</code>掉不使用的网络请求（如当离开ViewController的时候，cancel在ViewController中产生的异步请求）</li>
+<li>使用缓存，避免重复请求</li>
+<li>压缩数据</li>
+</ul>
+<h3 id="定位"><a href="#定位" class="headerlink" title="定位"></a>定位</h3><ul>
+<li>如果只是需要快速确定用户位置，用<code>CLLocationManager.requestLocation</code>方法。定位完成后，会自动让定位硬件断电</li>
+<li>如果不是导航应用，尽量不要实时更新位置，定位完毕就关掉定位服务</li>
+<li>尽量降低定位精度，比如尽量不要使用精度最高的<code>kCLLocationAccuracyBest</code></li>
+<li>需要后台定位时，尽量设置<code>pausesLocationUpdatesAutomatically = true</code>，系统会根据情况自动暂停位置更新</li>
+</ul>
+<h3 id="硬件检测优化"><a href="#硬件检测优化" class="headerlink" title="硬件检测优化"></a>硬件检测优化</h3><p>用户移动、摇晃、倾斜设备时，会产生动作(motion)事件，这些事件由加速度计、陀螺仪、磁力计等硬件检测。在不需要检测的场合，应该及时关闭这些硬件</p>
+<blockquote>
+<p>做到用到的时候才申请，用完就关闭</p>
+</blockquote>
+<h2 id="启动优化"><a href="#启动优化" class="headerlink" title="启动优化"></a>启动优化</h2><p>iOS应用的启动可以分为三个阶段</p>
+<ol>
+<li><code>dyld</code>: 加载可执行文件，递归加载依赖库，符号绑定<ul>
+<li>减少动态库</li>
+<li>去掉不用的类，方法和分类，减少数量</li>
+<li>Swift优先使用<code>Struct</code>（结构体分配在栈上，不需要动态管理内存，性能优）</li>
+</ul>
+</li>
+<li><code>runtime</code>: 初始化OC的类，category，load方法，C++静态初始化器，<code>__attribute__((constructor))</code><ul>
+<li>减少load方法</li>
+</ul>
+</li>
+<li><code>main</code><ul>
+<li>只初始化必要的方法，能延后执行的延后执行，按需加载</li>
+<li>二进制重排</li>
+</ul>
+</li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/72653360">https://zhuanlan.zhihu.com/p/72653360</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2020-06-19/ios-performance/" title="iOS性能优化">http://zhengbomo.github.io/2020-06-19/ios-performance/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-06-12/flutter-disable-ripple/" rel="prev" title="Flutter禁用水波纹">
+      <i class="fa fa-chevron-left"></i> Flutter禁用水波纹
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-06-30/flutter-chat-listview/" rel="next" title="flutter仿微信聊天交互">
+      flutter仿微信聊天交互 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E5%8D%A0%E7%94%A8%E7%8E%87"><span class="nav-number">1.</span> <span class="nav-text">CPU占用率</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%8D%A0%E7%94%A8%E7%8E%87"><span class="nav-number">2.</span> <span class="nav-text">内存占用率</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%A1%E9%A1%BF"><span class="nav-number">3.</span> <span class="nav-text">卡顿</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FPS"><span class="nav-number">3.1.</span> <span class="nav-text">FPS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Runloop"><span class="nav-number">3.2.</span> <span class="nav-text">Runloop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%BB%E5%B1%8F%E6%B8%B2%E6%9F%93%EF%BC%88Offscreen-Rrendering%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">离屏渲染（Offscreen Rrendering）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%A1%E9%A1%BF%E4%BC%98%E5%8C%96"><span class="nav-number">3.4.</span> <span class="nav-text">卡顿优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%80%97%E7%94%B5%E4%BC%98%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">耗电优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#I-x2F-O"><span class="nav-number">4.1.</span> <span class="nav-text">I&#x2F;O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C"><span class="nav-number">4.2.</span> <span class="nav-text">网络</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D"><span class="nav-number">4.3.</span> <span class="nav-text">定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E6%A3%80%E6%B5%8B%E4%BC%98%E5%8C%96"><span class="nav-number">4.4.</span> <span class="nav-text">硬件检测优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96"><span class="nav-number">5.</span> <span class="nav-text">启动优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">6.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

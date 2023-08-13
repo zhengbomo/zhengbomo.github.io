@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="我们都知道，iOS的类中，有两个方法load和initialize，load方法在程序启动的时候就会执行，而initialize方法在类第一次调用的时候执行，这里我们从源码的角度探究一下这两个方法的原理和实现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="load和initialize方法">
+<meta property="og:url" content="http://zhengbomo.github.io/2019-10-20/ios-load-initialize/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="我们都知道，iOS的类中，有两个方法load和initialize，load方法在程序启动的时候就会执行，而initialize方法在类第一次调用的时候执行，这里我们从源码的角度探究一下这两个方法的原理和实现">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/objc_msgSend_uncached.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/MethodTableLookup.png">
+<meta property="article:published_time" content="2019-10-20T14:38:09.000Z">
+<meta property="article:modified_time" content="2019-10-20T14:38:09.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/objc_msgSend_uncached.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2019-10-20/ios-load-initialize/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>load和initialize方法 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-10-20/ios-load-initialize/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          load和initialize方法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-10-20 22:38:09" itemprop="dateCreated datePublished" datetime="2019-10-20T22:38:09+08:00">2019-10-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>我们都知道，iOS的类中，有两个方法<code>load</code>和<code>initialize</code>，load方法在程序启动的时候就会执行，而initialize方法在类第一次调用的时候执行，这里我们从源码的角度探究一下这两个方法的原理和实现</p>
+<span id="more"></span>
+
+<p>我们下载<a target="_blank" rel="noopener" href="https://opensource.apple.com/tarballs/objc4/">objc4</a>运行时源码，下载最新的版本<code>objc4-779.1.tar.gz</code>，在<code>objc-os.mm</code>找到<code>_objc_init</code>方法，这个函数是OC运行时的入口函数，整个OC运行时从这里开始加载</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/***********************************************************************</span></span><br><span class="line"><span class="comment">* _objc_init</span></span><br><span class="line"><span class="comment">* Bootstrap initialization. Registers our image notifier with dyld.</span></span><br><span class="line"><span class="comment">* Called by libSystem BEFORE library initialization time</span></span><br><span class="line"><span class="comment">**********************************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> _objc_init(<span class="type">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="type">bool</span> initialized = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (initialized) <span class="keyword">return</span>;</span><br><span class="line">    initialized = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// fixme defer initialization until an objc-using image is found?</span></span><br><span class="line">    environ_init();</span><br><span class="line">    tls_init();</span><br><span class="line">    static_init();</span><br><span class="line">    runtime_init();</span><br><span class="line">    exception_init();</span><br><span class="line">    cache_init();</span><br><span class="line">    _imp_implementationWithBlock_init();</span><br><span class="line"></span><br><span class="line">    _dyld_objc_notify_register(&amp;map_images, load_images, unmap_image);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="load"><a href="#load" class="headerlink" title="load"></a>load</h2><p>前面是一些初始化方法，最后一个<code>_dyld_objc_notify_register</code>是向<code>dyld</code>注册三个事件，我们这里关注<code>load_images</code>事件</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span></span><br><span class="line">load_images(<span class="keyword">const</span> <span class="type">char</span> *path __unused, <span class="keyword">const</span> <span class="keyword">struct</span> mach_header *mh)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Return without taking locks if there are no +load methods here.</span></span><br><span class="line">    <span class="keyword">if</span> (!hasLoadMethods((<span class="keyword">const</span> headerType *)mh)) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    recursive_mutex_locker_t lock(loadMethodLock);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Discover load methods</span></span><br><span class="line">    &#123;</span><br><span class="line">        mutex_locker_t lock2(runtimeLock);</span><br><span class="line">        prepare_load_methods((<span class="keyword">const</span> headerType *)mh);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Call +load methods (without runtimeLock - re-entrant)</span></span><br><span class="line">    call_load_methods();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> call_load_methods(<span class="type">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="type">bool</span> loading = <span class="literal">NO</span>;</span><br><span class="line">    <span class="type">bool</span> more_categories;</span><br><span class="line"></span><br><span class="line">    loadMethodLock.assertLocked();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Re-entrant calls do nothing; the outermost call will finish the job.</span></span><br><span class="line">    <span class="keyword">if</span> (loading) <span class="keyword">return</span>;</span><br><span class="line">    loading = <span class="literal">YES</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">void</span> *pool = objc_autoreleasePoolPush();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        <span class="comment">// 1. Repeatedly call class +loads until there aren&#x27;t any more</span></span><br><span class="line">        <span class="keyword">while</span> (loadable_classes_used &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            call_class_loads();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. Call category +loads ONCE</span></span><br><span class="line">        more_categories = call_category_loads();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. Run more +loads if there are classes OR more untried categories</span></span><br><span class="line">    &#125; <span class="keyword">while</span> (loadable_classes_used &gt; <span class="number">0</span>  ||  more_categories);</span><br><span class="line"></span><br><span class="line">    objc_autoreleasePoolPop(pool);</span><br><span class="line"></span><br><span class="line">    loading = <span class="literal">NO</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，load方法的加载顺序，先加载类的load方法，再加载Category里面的load方法</p>
+<p>进入<code>call_class_loads</code>方法</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="type">void</span> call_class_loads(<span class="type">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Detach current loadable list.</span></span><br><span class="line">    <span class="keyword">struct</span> loadable_class *classes = loadable_classes;</span><br><span class="line">    <span class="type">int</span> used = loadable_classes_used;</span><br><span class="line">    loadable_classes = <span class="literal">nil</span>;</span><br><span class="line">    loadable_classes_allocated = <span class="number">0</span>;</span><br><span class="line">    loadable_classes_used = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Call all +loads for the detached list.</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; used; i++) &#123;</span><br><span class="line">        Class cls = classes[i].cls;</span><br><span class="line">        load_method_t load_method = (load_method_t)classes[i].method;</span><br><span class="line">        <span class="keyword">if</span> (!cls) <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (PrintLoading) &#123;</span><br><span class="line">            _objc_inform(<span class="string">&quot;LOAD: +[%s load]\n&quot;</span>, cls-&gt;nameForLogging());</span><br><span class="line">        &#125;</span><br><span class="line">        (*load_method)(cls, <span class="keyword">@selector</span>(load));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Destroy the detached list.</span></span><br><span class="line">    <span class="keyword">if</span> (classes) free(classes);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里拿到了<code>loadable_classes</code>这个是带有<code>load</code>方法的类列表，并且可以直接拿到load方法的<code>imp</code>直接调用，<strong>这里没有使用objc_msgSend机制调用方法，而是直接拿到IMP直接调用</strong>，签名如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="title function_">void</span><span class="params">(*<span class="type">load_method_t</span>)</span><span class="params">(id, SEL)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>prepare_load_methods</code>方法会初始化所有的类的加载方法，遍历所有的类，如果类实现了<code>load</code>方法，就会构造<code>loadable_class</code>添加到<code>loadable_classes</code>中</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="type">void</span> prepare_load_methods(<span class="keyword">const</span> headerType *mhdr)</span><br><span class="line">&#123;</span><br><span class="line">    Module mods;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> midx;</span><br><span class="line"></span><br><span class="line">    header_info *hi;</span><br><span class="line">    <span class="keyword">for</span> (hi = FirstHeader; hi; hi = hi-&gt;getNext()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (mhdr == hi-&gt;mhdr()) <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!hi) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (hi-&gt;info()-&gt;isReplacement()) &#123;</span><br><span class="line">        <span class="comment">// Ignore any classes in this image</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Major loop - process all modules in the image</span></span><br><span class="line">    mods = hi-&gt;mod_ptr;</span><br><span class="line">    <span class="keyword">for</span> (midx = <span class="number">0</span>; midx &lt; hi-&gt;mod_count; midx += <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">int</span> index;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Skip module containing no classes</span></span><br><span class="line">        <span class="keyword">if</span> (mods[midx].symtab == <span class="literal">nil</span>)</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Minor loop - process all the classes in given module</span></span><br><span class="line">        <span class="keyword">for</span> (index = <span class="number">0</span>; index &lt; mods[midx].symtab-&gt;cls_def_cnt; index += <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// Locate the class description pointer</span></span><br><span class="line">            Class cls = (Class)mods[midx].symtab-&gt;defs[index];</span><br><span class="line">            <span class="keyword">if</span> (cls-&gt;info &amp; <span class="built_in">CLS_CONNECTED</span>) &#123;</span><br><span class="line">                schedule_class_load(cls);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Major loop - process all modules in the header</span></span><br><span class="line">    mods = hi-&gt;mod_ptr;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// <span class="doctag">NOTE:</span> The module and category lists are traversed backwards </span></span><br><span class="line">    <span class="comment">// to preserve the pre-10.4 processing order. Changing the order </span></span><br><span class="line">    <span class="comment">// would have a small chance of introducing binary compatibility bugs.</span></span><br><span class="line">    midx = (<span class="type">unsigned</span> <span class="type">int</span>)hi-&gt;mod_count;</span><br><span class="line">    <span class="keyword">while</span> (midx-- &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">int</span> index;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">int</span> total;</span><br><span class="line">        Symtab symtab = mods[midx].symtab;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Nothing to do for a module without a symbol table</span></span><br><span class="line">        <span class="keyword">if</span> (mods[midx].symtab == <span class="literal">nil</span>)</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        <span class="comment">// Total entries in symbol table (class entries followed</span></span><br><span class="line">        <span class="comment">// by category entries)</span></span><br><span class="line">        total = mods[midx].symtab-&gt;cls_def_cnt +</span><br><span class="line">            mods[midx].symtab-&gt;cat_def_cnt;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Minor loop - register all categories from given module</span></span><br><span class="line">        index = total;</span><br><span class="line">        <span class="keyword">while</span> (index-- &gt; mods[midx].symtab-&gt;cls_def_cnt) &#123;</span><br><span class="line">            old_category *cat = (old_category *)symtab-&gt;defs[index];</span><br><span class="line">            add_category_to_loadable_list((Category)cat);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="type">void</span> schedule_class_load(Class cls)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!cls) <span class="keyword">return</span>;</span><br><span class="line">    ASSERT(cls-&gt;isRealized());  <span class="comment">// _read_images should realize</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (cls-&gt;data()-&gt;flags &amp; RW_LOADED) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Ensure superclass-first ordering</span></span><br><span class="line">    schedule_class_load(cls-&gt;superclass);</span><br><span class="line"></span><br><span class="line">    add_class_to_loadable_list(cls);</span><br><span class="line">    cls-&gt;setInfo(RW_LOADED);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> add_class_to_loadable_list(Class cls)</span><br><span class="line">&#123;</span><br><span class="line">    IMP method;</span><br><span class="line"></span><br><span class="line">    loadMethodLock.assertLocked();</span><br><span class="line"></span><br><span class="line">    method = cls-&gt;getLoadMethod();</span><br><span class="line">    <span class="keyword">if</span> (!method) <span class="keyword">return</span>;  <span class="comment">// Don&#x27;t bother if cls has no +load method</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (PrintLoading) &#123;</span><br><span class="line">        _objc_inform(<span class="string">&quot;LOAD: class &#x27;%s&#x27; scheduled for +load&quot;</span>, </span><br><span class="line">                     cls-&gt;nameForLogging());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (loadable_classes_used == loadable_classes_allocated) &#123;</span><br><span class="line">        loadable_classes_allocated = loadable_classes_allocated*<span class="number">2</span> + <span class="number">16</span>;</span><br><span class="line">        loadable_classes = (<span class="keyword">struct</span> loadable_class *)</span><br><span class="line">            realloc(loadable_classes,</span><br><span class="line">                              loadable_classes_allocated *</span><br><span class="line">                              <span class="keyword">sizeof</span>(<span class="keyword">struct</span> loadable_class));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    loadable_classes[loadable_classes_used].cls = cls;</span><br><span class="line">    loadable_classes[loadable_classes_used].method = method;</span><br><span class="line">    loadable_classes_used++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们在<code>schedule_class_load</code>方法看到，这里面做了一次递归，也就是如果存在父类，会先添加父类，所以<strong>父类的load方法会比子类先执行</strong></p>
+<p>可以看出，load方法的加载顺序</p>
+<ol>
+<li>父类的load方法</li>
+<li>再加载子类的load方法（加载顺序为编译顺序）</li>
+<li>再加载category里面的load方法（加载顺序为编译顺序）</li>
+</ol>
+<h2 id="initialize"><a href="#initialize" class="headerlink" title="initialize"></a>initialize</h2><p>由于<code>initialize</code>是在调用的时候才执行的，我们调试一下看看</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">ABC</span> : <span class="title">NSObject</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">ABC</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="type">void</span>)initialize &#123;</span><br><span class="line">    <span class="comment">// 添加断点</span></span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, <span class="string">@&quot;ass&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">ViewController</span></span></span><br><span class="line"></span><br><span class="line">- (<span class="type">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="variable language_">super</span> viewDidLoad];</span><br><span class="line">    [ABC alloc];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在initialize添加断点，查看调用栈</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">(lldb) bt</span><br><span class="line">* thread <span class="comment">#1, queue = &#x27;com.apple.main-thread&#x27;, stop reason = breakpoint 1.1</span></span><br><span class="line">  * frame <span class="comment">#0: 0x0000000104911f20 Test`+[ABC initialize](self=ABC, _cmd=&quot;initialize&quot;) at ViewController.m:19:5</span></span><br><span class="line">    frame <span class="comment">#1: 0x00000001818bb6f0 libobjc.A.dylib`CALLING_SOME_+initialize_METHOD + 20</span></span><br><span class="line">    frame <span class="comment">#2: 0x00000001818c1074 libobjc.A.dylib`initializeNonMetaClass + 640</span></span><br><span class="line">    frame <span class="comment">#3: 0x00000001818c2318 libobjc.A.dylib`initializeAndMaybeRelock(objc_class*, objc_object*, mutex_tt&lt;false&gt;&amp;, bool) + 284</span></span><br><span class="line">    frame <span class="comment">#4: 0x00000001818cf074 libobjc.A.dylib`lookUpImpOrForward + 732</span></span><br><span class="line">    frame <span class="comment">#5: 0x00000001818bbe9c libobjc.A.dylib`_objc_msgSend_uncached + 60</span></span><br><span class="line">    frame <span class="comment">#6: 0x0000000104911f9c Test`-[ViewController viewDidLoad](self=0x0000000104e0cf90, _cmd=&quot;viewDidLoad&quot;) at ViewController.m:33:5</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，在调用<code>init</code>方法的时候，调用了<code>objc_msgSend_uncached</code>，然后，走到了<code>lookUpImpOrForward</code>方法，我们在objc4源码中查看该方法</p>
+<p><img src="/images/post/objc_msgSend_uncached.png" alt="_"></p>
+<p>在<code>_objc_msgSend_uncached</code>方法调用了<code>MethodTableLookup</code></p>
+<p><img src="/images/post/MethodTableLookup.png" alt="_"></p>
+<p>在<code>MethodTableLookup</code>方法调用了<code>lookUpImpOrForward</code>，并且behavior传了<code>LOOKUP_INITIALIZE | LOOKUP_RESOLVER</code></p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line">IMP lookUpImpOrForward(<span class="type">id</span> inst, SEL sel, Class cls, <span class="type">int</span> behavior)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> IMP forward_imp = (IMP)_objc_msgForward_impcache;</span><br><span class="line">    IMP imp = <span class="literal">nil</span>;</span><br><span class="line">    Class curClass;</span><br><span class="line"></span><br><span class="line">    runtimeLock.assertUnlocked();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Optimistic cache lookup</span></span><br><span class="line">    <span class="keyword">if</span> (fastpath(behavior &amp; LOOKUP_CACHE)) &#123;</span><br><span class="line">        imp = cache_getImp(cls, sel);</span><br><span class="line">        <span class="keyword">if</span> (imp) <span class="keyword">goto</span> done_nolock;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// runtimeLock is held during isRealized and isInitialized checking</span></span><br><span class="line">    <span class="comment">// to prevent races against concurrent realization.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// runtimeLock is held during method search to make</span></span><br><span class="line">    <span class="comment">// method-lookup + cache-fill atomic with respect to method addition.</span></span><br><span class="line">    <span class="comment">// Otherwise, a category could be added but ignored indefinitely because</span></span><br><span class="line">    <span class="comment">// the cache was re-filled with the old value after the cache flush on</span></span><br><span class="line">    <span class="comment">// behalf of the category.</span></span><br><span class="line"></span><br><span class="line">    runtimeLock.lock();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We don&#x27;t want people to be able to craft a binary blob that looks like</span></span><br><span class="line">    <span class="comment">// a class but really isn&#x27;t one and do a CFI attack.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// To make these harder we want to make sure this is a class that was</span></span><br><span class="line">    <span class="comment">// either built into the binary or legitimately registered through</span></span><br><span class="line">    <span class="comment">// objc_duplicateClass, objc_initializeClassPair or objc_allocateClassPair.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// <span class="doctag">TODO:</span> this check is quite costly during process startup.</span></span><br><span class="line">    checkIsKnownClass(cls);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (slowpath(!cls-&gt;isRealized())) &#123;</span><br><span class="line">        cls = realizeClassMaybeSwiftAndLeaveLocked(cls, runtimeLock);</span><br><span class="line">        <span class="comment">// runtimeLock may have been dropped but is now locked again</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (slowpath((behavior &amp; LOOKUP_INITIALIZE) &amp;&amp; !cls-&gt;isInitialized())) &#123;</span><br><span class="line">        cls = initializeAndLeaveLocked(cls, inst, runtimeLock);</span><br><span class="line">        <span class="comment">// runtimeLock may have been dropped but is now locked again</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// If sel == initialize, class_initialize will send +initialize and</span></span><br><span class="line">        <span class="comment">// then the messenger will send +initialize again after this</span></span><br><span class="line">        <span class="comment">// procedure finishes. Of course, if this is not being called</span></span><br><span class="line">        <span class="comment">// from the messenger then it won&#x27;t happen. 2778172</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    runtimeLock.assertLocked();</span><br><span class="line">    curClass = cls;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// The code used to lookpu the class&#x27;s cache again right after</span></span><br><span class="line">    <span class="comment">// we take the lock but for the vast majority of the cases</span></span><br><span class="line">    <span class="comment">// evidence shows this is a miss most of the time, hence a time loss.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// The only codepath calling into this without having performed some</span></span><br><span class="line">    <span class="comment">// kind of cache lookup is class_getInstanceMethod().</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">unsigned</span> attempts = unreasonableClassCount();;) &#123;</span><br><span class="line">        <span class="comment">// curClass method list.</span></span><br><span class="line">        Method meth = getMethodNoSuper_nolock(curClass, sel);</span><br><span class="line">        <span class="keyword">if</span> (meth) &#123;</span><br><span class="line">            imp = meth-&gt;imp;</span><br><span class="line">            <span class="keyword">goto</span> done;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (slowpath((curClass = curClass-&gt;superclass) == <span class="literal">nil</span>)) &#123;</span><br><span class="line">            <span class="comment">// No implementation found, and method resolver didn&#x27;t help.</span></span><br><span class="line">            <span class="comment">// Use forwarding.</span></span><br><span class="line">            imp = forward_imp;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Halt if there is a cycle in the superclass chain.</span></span><br><span class="line">        <span class="keyword">if</span> (slowpath(--attempts == <span class="number">0</span>)) &#123;</span><br><span class="line">            _objc_fatal(<span class="string">&quot;Memory corruption in class list.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Superclass cache.</span></span><br><span class="line">        imp = cache_getImp(curClass, sel);</span><br><span class="line">        <span class="keyword">if</span> (slowpath(imp == forward_imp)) &#123;</span><br><span class="line">            <span class="comment">// Found a forward:: entry in a superclass.</span></span><br><span class="line">            <span class="comment">// Stop searching, but don&#x27;t cache yet; call method</span></span><br><span class="line">            <span class="comment">// resolver for this class first.</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (fastpath(imp)) &#123;</span><br><span class="line">            <span class="comment">// Found the method in a superclass. Cache it in this class.</span></span><br><span class="line">            <span class="keyword">goto</span> done;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// No implementation found. Try method resolver once.</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (slowpath(behavior &amp; LOOKUP_RESOLVER)) &#123;</span><br><span class="line">        behavior ^= LOOKUP_RESOLVER;</span><br><span class="line">        <span class="keyword">return</span> resolveMethod_locked(inst, sel, cls, behavior);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"> done:</span><br><span class="line">    log_and_fill_cache(cls, imp, sel, inst, curClass);</span><br><span class="line">    runtimeLock.unlock();</span><br><span class="line"> done_nolock:</span><br><span class="line">    <span class="keyword">if</span> (slowpath((behavior &amp; LOOKUP_NIL) &amp;&amp; imp == forward_imp)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> imp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果传入的behavior是<code>LOOKUP_INITIALIZE</code>并且没有被初始化，就会进入<code>initializeAndLeaveLocked</code></p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// initializeAndLeaveLocked -&gt; initializeAndMaybeRelock -&gt; initializeNonMetaClass -&gt; callInitialize</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> initializeNonMetaClass(Class cls)</span><br><span class="line">&#123;</span><br><span class="line">    ASSERT(!cls-&gt;isMetaClass());</span><br><span class="line"></span><br><span class="line">    Class supercls;</span><br><span class="line">    <span class="type">bool</span> reallyInitialize = <span class="literal">NO</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Make sure super is done initializing BEFORE beginning to initialize cls.</span></span><br><span class="line">    <span class="comment">// See note about deadlock above.</span></span><br><span class="line">    supercls = cls-&gt;superclass;</span><br><span class="line">    <span class="keyword">if</span> (supercls  &amp;&amp;  !supercls-&gt;isInitialized()) &#123;</span><br><span class="line">        initializeNonMetaClass(supercls);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> callInitialize(Class cls)</span><br><span class="line">&#123;</span><br><span class="line">    ((<span class="type">void</span>(*)(Class, SEL))objc_msgSend)(cls, <span class="keyword">@selector</span>(initialize));</span><br><span class="line">    <span class="keyword">asm</span>(<span class="string">&quot;&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里<code>initializeNonMetaClass</code>对<code>superclass</code>进行了递归，如果存在父类，则先调用父类的方法<br>而<code>callInitialize</code>方法用到了消息发送<code>objc_msgSend</code>，根据消息发送机制，如果子类没有找到实现的方法，会到父类里面查找，找到方法，则调用，所以，如果多个子类没有实现initialize，而父类实现了，在不同的子类初始化的时候都会调用父类的<code>initialize</code>方法，导致<code>initialize</code>被调用多次</p>
+<ol>
+<li>第一次使用的时候（objc_msgSend）调用</li>
+<li>先调用父类<code>initialize</code>，再调用子类的</li>
+<li>调用方法使用<code>objc_msgSend</code>，如果子类没有实现<code>initialize</code>，会调用父类的<code>initialize</code>（存在多次调用的问题）</li>
+<li>由于使用<code>objc_msgSend</code>调用，与普通方法一样，分类的<code>initialize</code>方法会先找到，相当于覆盖类的<code>initialize</code>方法，顺序与编译顺序相反（后编译的分类方法会被加到前面）</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2019-10-20/ios-load-initialize/" title="load和initialize方法">http://zhengbomo.github.io/2019-10-20/ios-load-initialize/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019-10-12/ios-tweak-preference/" rel="prev" title="【iOS逆向】为Tweak插件添加设置项">
+      <i class="fa fa-chevron-left"></i> 【iOS逆向】为Tweak插件添加设置项
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-01-10/docker-learn/" rel="next" title="Docker 学习笔记">
+      Docker 学习笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#load"><span class="nav-number">1.</span> <span class="nav-text">load</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#initialize"><span class="nav-number">2.</span> <span class="nav-text">initialize</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1. 简介hexo是一个基于node.js的静态博客程序，可以方便的生成静态网页（纯html）支持多个平台（Windows&#x2F;MAC&#x2F;Linux），风格优雅，更适合写技术博客，与hexo类似的博客程序还有jekyll，jekyll被github着力推荐官方就提供了jekyll教程，但是jekyll是基于ruby写的，并且关于代码高亮没找到比较好的方案，就选择了用hexo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Hexo和github pages搭建博客">
+<meta property="og:url" content="http://zhengbomo.github.io/2016-04-18/hexo-for-blog/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="1. 简介hexo是一个基于node.js的静态博客程序，可以方便的生成静态网页（纯html）支持多个平台（Windows&#x2F;MAC&#x2F;Linux），风格优雅，更适合写技术博客，与hexo类似的博客程序还有jekyll，jekyll被github着力推荐官方就提供了jekyll教程，但是jekyll是基于ruby写的，并且关于代码高亮没找到比较好的方案，就选择了用hexo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-18/1497950.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-18/53534541.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-18/61189510.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/12170815.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/72132532.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/12984808.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/60235109.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/76622961.jpg">
+<meta property="article:published_time" content="2016-04-18T11:50:26.000Z">
+<meta property="article:modified_time" content="2016-04-18T11:50:26.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="blogs">
+<meta property="article:tag" content="hexo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-18/1497950.jpg">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2016-04-18/hexo-for-blog/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>使用Hexo和github pages搭建博客 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-04-18/hexo-for-blog/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用Hexo和github pages搭建博客
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-04-18 19:50:26" itemprop="dateCreated datePublished" datetime="2016-04-18T19:50:26+08:00">2016-04-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/blog/" itemprop="url" rel="index"><span itemprop="name">blog</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p>hexo是一个基于node.js的静态博客程序，可以方便的生成静态网页（纯html）支持多个平台（Windows&#x2F;MAC&#x2F;Linux），风格优雅，更适合写技术博客，与hexo类似的博客程序还有jekyll，jekyll被github着力推荐官方就提供了jekyll教程，但是jekyll是基于ruby写的，并且关于代码高亮没找到比较好的方案，就选择了用hexo</p>
+<span id="more"></span>
+
+<h2 id="2-配置环境"><a href="#2-配置环境" class="headerlink" title="2. 配置环境"></a>2. 配置环境</h2><h3 id="2-1-安装git"><a href="#2-1-安装git" class="headerlink" title="2.1 安装git"></a>2.1 安装git</h3><p>作者用的是mac，可以使用<a target="_blank" rel="noopener" href="http://brew.sh/">brew</a>下面命令安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">brew install git</span></span><br></pre></td></tr></table></figure>
+
+<p>也可以直接上<a target="_blank" rel="noopener" href="https://git-scm.com/download/">git官网</a>下载安装</p>
+<h3 id="2-2-安装node-js"><a href="#2-2-安装node-js" class="headerlink" title="2.2 安装node.js"></a>2.2 安装node.js</h3><p>同样的，mac可以使用brew安装，新版的node.js已经包含npm工具，不需要再另外安装了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">brew install node</span></span><br></pre></td></tr></table></figure>
+
+<p>可以通过下面命令检查是否已安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">node -v</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm -v</span></span><br></pre></td></tr></table></figure>
+
+<p>如果是windows用户可以通过官网下载 <a target="_blank" rel="noopener" href="http://nodejs.org/">jode.js</a></p>
+<h3 id="2-3-Hexo安装"><a href="#2-3-Hexo安装" class="headerlink" title="2.3 Hexo安装"></a>2.3 Hexo安装</h3><p>上面的安装完成后，接下来安装hexo</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-cli -g   #-g表示全局安装, npm默认为当前项目安装</span><br><span class="line">hexo init blog            #在当前目录下新建blog目录初始化博客</span><br><span class="line">cd blog                   #进入blog目录</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">npm install</span>               </span><br><span class="line">hexo generate             #根据当前配置生成静态页面</span><br><span class="line">hexo server               #启动本地服务，默认为：[http://localhost:4000/](http://localhost:4000/)</span><br></pre></td></tr></table></figure>
+
+<p>接下来就可以通过<a target="_blank" rel="noopener" href="http://localhost:4000/">http://localhost:4000/</a>查看效果了<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-18/1497950.jpg" alt="hello hexo"></p>
+<h2 id="3-配置github-pages"><a href="#3-配置github-pages" class="headerlink" title="3. 配置github pages"></a>3. 配置github pages</h2><p>每个github账户都可以有一个外部空间&#x2F;Responsitory，可以直接通过<code>用户名.github.io</code>访问到该仓库的内容</p>
+<ul>
+<li>在github上新增一个responsitory，仓库名为 <code>用户名.github.io</code> 或 <code>用户名.github.com</code></li>
+<li>创建完成后，github会自动将 用户名.github.io指向该仓库，默认访问根目录下的<code>index.html</code>页面</li>
+<li>可以进入Responsitory的Setting页查看</li>
+</ul>
+<p>github会提供几个模板搭建站点，我们可以不用他提供的模板，可以在仓库里面，添加一个简单的index.html文件，如果能通过<code>用户名.github.com</code>访问，则表明创建成功了</p>
+<h2 id="4-写博客"><a href="#4-写博客" class="headerlink" title="4. 写博客"></a>4. 写博客</h2><p>hexo的文章存放在source目录下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">├── <span class="built_in">source</span>  </span><br><span class="line">|   ├── _posts    <span class="comment">#存放文章  </span></span><br><span class="line">|   └── _drafts   <span class="comment">#存放草稿</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">hexo new post <span class="string">&quot;postName&quot;</span>        <span class="comment"># 在source/_posts 目录下创建postName.md文件</span></span></span><br></pre></td></tr></table></figure>
+
+<p>创建文件的命名格式可以在_config.yml文件配置</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Writing</span></span><br><span class="line"><span class="attr">new_post_name:</span> <span class="string">:year-:month-:day-:title.md</span></span><br></pre></td></tr></table></figure>
+
+<p>文件创建完成后会自动生成以下格式（可以自己添加）</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">使用Hexo和github</span> <span class="string">pages搭建博客</span></span><br><span class="line"><span class="attr">date:</span> <span class="number">2016-04-18 19:50:26</span></span><br><span class="line"><span class="attr">categories:</span> <span class="string">blog</span>                  <span class="comment"># 分类</span></span><br><span class="line"><span class="attr">tags:</span> [<span class="string">blogs</span>, <span class="string">hexo</span>]               <span class="comment"># 标签，格式：[标签, 标签2]</span></span><br><span class="line"><span class="meta">---</span></span><br></pre></td></tr></table></figure>
+
+<p>关与写作的各种参数可以参见：<a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">https://hexo.io/docs/writing.html</a></p>
+<p>写完后预览的时候发现，文章在首页就全部显示出来了，如果不想全部显示，可以在文章中间添加下面标记，在首页列表就会出现<code>Read More</code>的标记</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--more--&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Hexo支持使用Markdown语法写文章，我比较习惯用Atom写Markdown，Atom有个hexo插件</p>
+<h2 id="5-主题"><a href="#5-主题" class="headerlink" title="5. 主题"></a>5. 主题</h2><p>官方自带主题基本够用，有能力可以自己改造，当然，网上已经有很多人做了一些很好看的主题了，我们可以直接拿来用，下面是官方列出的一些主题，找到喜欢的可以直接用</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/wiki/Themes">https://github.com/hexojs/hexo/wiki/Themes</a><br><a target="_blank" rel="noopener" href="https://hexo.io/themes/">https://hexo.io/themes</a></p>
+</blockquote>
+<p>在hexo上，主题放在themes目录下，我们只需要把别人做好的主题clone下来就好了，然后在<code>_config.yml</code>修改一下配置<br>例如：我们可以<a target="_blank" rel="noopener" href="https://github.com/xiangming/landscape-plus">https://github.com/xiangming/landscape-plus</a>这个主题clone下来</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone git@github.com:xiangming/landscape-plus.git themes/landscape-plus</span><br></pre></td></tr></table></figure>
+
+<p>修改设置<code>_config.yml</code></p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">theme:</span> <span class="string">landscape-plus</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-18/53534541.jpg"></p>
+<h2 id="6-添加多说评论插件"><a href="#6-添加多说评论插件" class="headerlink" title="6. 添加多说评论插件"></a>6. 添加多说评论插件</h2><p>到<a target="_blank" rel="noopener" href="http://duoshuo.com/">多说官网</a>注册和创建一个站点</p>
+<p>修改配置<br>到<code>themes/landscape-plus/_config.yml</code>添加多说的配置，shortname即注册的站点名称</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Duoshuo</span></span><br><span class="line"><span class="attr">duoshuo_shortname:</span> <span class="string">bomo</span></span><br></pre></td></tr></table></figure>
+
+<p>参见官方说明，替换评论相关的代码<a target="_blank" rel="noopener" href="http://dev.duoshuo.com/threads/541d3b2b40b5abcd2e4df0e9">http://dev.duoshuo.com/threads/541d3b2b40b5abcd2e4df0e9</a></p>
+<p>完成，如下图评论有了<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-18/61189510.jpg" alt="评论"></p>
+<h2 id="7-部署到github上"><a href="#7-部署到github上" class="headerlink" title="7. 部署到github上"></a>7. 部署到github上</h2><p>修改配置<code>_config.yml</code></p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repository:</span> <span class="string">https://github.com/zhengbomo/zhengbomo.github.io.git</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">master</span></span><br></pre></td></tr></table></figure>
+
+<p>安装 <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo-deployer-git">hexo-deployer-git</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install hexo-deployer-git --save</span></span><br></pre></td></tr></table></figure>
+
+<p>部署hexo到git上</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">hexo deploy</span></span><br></pre></td></tr></table></figure>
+
+<p>部署过程需要输入账号密码，然后会push到github上，参考：<a target="_blank" rel="noopener" href="https://hexo.io/docs/deployment.html">https://hexo.io/docs/deployment.html</a></p>
+<blockquote>
+<p>hexo部署时会把最终生成的博客文件（public目录下的文件）push到git远程仓库，而博客程序还是在本地，当我们切换电脑的时候，无法对博客进行重新编辑和发布，这个时候我们可以在git添加一个分支<code>hexo</code>用来存放博客程序和编写的内容，详情可以参见： <a href="/2016-04-19/hexo-branch/">git创建分支hexo存放博客程序</a></p>
+</blockquote>
+<h2 id="8-域名绑定"><a href="#8-域名绑定" class="headerlink" title="8. 域名绑定"></a>8. 域名绑定</h2><blockquote>
+<p>通常域名在<a target="_blank" rel="noopener" href="https://www.godaddy.com/">godaddy</a>注册比较靠谱，这个是最大的域名提供商，而且不需要备案，支持支付宝付款，购买的时候可以使用优惠码会便宜一些，网上有很多优惠码，可以自行搜索，购买过程很简单，这里就不贴了</p>
+</blockquote>
+<ol>
+<li>注册和配置DNS服务器<br><a target="_blank" rel="noopener" href="https://www.godaddy.com/">Godaddy</a>自带的域名解析服务器比较慢，在国内推荐使用<a target="_blank" rel="noopener" href="https://www.dnspod.cn/">DNSpod</a>：快，免费，稳定。</li>
+</ol>
+<ul>
+<li><p>到DNSpod注册登陆，然后到用户中心，添加域名，例如我的域名为<code>bomobox.org</code><br>  <img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/12170815.jpg"></p>
+</li>
+<li><p>进入设置<br>  <img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/72132532.jpg"><br>添加两个A记录指向github提供的ip，参见<a target="_blank" rel="noopener" href="https://help.github.com/articles/setting-up-an-apex-domain/">这里</a></p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">192.30.252.153</span></span><br><span class="line"><span class="number">192.30.252.154</span></span><br></pre></td></tr></table></figure>
+
+<p>添加一个CNAME记录指向自己的github域名：<code>username.github.io</code><br>把其他的删除</p>
+</li>
+</ul>
+<ol start="2">
+<li>注册域名和配置DNS</li>
+</ol>
+<ul>
+<li><p>到<a target="_blank" rel="noopener" href="https://www.godaddy.com/">Godaddy</a>购买域名完成后完成后进入<a target="_blank" rel="noopener" href="https://mya.godaddy.com/">MyAccount</a><br>  <img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/12984808.jpg"></p>
+</li>
+<li><p>进入<code>DNS Manager</code>修改DNS服务器</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">f1g1ns1<span class="selector-class">.dnspod</span><span class="selector-class">.net</span></span><br><span class="line">f1g1ns2<span class="selector-class">.dnspod</span>.net</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/60235109.jpg"></p>
+</li>
+</ul>
+<ol start="3">
+<li>到github仓库的根目录添加CNAME文件，文件内添加自己的域名，否则会出现404访问错误，也可以在hexo的<code>source</code>目录下添加，然后不熟到github<br>  <img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/76622961.jpg"></li>
+</ol>
+<p>上面步骤设置完成后可能会有几个小时的延迟，才能生效，总的来说还是比较简单的</p>
+<h2 id="9-问题"><a href="#9-问题" class="headerlink" title="9. 问题"></a>9. 问题</h2><p>在使用别人的主题的时候可能会报错或者有些功能用不了，原因可能是部分插件没有安装，例如RSS用不了，那可能是<code>hexo-generator-feed</code>没安装，下面列举一些常用的插件，建议都安装，没有用到也没有关系，需要先到hexo程序目录下在执行命令，插件位于<code>node_modules</code>目录下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install hexo-generator-feed --save                  <span class="comment">#支持RSS</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install hexo-generator-sitemap --save               <span class="comment">#生成站点地图</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install hexo-generator-baidu-sitemap --save         <span class="comment">#生成百度站点地图</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install hexo-html-minifier --save                   <span class="comment">#HTML 压缩</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install hexo-uglify --save                          <span class="comment">#JavaScript 压缩</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install hexo-clean-css --save                       <span class="comment">#CSS 压缩插件</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install hexo-generator-seo-friendly-sitemap --save  <span class="comment">#SEO优化</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install hexo-deployer-git --save                    <span class="comment">#git部署插件</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>并在博客配置文件<code>_config.yml</code>配置plugin</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Plugins:</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">hexo-generator-feed</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">hexo-generator-sitemap</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>更多插件可以在<a target="_blank" rel="noopener" href="https://hexo.io/plugins/">https://hexo.io/plugins/</a>找到</p>
+</blockquote>
+<h2 id="10-Atom插件"><a href="#10-Atom插件" class="headerlink" title="10. Atom插件"></a>10. Atom插件</h2><p>由于我编写md使用的是Atom，这里推荐几个Atom上的插件</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://atom.io/packages/markdown-scroll-sync">markdown-scroll-sync</a>：Markdown预览实时滚动，自带的预览不支持实时滚动</li>
+<li><a target="_blank" rel="noopener" href="https://atom.io/packages/markdown-writer">markdown-writer</a>：Markdown协作工具</li>
+<li><a target="_blank" rel="noopener" href="https://atom.io/packages/date">Date</a>：快速插入当前时间的工具</li>
+<li><a target="_blank" rel="noopener" href="https://atom.io/packages/atom-hexo">atom-hexo</a>：快速添加draft，post，publish，deploy</li>
+</ul>
+<h2 id="11-总结"><a href="#11-总结" class="headerlink" title="11. 总结"></a>11. 总结</h2><p>使用hexo搭建博客环境还是非常方便的，基本上都是自动的，当然还有一些详细的配置，例如分页，分类，评论等，Hexo支持的插件也相当多的，接下来可以好好写博客了，以后再慢慢完善了，今天先到这里</p>
+<h2 id="12-参考链接"><a href="#12-参考链接" class="headerlink" title="12. 参考链接"></a>12. 参考链接</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://hexo.io/">https://hexo.io</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2016-04-18/hexo-for-blog/" title="使用Hexo和github pages搭建博客">http://zhengbomo.github.io/2016-04-18/hexo-for-blog/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/blogs/" rel="tag"># blogs</a>
+              <a href="/tags/hexo/" rel="tag"># hexo</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016-04-18/sqlcipher-start/" rel="prev" title="SQLCipher数据库加解密">
+      <i class="fa fa-chevron-left"></i> SQLCipher数据库加解密
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016-04-19/delete-remote-branch/" rel="next" title="删除远程分支">
+      删除远程分支 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1. 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83"><span class="nav-number">2.</span> <span class="nav-text">2. 配置环境</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%AE%89%E8%A3%85git"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 安装git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%AE%89%E8%A3%85node-js"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 安装node.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Hexo%E5%AE%89%E8%A3%85"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Hexo安装</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%85%8D%E7%BD%AEgithub-pages"><span class="nav-number">3.</span> <span class="nav-text">3. 配置github pages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%86%99%E5%8D%9A%E5%AE%A2"><span class="nav-number">4.</span> <span class="nav-text">4. 写博客</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E4%B8%BB%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">5. 主题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E6%B7%BB%E5%8A%A0%E5%A4%9A%E8%AF%B4%E8%AF%84%E8%AE%BA%E6%8F%92%E4%BB%B6"><span class="nav-number">6.</span> <span class="nav-text">6. 添加多说评论插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E9%83%A8%E7%BD%B2%E5%88%B0github%E4%B8%8A"><span class="nav-number">7.</span> <span class="nav-text">7. 部署到github上</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A"><span class="nav-number">8.</span> <span class="nav-text">8. 域名绑定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E9%97%AE%E9%A2%98"><span class="nav-number">9.</span> <span class="nav-text">9. 问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-Atom%E6%8F%92%E4%BB%B6"><span class="nav-number">10.</span> <span class="nav-text">10. Atom插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-%E6%80%BB%E7%BB%93"><span class="nav-number">11.</span> <span class="nav-text">11. 总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">12.</span> <span class="nav-text">12. 参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

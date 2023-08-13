@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="scrapy是python最有名的爬虫框架之一，可以很方便的进行web抓取，并且提供了很强的定制型，这里记录简单学习的过程和在实际应用中会遇到的一些常见问题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="scrapy学习笔记">
+<meta property="og:url" content="http://zhengbomo.github.io/2016-09-11/scrapy-start/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="scrapy是python最有名的爬虫框架之一，可以很方便的进行web抓取，并且提供了很强的定制型，这里记录简单学习的过程和在实际应用中会遇到的一些常见问题">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/20180707174111682.png">
+<meta property="article:published_time" content="2016-09-11T08:56:45.000Z">
+<meta property="article:modified_time" content="2016-09-11T08:56:45.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="scrapy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/20180707174111682.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2016-09-11/scrapy-start/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>scrapy学习笔记 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-09-11/scrapy-start/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          scrapy学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-09-11 16:56:45" itemprop="dateCreated datePublished" datetime="2016-09-11T16:56:45+08:00">2016-09-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>scrapy是python最有名的爬虫框架之一，可以很方便的进行web抓取，并且提供了很强的定制型，这里记录简单学习的过程和在实际应用中会遇到的一些常见问题</p>
+<span id="more"></span>
+
+<h2 id="一、安装"><a href="#一、安装" class="headerlink" title="一、安装"></a>一、安装</h2><p>在安装scrapy之前有一些依赖需要安装，否则可能会安装失败，scrapy的选择器依赖于<code>lxml</code>，还有<code>Twisted</code>网络引擎，下面是ubuntu下安装的过程</p>
+<h3 id="1-linux下安装"><a href="#1-linux下安装" class="headerlink" title="1. linux下安装"></a>1. linux下安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 安装xml依赖库</span></span><br><span class="line">$ sudo apt-get install libxml2 libxml2-dev</span><br><span class="line">$ sudo apt-get install libxslt1-dev</span><br><span class="line">$ sudo apt-get install python-libxml2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 安装lxml</span></span><br><span class="line">$ sudo pip install lxml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 安装Twisted（版本可以换成最新的），用pip也可以，如果失败的话下载源码安装，如下</span></span><br><span class="line">$ wget https://pypi.python.org/packages/6b/23/8dbe86fc83215015e221fbd861a545c6ec5c9e9cd7514af114d1f64084ab/Twisted-16.4.1.tar.bz2<span class="comment">#md5=c6d09bdd681f538369659111f079c29d</span></span><br><span class="line">$ tar xjf Twisted-16.4.1.tar.bz2</span><br><span class="line">$ <span class="built_in">cd</span> Twisted-16.4.1</span><br><span class="line">$ sudo python setup.py install</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 安装scrapy</span></span><br><span class="line">$ sudo pip install scrapy</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://lxml.de/installation.html">http://lxml.de/installation.html</a></p>
+</blockquote>
+<h3 id="2-Mac下安装"><a href="#2-Mac下安装" class="headerlink" title="2. Mac下安装"></a>2. Mac下安装</h3><figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装xml依赖库</span></span><br><span class="line"><span class="variable">$ </span>xcode-<span class="keyword">select</span> —install</span><br><span class="line"></span><br><span class="line"><span class="comment"># 其实相关依赖pip会自动帮我们装上</span></span><br><span class="line"><span class="variable">$ </span>pip install scrapy</span><br></pre></td></tr></table></figure>
+
+<p>mac下安装有时候会失败，建议使用<code>virtualenv</code>安装在独立的环境下，可以减少一些问题，因为mac系统自带python，例如一些依赖库依赖的一些新的版本，而升级新版本会把旧版本卸载掉，卸载可能会有权限的问题</p>
+<h2 id="二、基本使用"><a href="#二、基本使用" class="headerlink" title="二、基本使用"></a>二、基本使用</h2><h3 id="1-初始化scrapy项目"><a href="#1-初始化scrapy项目" class="headerlink" title="1. 初始化scrapy项目"></a>1. 初始化scrapy项目</h3><p>我们可以使用命令行初始化一个项目</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ scrapy startproject tutorial</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://scrapy-chs.readthedocs.io/zh_CN/0.24/topics/commands.html">这里</a>可以查看scrapy更多其他的命令</p>
+</blockquote>
+<p>初始化完成后，我们得到下面目录结构</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">scrapy.cfg:         项目的配置文件</span><br><span class="line">tutorial/:          该项目的python模块, 在这里添加代码</span><br><span class="line">    items.py:       项目中的item文件</span><br><span class="line">    pipelines.py:   项目中的pipelines文件.</span><br><span class="line">    settings.py:    项目全局设置文件.</span><br><span class="line">    spiders/        爬虫模块目录</span><br></pre></td></tr></table></figure>
+
+<p>我们先看一下scrapy的处理流程图<br><img src="/images/post/20180707174111682.png" alt="流程图"></p>
+<p>scrapy由下面几个部分组成</p>
+<ul>
+<li><code>spiders</code>：爬虫模块，负责配置需要爬取的数据和爬取规则，以及解析结构化数据</li>
+<li><code>items</code>：定义我们需要的结构化数据，使用相当于<code>dict</code></li>
+<li><code>pipelines</code>：管道模块，处理spider模块分析好的结构化数据，如保存入库等</li>
+<li><code>middlewares</code>：中间件，相当于钩子，可以对爬取前后做预处理，如修改请求header，url过滤等</li>
+</ul>
+<p>我们先来看一个例子，在<code>spiders</code>目录下新建一个模块<code>DmozSpider.py</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> scrapy</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DmozSpider</span>(scrapy.Spider):</span><br><span class="line">    <span class="comment"># 必须定义</span></span><br><span class="line">    name = <span class="string">&quot;dmoz&quot;</span></span><br><span class="line">    <span class="comment"># 初始urls</span></span><br><span class="line">    start_urls = [</span><br><span class="line">        <span class="string">&quot;http://www.dmoz.org/Computers/Programming/Languages/Python/Books/&quot;</span>,</span><br><span class="line">        <span class="string">&quot;http://www.dmoz.org/Computers/Programming/Languages/Python/Resources/&quot;</span></span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 默认response处理函数</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="comment"># 把结果写到文件中</span></span><br><span class="line">        filename = response.url.split(<span class="string">&quot;/&quot;</span>)[-<span class="number">2</span>]</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(filename, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(response.body)</span><br></pre></td></tr></table></figure>
+
+<p>打开终端进入根目录，执行下面命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ scrapy crawl dmoz</span><br></pre></td></tr></table></figure>
+
+<p>爬虫开始爬取start_urls定义的url，并输出到文件中，最后输出爬去报告，会输出爬取得统计结果</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">2016-09-13 10:36:43 [scrapy] INFO: Spider opened</span><br><span class="line">2016-09-13 10:36:43 [scrapy] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)</span><br><span class="line">2016-09-13 10:36:43 [scrapy] DEBUG: Telnet console listening on 127.0.0.1:6023</span><br><span class="line">2016-09-13 10:36:44 [scrapy] DEBUG: Crawled (200) &lt;GET http://www.dmoz.org/Computers/Programming/Languages/Python/Resources/&gt; (referer: None)</span><br><span class="line">2016-09-13 10:36:45 [scrapy] DEBUG: Crawled (200) &lt;GET http://www.dmoz.org/Computers/Programming/Languages/Python/Books/&gt; (referer: None)</span><br><span class="line">2016-09-13 10:36:45 [scrapy] INFO: Closing spider (finished)</span><br><span class="line">2016-09-13 10:36:45 [scrapy] INFO: Dumping Scrapy stats:</span><br><span class="line">&#123;<span class="string">&#x27;downloader/request_bytes&#x27;</span>: 548,</span><br><span class="line"> <span class="string">&#x27;downloader/request_count&#x27;</span>: 2,</span><br><span class="line"> <span class="string">&#x27;downloader/request_method_count/GET&#x27;</span>: 2,</span><br><span class="line"> <span class="string">&#x27;downloader/response_bytes&#x27;</span>: 16179,</span><br><span class="line"> <span class="string">&#x27;downloader/response_count&#x27;</span>: 2,</span><br><span class="line"> <span class="string">&#x27;downloader/response_status_count/200&#x27;</span>: 2,</span><br><span class="line"> <span class="string">&#x27;finish_reason&#x27;</span>: <span class="string">&#x27;finished&#x27;</span>,</span><br><span class="line"> <span class="string">&#x27;finish_time&#x27;</span>: datetime.datetime(2016, 9, 13, 2, 36, 45, 585113),</span><br><span class="line"> <span class="string">&#x27;log_count/DEBUG&#x27;</span>: 3,</span><br><span class="line"> <span class="string">&#x27;log_count/INFO&#x27;</span>: 7,</span><br><span class="line"> <span class="string">&#x27;response_received_count&#x27;</span>: 2,</span><br><span class="line"> <span class="string">&#x27;scheduler/dequeued&#x27;</span>: 2,</span><br><span class="line"> <span class="string">&#x27;scheduler/dequeued/memory&#x27;</span>: 2,</span><br><span class="line"> <span class="string">&#x27;scheduler/enqueued&#x27;</span>: 2,</span><br><span class="line"> <span class="string">&#x27;scheduler/enqueued/memory&#x27;</span>: 2,</span><br><span class="line"> <span class="string">&#x27;start_time&#x27;</span>: datetime.datetime(2016, 9, 13, 2, 36, 43, 935790)&#125;</span><br><span class="line">2016-09-13 10:36:45 [scrapy] INFO: Spider closed (finished)</span><br></pre></td></tr></table></figure>
+<p>这里我们完成了简单的爬取和保存的操作，会在根目录生成两个文件<code>Resources</code>和<code>Books</code></p>
+<h3 id="2-通过代码运行爬虫"><a href="#2-通过代码运行爬虫" class="headerlink" title="2. 通过代码运行爬虫"></a>2. 通过代码运行爬虫</h3><p>每次进入控制台运行爬虫还是比较麻烦的，而且不好调试，我们可以通过<code>CrawlerProcess</code>通过代码运行爬虫，新建一个模块<code>run.py</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapy.crawler <span class="keyword">import</span> CrawlerProcess</span><br><span class="line"><span class="keyword">from</span> scrapy.utils.project <span class="keyword">import</span> get_project_settings</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> spiders.DmozSpider <span class="keyword">import</span> DmozSpider</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取settings.py模块的设置</span></span><br><span class="line">settings = get_project_settings()</span><br><span class="line">process = CrawlerProcess(settings=settings)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 可以添加多个spider</span></span><br><span class="line"><span class="comment"># process.crawl(Spider1)</span></span><br><span class="line"><span class="comment"># process.crawl(Spider2)</span></span><br><span class="line">process.crawl(DmozSpider)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动爬虫，会阻塞，直到爬取完成</span></span><br><span class="line">process.start()</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="http://doc.scrapy.org/en/latest/topics/practices.html#run-scrapy-from-a-script">http://doc.scrapy.org/en/latest/topics/practices.html#run-scrapy-from-a-script</a></p>
+</blockquote>
+<h2 id="三、Scrapy类"><a href="#三、Scrapy类" class="headerlink" title="三、Scrapy类"></a>三、Scrapy类</h2><p>如上面的<code>DmozSpider</code>类，爬虫类继承自<code>scrapy.Spider</code>，用于构造<code>Request</code>对象给Scheduler</p>
+<h3 id="1-常用属性与方法"><a href="#1-常用属性与方法" class="headerlink" title="1. 常用属性与方法"></a>1. 常用属性与方法</h3><p><em>属性</em></p>
+<ul>
+<li><code>name</code>：爬虫的名字，必须唯一（如果在控制台使用的话，必须配置）</li>
+<li><code>start_urls</code>：爬虫初始爬取的链接列表</li>
+<li><code>parse</code>：response结果处理函数</li>
+<li><code>custom_settings</code>：自定义配置，覆盖<code>settings.py</code>中的默认配置</li>
+</ul>
+<p><em>方法</em></p>
+<ul>
+<li><code>start_requests</code>：启动爬虫的时候调用，默认是调用<code>make_requests_from_url</code>方法爬取<code>start_urls</code>的链接，可以在这个方法里面定制，如果重写了该方法，start_urls默认将不会被使用，可以在这个方法里面定制一些自定义的url，如登录，从数据库读取url等，本方法返回Request对象</li>
+<li><code>make_requests_from_url</code>：默认由<code>start_requests</code>调用，可以配置Request对象，返回Request对象</li>
+<li><code>parse</code>：response到达spider的时候默认调用，如果在Request对象配置了callback函数，则不会调用，parse方法可以迭代返回<code>Item</code>或<code>Request</code>对象，如果返回Request对象，则会进行增量爬取</li>
+</ul>
+<h3 id="2-Request与Response对象"><a href="#2-Request与Response对象" class="headerlink" title="2. Request与Response对象"></a>2. Request与Response对象</h3><p>每个请求都是一个Request对象，Request对象定义了请求的相关信息（<code>url</code>, <code>method</code>, <code>headers</code>, <code>body</code>, <code>cookie</code>, <code>priority</code>）和回调的相关信息（<code>meta</code>, <code>callback</code>, <code>dont_filter</code>, <code>errback</code>），通常由spider迭代返回</p>
+<p>其中<code>meta</code>相当于附加变量，可以在请求完成后通过<code>response.meta</code>访问</p>
+<p>请求完成后，会通过<code>Response</code>对象发送给spider处理，常用属性有（<code>url</code>, <code>status</code>, <code>headers</code>, <code>body</code>, <code>request</code>, <code>meta</code>, ）</p>
+<p>详细介绍参考官网</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://doc.scrapy.org/en/latest/topics/request-response.html#request-objects">https://doc.scrapy.org/en/latest/topics/request-response.html#request-objects</a></li>
+<li><a target="_blank" rel="noopener" href="https://doc.scrapy.org/en/latest/topics/request-response.html#response-objects">https://doc.scrapy.org/en/latest/topics/request-response.html#response-objects</a></li>
+</ul>
+<p>看下面这个例子</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapy <span class="keyword">import</span> Spider</span><br><span class="line"><span class="keyword">from</span> scrapy <span class="keyword">import</span> Request</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TestSpider</span>(<span class="title class_ inherited__">Spider</span>):</span><br><span class="line">    name = <span class="string">&#x27;test&#x27;</span></span><br><span class="line">    start_urls = [</span><br><span class="line">        <span class="string">&quot;http://www.qq.com/&quot;</span>,</span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">login_parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot; 如果登录成功,手动构造请求Request迭代返回 &quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(response)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">10</span>):</span><br><span class="line">            <span class="keyword">yield</span> Request(<span class="string">&#x27;http://www.example.com/list/1?page=&#123;0&#125;&#x27;</span>.<span class="built_in">format</span>(i))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">start_requests</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot; 覆盖默认的方法(忽略start_urls),返回登录请求页,制定处理函数为login_parse &quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> Request(<span class="string">&#x27;http://www.example.com/login&#x27;</span>, method=<span class="string">&quot;POST&quot;</span> body=<span class="string">&#x27;username=bomo&amp;pwd=123456&#x27;</span>, callback=self.login_parse)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot; 默认请求处理函数 &quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(response)</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、Selector"><a href="#四、Selector" class="headerlink" title="四、Selector"></a>四、Selector</h2><p>上面我们只是爬取了网页的html文本，对于爬虫，我们需要明确我们需要爬取的结构化数据，需要对原文本进行解析，解析的方法通常有下面这些</p>
+<ul>
+<li>普通文本操作</li>
+<li>正则表达式：<code>re</code></li>
+<li>Dom树操作：<code>BeautifulSoup</code></li>
+<li>XPath选择器：<code>lxml</code></li>
+</ul>
+<p>scrapy默认支持选择器的功能，自带的选择器构建与lxml之上，并对其进行了改进，使用起来更为简洁明了</p>
+<h3 id="1-XPath选择器"><a href="#1-XPath选择器" class="headerlink" title="1. XPath选择器"></a>1. XPath选择器</h3><p>XPpath是标准的XML文档查询语言，可以用于查询XML文档中的节点和内容，关于XPath语法，可以参见<a target="_blank" rel="noopener" href="http://www.w3school.com.cn/xpath/">这里</a></p>
+<p>先看一个例子，通过html或xml构造Selector对象，然后通过xpath查询节点，并解析出节点的内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapy <span class="keyword">import</span> Selector</span><br><span class="line"></span><br><span class="line">html = <span class="string">&#x27;&lt;html&gt;&lt;body&gt;&lt;span&gt;good&lt;/span&gt;&lt;span&gt;buy&lt;/span&gt;&lt;/body&gt;&lt;/html&gt;&#x27;</span></span><br><span class="line">sel = Selector(text=html)</span><br><span class="line">nodes = sel.xpath(<span class="string">&#x27;//span&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> node <span class="keyword">in</span> nodes:</span><br><span class="line">    <span class="built_in">print</span>(node.extract())</span><br></pre></td></tr></table></figure>
+<p>Selector相当于节点，通过xpath去到子节点集合（SelectorList），可以继续搜索，通过<code>extract</code>方法可以取出节点的值，<code>extract</code>方法也可以作用于SelectorList，对于SelectorList可以通过<code>extract_first</code>取出第一个节点的值</p>
+<ul>
+<li>通过<code>text()</code>取出节点的内容</li>
+<li>通过<code>@href</code>去除节点属性值（这里是取出<code>href</code>属性的值）</li>
+<li>直接对节点取值，则是输出节点的字符串</li>
+</ul>
+<h3 id="2-CSS选择器"><a href="#2-CSS选择器" class="headerlink" title="2. CSS选择器"></a>2. CSS选择器</h3><p>除了XPath选择器，scrapy还支持css选择器</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">html = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        &lt;html&gt;</span></span><br><span class="line"><span class="string">            &lt;body&gt;</span></span><br><span class="line"><span class="string">                &lt;span&gt;good&lt;/span&gt;</span></span><br><span class="line"><span class="string">                &lt;span&gt;buy&lt;/span&gt;</span></span><br><span class="line"><span class="string">                &lt;ul&gt;</span></span><br><span class="line"><span class="string">                    &lt;li class=&quot;video_part_lists&quot;&gt;aa&lt;li&gt;</span></span><br><span class="line"><span class="string">                    &lt;li class=&quot;video_part_lists&quot;&gt;bb&lt;li&gt;</span></span><br><span class="line"><span class="string">                    &lt;li class=&quot;audio_part_lists&quot;&gt;cc&lt;li&gt;</span></span><br><span class="line"><span class="string">                    &lt;li class=&quot;video_part_lists&quot;&gt;</span></span><br><span class="line"><span class="string">                        &lt;a href=&quot;/&quot;&gt;主页&lt;/a&gt;</span></span><br><span class="line"><span class="string">                    &lt;li&gt;</span></span><br><span class="line"><span class="string">                &lt;/ul&gt;</span></span><br><span class="line"><span class="string">            &lt;/body&gt;</span></span><br><span class="line"><span class="string">        &lt;/html&gt;</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">sel = Selector(text=html)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 选择class为video_part_lists的li节点</span></span><br><span class="line">lis = sel.css(<span class="string">&#x27;li.video_part_lists&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> li <span class="keyword">in</span> lis:</span><br><span class="line">    <span class="comment"># 选择a节点的属性</span></span><br><span class="line">    <span class="built_in">print</span>(li.css(<span class="string">&#x27;a::attr(href)&#x27;</span>).extract())</span><br></pre></td></tr></table></figure>
+
+<p>关于css选择器更多的规则，可以见w3c官网</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.w3.org/TR/selectors/">https://www.w3.org/TR/selectors/</a></li>
+</ul>
+<h2 id="五、Item类"><a href="#五、Item类" class="headerlink" title="五、Item类"></a>五、Item类</h2><p>上面我们只是爬取了网页的html文本，对于爬虫，我们需要明确我们需要爬取的结构化数据，我们定义一个item存储分类信息，scrapy的item继承自<code>scrapy.Item</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapy <span class="keyword">import</span> Item, Field</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DmozItem</span>(<span class="title class_ inherited__">Item</span>):</span><br><span class="line">    title = Field()</span><br><span class="line">    link = Field()</span><br><span class="line">    desc = Field()</span><br></pre></td></tr></table></figure>
+
+<p><code>scrapy.Item</code>的用法与python中的字典用法基本一样，只是做了一些安全限制，属性定义使用Field，这里只是进行了声明，而不是真正的属性，使用的时候通过键值对操作，<strong>不支持属性访问</strong></p>
+<p>what, 好坑爹，这意味着所有的属性赋值都得用字符串了，这里有解释（还是没太明白）</p>
+<blockquote>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://stackoverflow.com/questions/14899815/why-is-scrapys-field-a-dict">why-is-scrapys-field-a-dict</a></li>
+</ul>
+</blockquote>
+<p>修改DmozSpider的parse方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DmozSpider</span>(scrapy.Spider):</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">for</span> sel <span class="keyword">in</span> response.xpath(<span class="string">&#x27;//ul/li&#x27;</span>):</span><br><span class="line">            dmoz_item = DmozItem()</span><br><span class="line">            dmoz_item[<span class="string">&#x27;title&#x27;</span>] = sel.xpath(<span class="string">&#x27;a/text()&#x27;</span>).extract()</span><br><span class="line">            dmoz_item[<span class="string">&#x27;link&#x27;</span>] = sel.xpath(<span class="string">&#x27;a/@href&#x27;</span>).extract()</span><br><span class="line">            dmoz_item[<span class="string">&#x27;desc&#x27;</span>] = sel.xpath(<span class="string">&#x27;text()&#x27;</span>).extract()</span><br><span class="line">            <span class="built_in">print</span>(dmoz_item)</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、Pipeline"><a href="#六、Pipeline" class="headerlink" title="六、Pipeline"></a>六、Pipeline</h2><p>spider负责爬虫的配置，item负责声明结构化数据，而对于数据的处理，在scrapy中使用管道的方式进行处理，只要注册过的管道都可以处理item数据（处理，过滤，保存）</p>
+<p>下面看看管道的声明方式，这里定义一个预处理管道<code>PretreatmentPipeline.py</code>，如果item的title为None，则设置为空字符串</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PretreatmentPipeline</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process_item</span>(<span class="params">self, item, spider</span>):</span><br><span class="line">        <span class="keyword">if</span> item[<span class="string">&#x27;title&#x27;</span>]:</span><br><span class="line">            <span class="comment"># 不让title为空</span></span><br><span class="line">            item[<span class="string">&#x27;title&#x27;</span>] = <span class="string">&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">return</span> item</span><br></pre></td></tr></table></figure>
+
+<p>再定义一个过滤重复数据的管道<code>DuplicatesPipeline.py</code>，当link重复，则丢弃</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapy.exceptions <span class="keyword">import</span> DropItem</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DuplicatesPipeline</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.links = <span class="built_in">set</span>()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process_item</span>(<span class="params">self, item, spider</span>):</span><br><span class="line">        <span class="keyword">if</span> item[<span class="string">&#x27;link&#x27;</span>] <span class="keyword">in</span> self.links:</span><br><span class="line">            <span class="comment"># 跑出DropItem表示丢掉数据</span></span><br><span class="line">            <span class="keyword">raise</span> DropItem(<span class="string">&quot;Duplicate item found: %s&quot;</span> % item)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.links.add(item[<span class="string">&#x27;link&#x27;</span>])</span><br><span class="line">            <span class="keyword">return</span> item</span><br></pre></td></tr></table></figure>
+
+<p>最后可以定义一个保存数据的管道，可以把数据保存到数据库中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapy.exceptions <span class="keyword">import</span> DropItem</span><br><span class="line"><span class="keyword">from</span> Database <span class="keyword">import</span> Database</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DatabasePipeline</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.db = Database</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process_item</span>(<span class="params">self, item, spider</span>):</span><br><span class="line">        <span class="keyword">if</span> self.db.item_exists(item[<span class="string">&#x27;id&#x27;</span>]):</span><br><span class="line">            self.db.update_item(item)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.db.insert_item(item)</span><br></pre></td></tr></table></figure>
+
+<p>定义好管道之后我们需要配置到爬虫上，我们在<code>settings.py</code>模块中配置，后面的数字表示管道的顺序</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ITEM_PIPELINES = &#123;</span><br><span class="line">    <span class="string">&#x27;pipelines.DuplicatesPipeline.DuplicatesPipeline&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="string">&#x27;pipelines.PretreatmentPipeline.PretreatmentPipeline&#x27;</span>: <span class="number">2</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们也可以为spider配置单独的pipeline</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TestSpider</span>(<span class="title class_ inherited__">Spider</span>):</span><br><span class="line">    <span class="comment"># 自定义配置</span></span><br><span class="line">    custom_settings = &#123;</span><br><span class="line">        <span class="comment"># item处理管道</span></span><br><span class="line">        <span class="string">&#x27;ITEM_PIPELINES&#x27;</span>: &#123;</span><br><span class="line">            <span class="string">&#x27;tutorial.pipelines.FangDetailPipeline.FangDetailPipeline&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>除了<code>process_item</code>方法外，pipeline还有<code>open_spider</code>和<code>spider_closed</code>两个方法，在爬虫启动和关闭的时候调用</p>
+<h2 id="七、Rule"><a href="#七、Rule" class="headerlink" title="七、Rule"></a>七、Rule</h2><p>爬虫的通常需要在一个网页里面爬去其他的链接，然后一层一层往下爬，scrapy提供了LinkExtractor类用于对网页链接的提取，使用LinkExtractor需要使用<code>CrawlSpider</code>爬虫类中，<code>CrawlSpider</code>与<code>Spider</code>相比主要是多了<code>rules</code>，可以添加一些规则，先看下面这个例子，爬取链家网的链接</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapy.spiders <span class="keyword">import</span> CrawlSpider, Rule</span><br><span class="line"><span class="keyword">from</span> scrapy.linkextractors <span class="keyword">import</span> LinkExtractor</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LianjiaSpider</span>(<span class="title class_ inherited__">CrawlSpider</span>):</span><br><span class="line">    name = <span class="string">&quot;lianjia&quot;</span></span><br><span class="line"></span><br><span class="line">    allowed_domains = [<span class="string">&quot;lianjia.com&quot;</span>]</span><br><span class="line"></span><br><span class="line">    start_urls = [</span><br><span class="line">        <span class="string">&quot;http://bj.lianjia.com/ershoufang/&quot;</span></span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    rules = [</span><br><span class="line">        <span class="comment"># 匹配正则表达式,处理下一页</span></span><br><span class="line">        Rule(LinkExtractor(allow=(<span class="string">r&#x27;http://bj.lianjia.com/ershoufang/pg\s+$&#x27;</span>,)), callback=<span class="string">&#x27;parse_item&#x27;</span>),</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 匹配正则表达式,结果加到url列表中,设置请求预处理函数</span></span><br><span class="line">        <span class="comment"># Rule(FangLinkExtractor(allow=(&#x27;http://www.lianjia.com/client/&#x27;, )), follow=True, process_request=&#x27;add_cookie&#x27;)</span></span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">parse_item</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="comment"># 这里与之前的parse方法一样，处理</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-Rule对象"><a href="#1-Rule对象" class="headerlink" title="1. Rule对象"></a>1. Rule对象</h3><p>Role对象有下面参数</p>
+<ul>
+<li><code>link_extractor</code>：链接提取规则</li>
+<li><code>callback</code>：link_extractor提取的链接的请求结果的回调</li>
+<li><code>cb_kwargs</code>：附加参数，可以在回调函数中获取到</li>
+<li><code>follow</code>：表示提取的链接请求完成后是否还要应用当前规则（boolean），如果为<code>False</code>则不会对提取出来的网页进行进一步提取，默认为False</li>
+<li><code>process_links</code>：处理所有的链接的回调，用于处理从response提取的links，通常用于过滤（参数为link列表）</li>
+<li><code>process_request</code>：链接请求预处理（添加header或cookie等）</li>
+</ul>
+<h3 id="2-LinkExtractor"><a href="#2-LinkExtractor" class="headerlink" title="2. LinkExtractor"></a>2. LinkExtractor</h3><p>LinkExtractor常用的参数有：</p>
+<ul>
+<li><code>allow</code>：提取满足正则表达式的链接</li>
+<li><code>deny</code>：排除正则表达式匹配的链接（优先级高于<code>allow</code>）</li>
+<li><code>allow_domains</code>：允许的域名（可以是<code>str</code>或<code>list</code>）</li>
+<li><code>deny_domains</code>：排除的域名（可以是<code>str</code>或<code>list</code>）</li>
+<li><code>restrict_xpaths</code>：提取满足XPath选择条件的链接（可以是<code>str</code>或<code>list</code>）</li>
+<li><code>restrict_css</code>：提取满足css选择条件的链接（可以是<code>str</code>或<code>list</code>）</li>
+<li><code>tags</code>：提取指定标签下的链接，默认从<code>a</code>和<code>area</code>中提取（可以是<code>str</code>或<code>list</code>）</li>
+<li><code>attrs</code>：提取满足拥有属性的链接，默认为<code>href</code>（类型为<code>list</code>）</li>
+<li><code>unique</code>：链接是否去重（类型为<code>boolean</code>）</li>
+<li><code>process_value</code>：值处理函数（优先级大于<code>allow</code>）</li>
+</ul>
+<p>关于LinkExtractor的详细参数介绍见<a target="_blank" rel="noopener" href="http://doc.scrapy.org/en/latest/topics/link-extractors.html#module-scrapy.linkextractors.lxmlhtml">官网</a></p>
+<blockquote>
+<p>注意：如果使用rules规则，请不要覆盖或重写<code>CrawlSpider</code>的<code>parse</code>方法，否则规则会失效，可以使用<code>parse_start_urls</code>方法</p>
+</blockquote>
+<h2 id="八、Middleware"><a href="#八、Middleware" class="headerlink" title="八、Middleware"></a>八、Middleware</h2><p>从最开始的流程图可以看到，爬去一个资源链接的流程，首先我们配置spider相关的爬取信息，在启动爬取实例后，<code>scrapy_engine</code>从Spider取出<code>Request</code>（经过<code>SpiderMiddleware</code>），然后丢给Scheduler（经过<code>SchedulerMiddleware</code>），Scheduler接着把请求丢给Downloader（经过<code>DownloadMiddlware</code>），Downloader把请求结果丢还给Spider，然后Spider把分析好的结构化数据丢给Pipeline，Pipeline进行分析保存或丢弃，这里面有4个角色</p>
+<p>scrapy有下面三种middlewares</p>
+<ul>
+<li><code>SpiderMiddleware</code>：通常用于配置爬虫相关的属性，引用链接设置，Url长度限制，成功状态码设置，爬取深度设置，爬去优先级设置等</li>
+<li><code>DownloadMiddlware</code>：通常用于处理下载之前的预处理，如请求Header（Cookie,User-Agent），登录验证处理，重定向处理，代理服务器处理，超时处理，重试处理等</li>
+<li><code>SchedulerMiddleware</code>（已经废弃）：为了简化框架，调度器中间件已经被废弃，使用另外两个中间件已经够用了</li>
+</ul>
+<h3 id="1-SpiderMiddleware"><a href="#1-SpiderMiddleware" class="headerlink" title="1. SpiderMiddleware"></a>1. SpiderMiddleware</h3><p>爬虫中间件有下面几个方法</p>
+<ul>
+<li><code>process_spider_input</code>：当response通过spider的时候被调用，返回None（继续给其他中间件处理）或抛出异常（不会给其他中间件处理，当成异常处理）</li>
+<li><code>process_spider_output</code>：当spider有item或Request输出的时候调动</li>
+<li><code>process_spider_exception</code>：处理出现异常时调用</li>
+<li><code>process_start_requests</code>：spider当开始请求Request的时候调用</li>
+</ul>
+<p>下面是scrapy自带的一些中间件（在<code>scrapy.spidermiddlewares</code>命名空间下）</p>
+<ul>
+<li>UrlLengthMiddleware</li>
+<li>RefererMiddleware</li>
+<li>OffsiteMiddleware</li>
+<li>HttpErrorMiddleware</li>
+<li>DepthMiddleware</li>
+</ul>
+<p>我们自己实现一个<code>SpiderMiddleware</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TODO</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参考链接：<a target="_blank" rel="noopener" href="http://doc.scrapy.org/en/latest/topics/spider-middleware.html">http://doc.scrapy.org/en/latest/topics/spider-middleware.html</a></p>
+</blockquote>
+<h3 id="2-DownloaderMiddleware"><a href="#2-DownloaderMiddleware" class="headerlink" title="2. DownloaderMiddleware"></a>2. DownloaderMiddleware</h3><p>下载中间件有下面几个方法</p>
+<ul>
+<li><code>process_request</code>：请求通过下载器的时候调用</li>
+<li><code>process_response</code>：请求完成后调用</li>
+<li><code>process_exception</code>：请求发生异常时调用</li>
+<li><code>from_crawler</code>：从crawler构造的时候调用</li>
+<li><code>from_settings</code>：从settings构造的时候调用</li>
+<li>&#96;&#96;</li>
+</ul>
+<blockquote>
+<p>更多详细的参数解释见<a target="_blank" rel="noopener" href="https://scrapy-chs.readthedocs.io/zh_CN/0.24/topics/downloader-middleware.html#id2">这里</a></p>
+</blockquote>
+<p>在爬取网页的时候，使用不同的<code>User-Agent</code>可以提高请求的随机性，定义一个随机设置User-Agent的中间件<code>RandomUserAgentMiddleware</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RandomUserAgentMiddleware</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Randomly rotate user agents based on a list of predefined ones&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, agents</span>):</span><br><span class="line">        self.agents = agents</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 从crawler构造，USER_AGENTS定义在crawler的配置的设置中</span></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">from_crawler</span>(<span class="params">cls, crawler</span>):</span><br><span class="line">        <span class="keyword">return</span> cls(crawler.settings.getlist(<span class="string">&#x27;USER_AGENTS&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 从settings构造，USER_AGENTS定义在settings.py中</span></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">from_settings</span>(<span class="params">cls, settings</span>):</span><br><span class="line">        <span class="keyword">return</span> cls(settings.getlist(<span class="string">&#x27;USER_AGENTS&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process_request</span>(<span class="params">self, request, spider</span>):</span><br><span class="line">        <span class="comment"># 设置随机的User-Agent</span></span><br><span class="line">        request.headers.setdefault(<span class="string">&#x27;User-Agent&#x27;</span>, random.choice(self.agents))</span><br></pre></td></tr></table></figure>
+
+<p>在<code>settings.py</code>设置USER_AGENTS参数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">USER_AGENTS = [</span><br><span class="line">    <span class="string">&quot;Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; AcooBrowser; .NET CLR 1.1.4322; .NET CLR 2.0.50727)&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Acoo Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506)&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/4.0 (compatible; MSIE 7.0; AOL 9.5; AOLBuild 4337.35; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 2.0.50727; Media Center PC 6.0)&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 1.0.3705; .NET CLR 1.1.4322)&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/4.0 (compatible; MSIE 7.0b; Windows NT 5.2; .NET CLR 1.1.4322; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 3.0.04506.30)&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN) AppleWebKit/523.15 (KHTML, like Gecko, Safari/419.3) Arora/0.3 (Change: 287 c9dfb30)&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (X11; U; Linux; en-US) AppleWebKit/527+ (KHTML, like Gecko, Safari/419.3) Arora/0.6&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.2pre) Gecko/20070215 K-Ninja/2.1.1&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9) Gecko/20080705 Firefox/3.0 Kapiko/3.0&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (X11; Linux i686; U;) Gecko/20070322 Kazehakase/0.4.5&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.8) Gecko Fedora/1.9.0.8-1.fc10 Kazehakase/0.5.6&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.20 (KHTML, like Gecko) Chrome/19.0.1036.7 Safari/535.20&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52&quot;</span>,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>配置爬虫中间件的方式与pipeline类似，第二个参数表示优先级</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置爬虫中间件</span></span><br><span class="line">SPIDER_MIDDLEWARES = &#123;</span><br><span class="line">    <span class="string">&#x27;myproject.middlewares.CustomSpiderMiddleware&#x27;</span>: <span class="number">543</span>,</span><br><span class="line">    <span class="comment"># 如果想禁用默认的中间件的话，可以设置其优先级为None</span></span><br><span class="line">    <span class="string">&#x27;scrapy.spidermiddlewares.offsite.OffsiteMiddleware&#x27;</span>: <span class="literal">None</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置下载中间件</span></span><br><span class="line">DOWNLOADER_MIDDLEWARES = &#123;</span><br><span class="line">    <span class="string">&#x27;myproject.middlewares.RandomUserAgentMiddleware&#x27;</span>: <span class="number">543</span>,</span><br><span class="line">    <span class="string">&#x27;scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware&#x27;</span>: <span class="literal">None</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-代理服务器"><a href="#3-代理服务器" class="headerlink" title="3. 代理服务器"></a>3. 代理服务器</h3><p>爬虫最怕的就是封ip，这时候就需要代理服务器来爬取，scrapy设置代理服务器非常简单，只需要在请求前设置<code>Request</code>对象的<code>meta</code>属性，添加<code>proxy</code>值即可，通常我们可以通过中间件来做</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ProxyMiddleware</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process_request</span>(<span class="params">self, request, spider</span>):</span><br><span class="line">        proxy = <span class="string">&#x27;https://178.33.6.236:3128&#x27;</span>     <span class="comment"># 代理服务器</span></span><br><span class="line">        request.meta[<span class="string">&#x27;proxy&#x27;</span>] = proxy</span><br></pre></td></tr></table></figure>
+
+<h2 id="九、缓存"><a href="#九、缓存" class="headerlink" title="九、缓存"></a>九、缓存</h2><p>scrapy默认已经自带了缓存的功能，通常我们只需要配置即可，打开<code>settings.py</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打开缓存</span></span><br><span class="line">HTTPCACHE_ENABLED = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置缓存过期时间（单位：秒）</span></span><br><span class="line"><span class="comment">#HTTPCACHE_EXPIRATION_SECS = 0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 缓存路径(默认为：.scrapy/httpcache)</span></span><br><span class="line">HTTPCACHE_DIR = <span class="string">&#x27;httpcache&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 忽略的状态码，例如：302</span></span><br><span class="line">HTTPCACHE_IGNORE_HTTP_CODES = []</span><br><span class="line"></span><br><span class="line"><span class="comment"># 缓存模式(文件缓存)</span></span><br><span class="line">HTTPCACHE_STORAGE = <span class="string">&#x27;scrapy.extensions.httpcache.FilesystemCacheStorage&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>更多参数参见<a target="_blank" rel="noopener" href="http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings">这里</a></p>
+</blockquote>
+<h2 id="十、多线程"><a href="#十、多线程" class="headerlink" title="十、多线程"></a>十、多线程</h2><p>scrapy网络请求是基于Twisted，而Twisted默认支持多线程，而且scrapy默认也是通过多线程请求的，并且支持多核CPU的并发，通常只需要配置一些参数即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 默认Item并发数：100</span></span><br><span class="line">CONCURRENT_ITEMS = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认Request并发数：16</span></span><br><span class="line">CONCURRENT_REQUESTS = <span class="number">16</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认每个域名的并发数：8</span></span><br><span class="line">CONCURRENT_REQUESTS_PER_DOMAIN = <span class="number">8</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 每个IP的最大并发数：0表示忽略</span></span><br><span class="line">CONCURRENT_REQUESTS_PER_IP = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>更多参数参见<a target="_blank" rel="noopener" href="https://doc.scrapy.org/en/latest/topics/settings.html#concurrent-items">这里</a></p>
+</blockquote>
+<h2 id="十一、常见问题"><a href="#十一、常见问题" class="headerlink" title="十一、常见问题"></a>十一、常见问题</h2><h3 id="1-项目名称问题"><a href="#1-项目名称问题" class="headerlink" title="1. 项目名称问题"></a>1. 项目名称问题</h3><p>在使用的时候遇到过一个问题，在初始化<code>scrapy startproject tutorial</code>的时候，如果使用了一些特殊的名字，如：<code>test</code>, <code>fang</code>等单词的话，通过<code>get_project_settings</code>方法获取配置的时候会出错，改成<code>tutorial</code>或一些复杂的名字的时候不会</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ImportError: No module named tutorial.settings</span><br></pre></td></tr></table></figure>
+
+<p>这是一个bug，在github上有提到：<a target="_blank" rel="noopener" href="https://github.com/scrapy/scrapy/issues/428">https://github.com/scrapy/scrapy/issues/428</a>，但貌似没有完全修复，修改一下名字就好了（当然<code>scrapy.cfg</code>和<code>settings.py</code>里面也需要修改）</p>
+<h3 id="2-为每个pipeline配置spider"><a href="#2-为每个pipeline配置spider" class="headerlink" title="2. 为每个pipeline配置spider"></a>2. 为每个pipeline配置spider</h3><p>上面我们是在settings.py里面配置pipeline，这里的配置的pipeline会作用于所有的spider，我们可以为每一个spider配置不同的pipeline，设置<code>Spider</code>的<code>custom_settings</code>对象</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">LianjiaSpider</span>(<span class="title class_ inherited__">CrawlSpider</span>):</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment"># 自定义配置</span></span><br><span class="line">    custom_settings = &#123;</span><br><span class="line">        <span class="string">&#x27;ITEM_PIPELINES&#x27;</span>: &#123;</span><br><span class="line">            <span class="string">&#x27;tutorial.pipelines.TestPipeline.TestPipeline&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-获取提取链接的节点信息"><a href="#3-获取提取链接的节点信息" class="headerlink" title="3. 获取提取链接的节点信息"></a>3. 获取提取链接的节点信息</h3><p>通过LinkExtractor提取的<code>scrapy.Link</code>默认不带节点信息，有时候我们需要节点的其他attribute属性，<code>scrapy.Link</code>有个<code>text</code>属性保存从节点提取的<code>text</code>值，我们可以通过修改<code>lxmlhtml._collect_string_content</code>变量为<code>etree.tostring</code>，这样可以在提取节点值就变味渲染节点<code>scrapy.Link.text</code>，然后根据<code>scrapy.Link.text</code>属性拿到节点的html，最后提取出我们需要的值</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="keyword">import</span> scrapy.linkextractors.lxmlhtml</span><br><span class="line">scrapy.linkextractors.lxmlhtml._collect_string_content = etree.tostring</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-从数据库中读取urls"><a href="#4-从数据库中读取urls" class="headerlink" title="4. 从数据库中读取urls"></a>4. 从数据库中读取urls</h3><p>有时候我们已经把urls下载到数据库了，而不是在start_urls里配置，这时候可以重载spider的<code>start_requests</code>方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">start_requests</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="keyword">for</span> u <span class="keyword">in</span> self.db.session.query(User.link):</span><br><span class="line">        <span class="keyword">yield</span> Request(u.link)</span><br></pre></td></tr></table></figure>
+<p>我们还可以在Request添加元数据，然后在response中访问</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">start_requests</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="keyword">for</span> u <span class="keyword">in</span> self.db.session.query(User):</span><br><span class="line">        <span class="keyword">yield</span> Request(u.link, meta=&#123;<span class="string">&#x27;name&#x27;</span>: u.name&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">    <span class="built_in">print</span>(response.url, response.meta[<span class="string">&#x27;name&#x27;</span>])</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-如何进行循环爬取"><a href="#5-如何进行循环爬取" class="headerlink" title="5. 如何进行循环爬取"></a>5. 如何进行循环爬取</h3><p>有时候我们需要爬取的一些经常更新的页面，例如：间隔时间为2s，爬去一个列表前10页的数据，从第一页开始爬，爬完成后重新回到第一页</p>
+<p>目前的思路是，通过parse方法迭代返回Request进行增量爬取，由于scrapy默认由缓存机制，需要修改</p>
+<h3 id="6-关于去重"><a href="#6-关于去重" class="headerlink" title="6. 关于去重"></a>6. 关于去重</h3><p>scrapy默认有自己的去重机制，默认使用<code>scrapy.dupefilters.RFPDupeFilter</code>类进行去重，主要逻辑如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> include_headers:</span><br><span class="line">    include_headers = <span class="built_in">tuple</span>(to_bytes(h.lower())</span><br><span class="line">                             <span class="keyword">for</span> h <span class="keyword">in</span> <span class="built_in">sorted</span>(include_headers))</span><br><span class="line">cache = _fingerprint_cache.setdefault(request, &#123;&#125;)</span><br><span class="line"><span class="keyword">if</span> include_headers <span class="keyword">not</span> <span class="keyword">in</span> cache:</span><br><span class="line">    fp = hashlib.sha1()</span><br><span class="line">    fp.update(to_bytes(request.method))</span><br><span class="line">    fp.update(to_bytes(canonicalize_url(request.url)))</span><br><span class="line">    fp.update(request.body <span class="keyword">or</span> <span class="string">b&#x27;&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> include_headers:</span><br><span class="line">        <span class="keyword">for</span> hdr <span class="keyword">in</span> include_headers:</span><br><span class="line">            <span class="keyword">if</span> hdr <span class="keyword">in</span> request.headers:</span><br><span class="line">                fp.update(hdr)</span><br><span class="line">                <span class="keyword">for</span> v <span class="keyword">in</span> request.headers.getlist(hdr):</span><br><span class="line">                    fp.update(v)</span><br><span class="line">    cache[include_headers] = fp.hexdigest()</span><br><span class="line"><span class="keyword">return</span> cache[include_headers]</span><br></pre></td></tr></table></figure>
+
+<p>默认的去重指纹是sha1(method + url + body + header)，这种方式并不能过滤很多，例如有一些请求会加上时间戳的，基本每次都会不同，这时候我们需要自定义过滤规则</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapy.dupefilter <span class="keyword">import</span> RFPDupeFilter</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomURLFilter</span>(<span class="title class_ inherited__">RFPDupeFilter</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; 只根据url去重&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, path=<span class="literal">None</span></span>):</span><br><span class="line">        self.urls_seen = <span class="built_in">set</span>()</span><br><span class="line">        RFPDupeFilter.__init__(self, path)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">request_seen</span>(<span class="params">self, request</span>):</span><br><span class="line">        <span class="keyword">if</span> request.url <span class="keyword">in</span> self.urls_seen:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.urls_seen.add(request.url)</span><br></pre></td></tr></table></figure>
+<p>配置setting</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DUPEFILTER_CLASS = <span class="string">&#x27;tutorial.custom_filters.CustomURLFilter&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="7-如何在Pipeline中处理不同的Item"><a href="#7-如何在Pipeline中处理不同的Item" class="headerlink" title="7. 如何在Pipeline中处理不同的Item"></a>7. 如何在Pipeline中处理不同的Item</h3><p>scrapy所有的迭代出来的的Item都会经过所有的Pipeline，如果需要处理不同的Item，只能通过<code>isinstance()</code>方法进行类型判断，然后分别进行处理，暂时没有更好的方案</p>
+<h3 id="8-url按顺序执行"><a href="#8-url按顺序执行" class="headerlink" title="8. url按顺序执行"></a>8. url按顺序执行</h3><p>我们可以通过Request的priority控制url的请求的执行顺序，但由于网络请求的不确定性，不能保证返回也是按照顺序进行的，如果需要进行逐个url请求的话，吧url列表放在meta对象里面，在response的时候迭代返回下一个Request对象到调度器，达到顺序执行的目的，暂时没有更好的方案</p>
+<h2 id="十二、总结"><a href="#十二、总结" class="headerlink" title="十二、总结"></a>十二、总结</h2><p>scrapy虽然是最有名的python爬虫框架，但是还是有很多不足，例如，item不能单独配置给制定的pipeline，每一个爬取的所有item都会走遍所有的管道，需要在管道里面去判断不同类型的item，如果在pipelines和items比较多的项目，将会让项目变得非常臃肿</p>
+<p>如有问题欢迎到<a target="_blank" rel="noopener" href="http://blog.bomobox.org/2016-09-11/scrapy-start/">我的博客</a>留言</p>
+<h2 id="十三、参考链接"><a href="#十三、参考链接" class="headerlink" title="十三、参考链接"></a>十三、参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://doc.scrapy.org/en/latest/index.html">官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://scrapy-chs.readthedocs.org/zh_CN/0.24/intro/tutorial.html">中文教程</a></li>
+<li><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000000533969">scrapy五大模块</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2016-09-11/scrapy-start/" title="scrapy学习笔记">http://zhengbomo.github.io/2016-09-11/scrapy-start/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/scrapy/" rel="tag"># scrapy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016-09-11/sqlalchemy-start/" rel="prev" title="sqlalchemy学习笔记">
+      <i class="fa fa-chevron-left"></i> sqlalchemy学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016-09-21/book-2016/" rel="next" title="2016学习书单">
+      2016学习书单 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">一、安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-linux%E4%B8%8B%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.</span> <span class="nav-text">1. linux下安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Mac%E4%B8%8B%E5%AE%89%E8%A3%85"><span class="nav-number">1.2.</span> <span class="nav-text">2. Mac下安装</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">二、基本使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96scrapy%E9%A1%B9%E7%9B%AE"><span class="nav-number">2.1.</span> <span class="nav-text">1. 初始化scrapy项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%80%9A%E8%BF%87%E4%BB%A3%E7%A0%81%E8%BF%90%E8%A1%8C%E7%88%AC%E8%99%AB"><span class="nav-number">2.2.</span> <span class="nav-text">2. 通过代码运行爬虫</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Scrapy%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">三、Scrapy类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%B8%B8%E7%94%A8%E5%B1%9E%E6%80%A7%E4%B8%8E%E6%96%B9%E6%B3%95"><span class="nav-number">3.1.</span> <span class="nav-text">1. 常用属性与方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Request%E4%B8%8EResponse%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.2.</span> <span class="nav-text">2. Request与Response对象</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Selector"><span class="nav-number">4.</span> <span class="nav-text">四、Selector</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-XPath%E9%80%89%E6%8B%A9%E5%99%A8"><span class="nav-number">4.1.</span> <span class="nav-text">1. XPath选择器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-CSS%E9%80%89%E6%8B%A9%E5%99%A8"><span class="nav-number">4.2.</span> <span class="nav-text">2. CSS选择器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81Item%E7%B1%BB"><span class="nav-number">5.</span> <span class="nav-text">五、Item类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81Pipeline"><span class="nav-number">6.</span> <span class="nav-text">六、Pipeline</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81Rule"><span class="nav-number">7.</span> <span class="nav-text">七、Rule</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Rule%E5%AF%B9%E8%B1%A1"><span class="nav-number">7.1.</span> <span class="nav-text">1. Rule对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-LinkExtractor"><span class="nav-number">7.2.</span> <span class="nav-text">2. LinkExtractor</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81Middleware"><span class="nav-number">8.</span> <span class="nav-text">八、Middleware</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-SpiderMiddleware"><span class="nav-number">8.1.</span> <span class="nav-text">1. SpiderMiddleware</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-DownloaderMiddleware"><span class="nav-number">8.2.</span> <span class="nav-text">2. DownloaderMiddleware</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">8.3.</span> <span class="nav-text">3. 代理服务器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E7%BC%93%E5%AD%98"><span class="nav-number">9.</span> <span class="nav-text">九、缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="nav-number">10.</span> <span class="nav-text">十、多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-number">11.</span> <span class="nav-text">十一、常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%A1%B9%E7%9B%AE%E5%90%8D%E7%A7%B0%E9%97%AE%E9%A2%98"><span class="nav-number">11.1.</span> <span class="nav-text">1. 项目名称问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%B8%BA%E6%AF%8F%E4%B8%AApipeline%E9%85%8D%E7%BD%AEspider"><span class="nav-number">11.2.</span> <span class="nav-text">2. 为每个pipeline配置spider</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%8E%B7%E5%8F%96%E6%8F%90%E5%8F%96%E9%93%BE%E6%8E%A5%E7%9A%84%E8%8A%82%E7%82%B9%E4%BF%A1%E6%81%AF"><span class="nav-number">11.3.</span> <span class="nav-text">3. 获取提取链接的节点信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E8%AF%BB%E5%8F%96urls"><span class="nav-number">11.4.</span> <span class="nav-text">4. 从数据库中读取urls</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%BE%AA%E7%8E%AF%E7%88%AC%E5%8F%96"><span class="nav-number">11.5.</span> <span class="nav-text">5. 如何进行循环爬取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%85%B3%E4%BA%8E%E5%8E%BB%E9%87%8D"><span class="nav-number">11.6.</span> <span class="nav-text">6. 关于去重</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E5%A6%82%E4%BD%95%E5%9C%A8Pipeline%E4%B8%AD%E5%A4%84%E7%90%86%E4%B8%8D%E5%90%8C%E7%9A%84Item"><span class="nav-number">11.7.</span> <span class="nav-text">7. 如何在Pipeline中处理不同的Item</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-url%E6%8C%89%E9%A1%BA%E5%BA%8F%E6%89%A7%E8%A1%8C"><span class="nav-number">11.8.</span> <span class="nav-text">8. url按顺序执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">12.</span> <span class="nav-text">十二、总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%89%E3%80%81%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">13.</span> <span class="nav-text">十三、参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

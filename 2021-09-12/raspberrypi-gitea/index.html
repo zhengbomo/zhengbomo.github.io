@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="最近git项目多了一些比较大的文件（数据库），第三方服务器的lfs基本都要收费，所以考虑自己搭建一个git服务器存放代码，关于git服务器有gitea，gitlab，gitlab功能太多，个人使用很多用不到，而且内存占用高，而gitea相对简洁，功能够用，选择gitea">
+<meta property="og:type" content="article">
+<meta property="og:title" content="（六）树莓派4B安装gitea">
+<meta property="og:url" content="http://zhengbomo.github.io/2021-09-12/raspberrypi-gitea/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="最近git项目多了一些比较大的文件（数据库），第三方服务器的lfs基本都要收费，所以考虑自己搭建一个git服务器存放代码，关于git服务器有gitea，gitlab，gitlab功能太多，个人使用很多用不到，而且内存占用高，而gitea相对简洁，功能够用，选择gitea">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/raspberrypi/gitea_init.png">
+<meta property="article:published_time" content="2021-09-12T08:56:54.000Z">
+<meta property="article:modified_time" content="2021-09-12T08:56:54.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="树莓派">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/raspberrypi/gitea_init.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2021-09-12/raspberrypi-gitea/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>（六）树莓派4B安装gitea | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2021-09-12/raspberrypi-gitea/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          （六）树莓派4B安装gitea
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-12 16:56:54" itemprop="dateCreated datePublished" datetime="2021-09-12T16:56:54+08:00">2021-09-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A0%91%E8%8E%93%E6%B4%BE/" itemprop="url" rel="index"><span itemprop="name">树莓派</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近git项目多了一些比较大的文件（数据库），第三方服务器的lfs基本都要收费，所以考虑自己搭建一个git服务器存放代码，关于git服务器有<code>gitea</code>，<code>gitlab</code>，gitlab功能太多，个人使用很多用不到，而且内存占用高，而gitea相对简洁，功能够用，选择gitea</p>
+<span id="more"></span>
+
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载gitea</span></span><br><span class="line">wget -O gitea https://dl.gitea.io/gitea/1.17.2/gitea-1.17.2-linux-arm64</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加权限</span></span><br><span class="line"><span class="built_in">chmod</span> +x gitea</span><br></pre></td></tr></table></figure>
+
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>指定端口为<code>8899</code></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./gitea web -p 8899</span><br></pre></td></tr></table></figure>
+
+<p>访问<code>http://192.168.2.11:8899</code>就能进入gitea</p>
+<img src="/images/post/raspberrypi/gitea_init.png" class="" width="600">
+
+<p>由于是自己用，我这里选择SQLite，配置完成后，会跳转到<code>http://localhost:3000/user/login</code>，由于服务在树莓派上，我们需要把localhost改为树莓派的地址，配置完成后会<code>custom/conf/app.ini</code>生成配置文件，我们需要吧localhost换成对应的地址，如果绑定了域名，可以换成域名</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">APP_NAME</span> = Gitea: Git with a cup of tea</span><br><span class="line"><span class="attr">RUN_USER</span> = ubuntu</span><br><span class="line"><span class="attr">RUN_MODE</span> = prod</span><br><span class="line"></span><br><span class="line"><span class="section">[server]</span></span><br><span class="line"><span class="attr">LOCAL_ROOT_URL</span>   = http://<span class="number">192.168</span>.<span class="number">2.11</span>:<span class="number">8899</span>/</span><br><span class="line"><span class="attr">SSH_DOMAIN</span>       = <span class="number">192.168</span>.<span class="number">2.11</span></span><br><span class="line"><span class="attr">DOMAIN</span>           = <span class="number">192.168</span>.<span class="number">2.11</span></span><br><span class="line"><span class="attr">HTTP_PORT</span>        = <span class="number">8899</span></span><br><span class="line"><span class="attr">ROOT_URL</span>         = http://<span class="number">192.168</span>.<span class="number">2.11</span>:<span class="number">8899</span>/</span><br><span class="line"><span class="attr">DISABLE_SSH</span>      = <span class="literal">false</span></span><br><span class="line"><span class="attr">SSH_PORT</span>         = <span class="number">22222</span></span><br><span class="line"><span class="attr">LFS_START_SERVER</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">LFS_JWT_SECRET</span>   = JU6s1q1kgPVDIIKHRzsUkjJ5HgUSBknJGN7FyKf-hgY</span><br><span class="line"><span class="attr">OFFLINE_MODE</span>     = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="section">[database]</span></span><br><span class="line"><span class="attr">DB_TYPE</span>  = sqlite3</span><br><span class="line"><span class="attr">HOST</span>     = <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">3306</span></span><br><span class="line"><span class="attr">NAME</span>     = gitea</span><br><span class="line"><span class="attr">USER</span>     = gitea</span><br><span class="line"><span class="attr">PASSWD</span>   =</span><br><span class="line"><span class="attr">SCHEMA</span>   =</span><br><span class="line"><span class="attr">SSL_MODE</span> = disable</span><br><span class="line"><span class="attr">CHARSET</span>  = utf8</span><br><span class="line"><span class="attr">PATH</span>     = /home/ubuntu/server/gitea/data/gitea.db</span><br><span class="line"><span class="attr">LOG_SQL</span>  = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="section">[repository]</span></span><br><span class="line"><span class="attr">ROOT</span> = /home/ubuntu/server/gitea/data/gitea-repositories</span><br><span class="line"></span><br><span class="line"><span class="section">[lfs]</span></span><br><span class="line"><span class="attr">PATH</span> = /home/ubuntu/server/gitea/data</span><br><span class="line"></span><br><span class="line"><span class="section">[mailer]</span></span><br><span class="line"><span class="attr">ENABLED</span> = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="section">[service]</span></span><br><span class="line"><span class="attr">REGISTER_EMAIL_CONFIRM</span>            = <span class="literal">false</span></span><br><span class="line"><span class="attr">ENABLE_NOTIFY_MAIL</span>                = <span class="literal">false</span></span><br><span class="line"><span class="attr">DISABLE_REGISTRATION</span>              = <span class="literal">false</span></span><br><span class="line"><span class="attr">ALLOW_ONLY_EXTERNAL_REGISTRATION</span>  = <span class="literal">false</span></span><br><span class="line"><span class="attr">ENABLE_CAPTCHA</span>                    = <span class="literal">false</span></span><br><span class="line"><span class="attr">REQUIRE_SIGNIN_VIEW</span>               = <span class="literal">false</span></span><br><span class="line"><span class="attr">DEFAULT_KEEP_EMAIL_PRIVATE</span>        = <span class="literal">false</span></span><br><span class="line"><span class="attr">DEFAULT_ALLOW_CREATE_ORGANIZATION</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">DEFAULT_ENABLE_TIMETRACKING</span>       = <span class="literal">true</span></span><br><span class="line"><span class="attr">NO_REPLY_ADDRESS</span>                  = noreply.localhost</span><br><span class="line"></span><br><span class="line"><span class="section">[picture]</span></span><br><span class="line"><span class="attr">DISABLE_GRAVATAR</span>        = <span class="literal">true</span></span><br><span class="line"><span class="attr">ENABLE_FEDERATED_AVATAR</span> = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="section">[openid]</span></span><br><span class="line"><span class="attr">ENABLE_OPENID_SIGNIN</span> = <span class="literal">false</span></span><br><span class="line"><span class="attr">ENABLE_OPENID_SIGNUP</span> = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="section">[session]</span></span><br><span class="line"><span class="attr">PROVIDER</span> = file</span><br><span class="line"></span><br><span class="line"><span class="section">[log]</span></span><br><span class="line"><span class="attr">MODE</span>      = console</span><br><span class="line"><span class="attr">LEVEL</span>     = info</span><br><span class="line"><span class="attr">ROOT_PATH</span> = /home/ubuntu/server/gitea/log</span><br><span class="line"><span class="attr">ROUTER</span>    = console</span><br><span class="line"></span><br><span class="line"><span class="section">[repository.pull-request]</span></span><br><span class="line"><span class="attr">DEFAULT_MERGE_STYLE</span> = merge</span><br><span class="line"></span><br><span class="line"><span class="section">[repository.signing]</span></span><br><span class="line"><span class="attr">DEFAULT_TRUST_MODEL</span> = committer</span><br><span class="line"></span><br><span class="line"><span class="section">[security]</span></span><br><span class="line"><span class="attr">INSTALL_LOCK</span>       = <span class="literal">true</span></span><br><span class="line"><span class="attr">INTERNAL_TOKEN</span>     = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE2NjQ3NjIwMDR9.C0b_xPSiljfhuDChyKTnzKuVtvSMjZsFSr31RxRZYLA</span><br><span class="line"><span class="attr">PASSWORD_HASH_ALGO</span> = pbkdf2</span><br></pre></td></tr></table></figure>
+
+<p>如果使用gitea内置的SSH服务器的话，需要添加<code>START_SSH_SERVER</code>开启服务</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[server]</span></span><br><span class="line">...</span><br><span class="line"><span class="attr">START_SSH_SERVER</span> = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="开机启动"><a href="#开机启动" class="headerlink" title="开机启动"></a>开机启动</h2><p>添加一个系统用户<code>gitea</code>用于执行<code>gitea</code></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建用户gitea，用户组为watchdog</span></span><br><span class="line">sudo adduser --system --ingroup watchdog --disabled-password --shell /bin/bash --no-create-home --gecos <span class="string">&#x27;Git Version Control&#x27;</span> gitea</span><br><span class="line"></span><br><span class="line"><span class="comment"># 给用户添加文件权限</span></span><br><span class="line">sudo <span class="built_in">chown</span> -R gitea:watchdog /home/ubuntu/server/gitea</span><br></pre></td></tr></table></figure>
+
+<p>添加开机启动脚本<code>/etc/systemd/system/gitea.service</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Gitea (Git with a cup of tea)</span><br><span class="line">After=syslog.target</span><br><span class="line">After=network.target</span><br><span class="line">#After=mysqld.service</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">RestartSec=2s</span><br><span class="line">User=gitea</span><br><span class="line">Group=watchdog</span><br><span class="line">UMask=0002</span><br><span class="line">WorkingDirectory=/home/ubuntu/server/gitea</span><br><span class="line">ExecStart=/home/ubuntu/server/gitea/gitea -c /home/ubuntu/server/gitea/custom/conf/app.ini -p 8899</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p>开机启动</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 重新加载配置文件</span></span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开机启动</span></span><br><span class="line">sudo systemctl <span class="built_in">enable</span> gitea</span><br><span class="line"><span class="comment"># 关闭开机启动</span></span><br><span class="line">sudo systemctl <span class="built_in">disable</span> gitea</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line">sudo systemctl start gitea</span><br><span class="line"><span class="comment"># 停止</span></span><br><span class="line">sudo systemctl stop gitea</span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">sudo systemctl restart gitea</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">sudo systemctl status gitea</span><br></pre></td></tr></table></figure>
+
+<p>接下来就可以直接在web页面玩耍了</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2021-09-12/raspberrypi-gitea/" title="（六）树莓派4B安装gitea">http://zhengbomo.github.io/2021-09-12/raspberrypi-gitea/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" rel="tag"># 树莓派</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021-09-08/raspberrypi-kodexplorer/" rel="prev" title="（五）树莓派安装可道云">
+      <i class="fa fa-chevron-left"></i> （五）树莓派安装可道云
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021-09-27/fanxing-build-optimize/" rel="next" title="xx直播编译优化(减少372.7s)">
+      xx直播编译优化(减少372.7s) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8"><span class="nav-number">2.</span> <span class="nav-text">启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E6%9C%BA%E5%90%AF%E5%8A%A8"><span class="nav-number">3.</span> <span class="nav-text">开机启动</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

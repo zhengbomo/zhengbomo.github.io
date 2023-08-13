@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="引用计数内存管理 所有的对象都存放在堆上，需要手动管理内存 iOS内存管理通过retainCount进行管理，通过引用计数+&#x2F;-1来控制内存的的声明周期，通常来说，我们在一个代码块中，我们会对需要用到的对象的引用计数+1，在离开代码块时，对引用计数-1，通过这种机制，我们只需要关心在我们的代码中需要的时候retain，不需要的时候release，而不用关心对象什么时候释放，当引用计数为0">
+<meta property="og:type" content="article">
+<meta property="og:title" content="block学习笔记">
+<meta property="og:url" content="http://zhengbomo.github.io/2017-07-03/block-start/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="引用计数内存管理 所有的对象都存放在堆上，需要手动管理内存 iOS内存管理通过retainCount进行管理，通过引用计数+&#x2F;-1来控制内存的的声明周期，通常来说，我们在一个代码块中，我们会对需要用到的对象的引用计数+1，在离开代码块时，对引用计数-1，通过这种机制，我们只需要关心在我们的代码中需要的时候retain，不需要的时候release，而不用关心对象什么时候释放，当引用计数为0">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-07-02T16:22:13.000Z">
+<meta property="article:modified_time" content="2017-07-02T16:22:13.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="block">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2017-07-03/block-start/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>block学习笔记 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2017-07-03/block-start/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          block学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-07-03 00:22:13" itemprop="dateCreated datePublished" datetime="2017-07-03T00:22:13+08:00">2017-07-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="引用计数内存管理"><a href="#引用计数内存管理" class="headerlink" title="引用计数内存管理"></a>引用计数内存管理</h2><ol>
+<li>所有的对象都存放在堆上，需要手动管理内存</li>
+<li>iOS内存管理通过retainCount进行管理，通过引用计数+&#x2F;-1来控制内存的的声明周期，通常来说，我们在一个代码块中，我们会对需要用到的对象的引用计数+1，在离开代码块时，对引用计数-1，通过这种机制，我们只需要关心在我们的代码中需要的时候retain，不需要的时候release，而不用关心对象什么时候释放，当引用计数为0，即之后再也没有对该内存的引用，对象内存就会被释放，这个由系统框架来做</li>
+</ol>
+<span id="more"></span>
+
+<h2 id="autorelease与runloop"><a href="#autorelease与runloop" class="headerlink" title="autorelease与runloop"></a>autorelease与runloop</h2><p>runloop在每一个调用周期（消息循环）外部都会添加一个<code>autoreleasepool</code>，对于<code>autorelease</code>的对象，并不是在离开作用域就马上释放的，而是在离开<code>autoreleasepool</code>的时候才被释放</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">weak</span>) <span class="built_in">NSArray</span> *array1;</span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">weak</span>) <span class="built_in">NSArray</span> *array2;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">IBAction</span>)btnClick:(<span class="type">id</span>)sender &#123;</span><br><span class="line">    [<span class="keyword">self</span> test];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, <span class="keyword">self</span>.array1);    <span class="comment">// 这里可以打印出来array1对象的值</span></span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, <span class="keyword">self</span>.array2);    <span class="comment">// 这里打印出来array2为nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="type">void</span>)test &#123;</span><br><span class="line">    <span class="keyword">self</span>.array1 = [<span class="built_in">NSMutableArray</span> arrayWithObjects:@<span class="number">1</span>, @<span class="number">2</span>, @<span class="number">3</span>, <span class="literal">nil</span>];</span><br><span class="line">    <span class="comment">// 1. self.array1指向的对象是用autorelease修饰的</span></span><br><span class="line">    <span class="comment">// 2. 虽然array使用weak修饰的，但是离开了test方法，array依然不会被释放，直到离开当前的autoreleasepool</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">NSMutableArray</span> *array = [[<span class="built_in">NSMutableArray</span> alloc] initWithObjects:@<span class="number">1</span>, @<span class="number">2</span>, @<span class="number">3</span>, <span class="literal">nil</span>];</span><br><span class="line">    <span class="keyword">self</span>.array2 = array;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="函数与block"><a href="#函数与block" class="headerlink" title="函数与block"></a>函数与block</h2><p>block就是对闭包的实现，block的本质其实就是函数，只是在函数的基础上加上了捕获变量列表<br>编译之后会变成一个结构体，包含捕获参数，和函数指针，后面我们看看block编译之后的代码</p>
+<h2 id="block的编译"><a href="#block的编译" class="headerlink" title="block的编译"></a>block的编译</h2><h3 id="1-不捕获变量"><a href="#1-不捕获变量" class="headerlink" title="1. 不捕获变量"></a>1. 不捕获变量</h3><p>先定义一个test.m文件</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> main() &#123;</span><br><span class="line">    <span class="type">void</span> (^blk)(<span class="type">void</span>) = ^&#123;</span><br><span class="line">        printf(<span class="string">&quot;Block\n&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    blk();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过clang命令生成预编译后的代码</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -rewrite-objc test.m</span><br></pre></td></tr></table></figure>
+
+<p>生成如下代码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// block类描述，相当于OC的类描述</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__block_impl</span> &#123;</span><br><span class="line">  <span class="type">void</span> *isa;</span><br><span class="line">  <span class="type">int</span> Flags;</span><br><span class="line">  <span class="type">int</span> Reserved;</span><br><span class="line">  <span class="type">void</span> *FuncPtr;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// block实现的结构体，可以看成__block_impl的子类</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__main_block_impl_0</span> &#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">__block_impl</span> impl;                     <span class="comment">// block类的描述</span></span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">__main_block_desc_0</span>* Desc;             <span class="comment">// block的描述</span></span><br><span class="line">  __main_block_impl_0(<span class="type">void</span> *fp, <span class="keyword">struct</span> __main_block_desc_0 *desc, <span class="type">int</span> flags=<span class="number">0</span>) &#123;        <span class="comment">// 结构体构造方法</span></span><br><span class="line">    impl.isa = &amp;_NSConcreteStackBlock;          <span class="comment">// block的类型，共有3种</span></span><br><span class="line">    impl.Flags = flags;</span><br><span class="line">    impl.FuncPtr = fp;                          <span class="comment">// block的实现，最后被赋值为block编译后的方法</span></span><br><span class="line">    Desc = desc;                                <span class="comment">// block描述</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// block的描述，描述block实现的结构体的大小（框架用，我们用不到）</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">struct</span> <span class="title class_">__main_block_desc_0</span> &#123;</span><br><span class="line">    <span class="type">size_t</span> reserved;</span><br><span class="line">    <span class="type">size_t</span> Block_size;</span><br><span class="line">&#125; __main_block_desc_0_DATA = &#123; <span class="number">0</span>, <span class="built_in">sizeof</span>(<span class="keyword">struct</span> __main_block_impl_0)&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// block方法实现</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __main_block_func_0(<span class="keyword">struct</span> __main_block_impl_0 *__cself) &#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Block\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 1. 构造block结构体__main_block_impl_0，并且结构体存放在栈上的</span></span><br><span class="line">  <span class="built_in">void</span> (*blk)(<span class="type">void</span>) = ((<span class="built_in">void</span> (*)())&amp;__main_block_impl_0((<span class="type">void</span> *)__main_block_func_0, &amp;__main_block_desc_0_DATA));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. 通过__main_block_impl_0.FuncPtr调用block指向的方法</span></span><br><span class="line">  ((<span class="built_in">void</span> (*)(__block_impl *))((__block_impl *)blk)-&gt;FuncPtr)((__block_impl *)blk);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，block被编译成一个静态方法，和一个block描述的结构体</p>
+<h3 id="2-捕获不可变变量"><a href="#2-捕获不可变变量" class="headerlink" title="2. 捕获不可变变量"></a>2. 捕获不可变变量</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#import <span class="string">&lt;Foundation/Foundation.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> main() &#123;</span><br><span class="line">    <span class="built_in">NSObject</span> *obj = [[<span class="built_in">NSObject</span> alloc] init];</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">void</span> (^blk)(<span class="type">void</span>) = ^&#123;</span><br><span class="line">        printf(<span class="string">&quot;Block：%d\n&quot;</span>, a);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, obj);</span><br><span class="line">    &#125;;</span><br><span class="line">    blk();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译之后的代码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// __block_impl 一样</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 生成的__main_block_impl_0多了一个捕获字段a和对象obj</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__main_block_impl_0</span> &#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">__block_impl</span> impl;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">__main_block_desc_0</span>* Desc;</span><br><span class="line">  <span class="type">int</span> a;</span><br><span class="line">  NSObject *obj;</span><br><span class="line">  __main_block_impl_0(<span class="type">void</span> *fp, <span class="keyword">struct</span> __main_block_desc_0 *desc, <span class="type">int</span> _a, NSObject *_obj, <span class="type">int</span> flags=<span class="number">0</span>) : <span class="built_in">a</span>(_a), <span class="built_in">obj</span>(_obj) &#123;</span><br><span class="line">    impl.isa = &amp;_NSConcreteStackBlock;</span><br><span class="line">    impl.Flags = flags;</span><br><span class="line">    impl.FuncPtr = fp;</span><br><span class="line">    Desc = desc;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// block的实现方法，通过__cself拿到捕获的变量</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __main_block_func_0(<span class="keyword">struct</span> __main_block_impl_0 *__cself) &#123;</span><br><span class="line">    <span class="comment">// 这里通过block捕获的结构体引用a字段</span></span><br><span class="line">    <span class="type">int</span> a = __cself-&gt;a; <span class="comment">// bound by copy</span></span><br><span class="line">    NSObject *obj = __cself-&gt;obj; <span class="comment">// bound by copy</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Block：%d\n&quot;</span>, a);</span><br><span class="line">    <span class="built_in">NSLog</span>((NSString *)&amp;__NSConstantStringImpl__var_folders_h8_fm423vjj5mlgb636xh5b44n80000gn_T_test_e9e5ff_mi_0, obj);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// block描述多了两个变量，copy和dispose方法，用于持有和释放block捕获的对象</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">struct</span> <span class="title class_">__main_block_desc_0</span> &#123;</span><br><span class="line">    <span class="type">size_t</span> reserved;</span><br><span class="line">    <span class="type">size_t</span> Block_size;</span><br><span class="line">    <span class="built_in">void</span> (*copy)(<span class="keyword">struct</span> __main_block_impl_0*, <span class="keyword">struct</span> __main_block_impl_0*);</span><br><span class="line">    <span class="built_in">void</span> (*dispose)(<span class="keyword">struct</span> __main_block_impl_0*);</span><br><span class="line">&#125; __main_block_desc_0_DATA = &#123; <span class="number">0</span>, <span class="built_in">sizeof</span>(<span class="keyword">struct</span> __main_block_impl_0), __main_block_copy_0, __main_block_dispose_0&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1. 声明自由变量</span></span><br><span class="line">    NSObject *obj = ((NSObject *(*)(id, SEL))(<span class="type">void</span> *)objc_msgSend)((id)((NSObject *(*)(id, SEL))(<span class="type">void</span> *)objc_msgSend)((id)<span class="built_in">objc_getClass</span>(<span class="string">&quot;NSObject&quot;</span>), <span class="built_in">sel_registerName</span>(<span class="string">&quot;alloc&quot;</span>)), <span class="built_in">sel_registerName</span>(<span class="string">&quot;init&quot;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 构造block结构体__main_block_impl_0，并且结构体存放在栈上</span></span><br><span class="line">    <span class="built_in">void</span> (*blk)(<span class="type">void</span>) = ((<span class="built_in">void</span> (*)())&amp;__main_block_impl_0((<span class="type">void</span> *)__main_block_func_0, &amp;__main_block_desc_0_DATA, a, obj, <span class="number">570425344</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 通过__main_block_impl_0.FuncPtr调用block指向的方法</span></span><br><span class="line">    ((<span class="built_in">void</span> (*)(__block_impl *))((__block_impl *)blk)-&gt;FuncPtr)((__block_impl *)blk);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里用到了一个对象<code>obj</code>，<code>__main_block_desc_0</code>多了两个方法（<code>__main_block_copy_0</code>, <code>__main_block_dispose_0</code>），用于持有和释放block捕获的对象，如果只有int，没有对对象的捕获，则不会生成这两个成员</p>
+<h3 id="3-捕获可变变量"><a href="#3-捕获可变变量" class="headerlink" title="3. 捕获可变变量"></a>3. 捕获可变变量</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> main() &#123;</span><br><span class="line">    __block <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">void</span> (^blk)(<span class="type">void</span>) = ^&#123;</span><br><span class="line">        printf(<span class="string">&quot;Block：%d\n&quot;</span>, a);</span><br><span class="line">    &#125;;</span><br><span class="line">    blk();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译后</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 新增一个结构体，对可变成员进行包装</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__Block_byref_a_0</span> &#123;</span><br><span class="line">    <span class="type">void</span> *__isa;</span><br><span class="line">    __Block_byref_a_0 *__forwarding;</span><br><span class="line">    <span class="type">int</span> __flags;</span><br><span class="line">    <span class="type">int</span> __size;</span><br><span class="line">    <span class="type">int</span> a;              <span class="comment">// 原来的成员</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// block实现，捕获的成员不是int a, 而是__Block_byref_a_0 *a, 其实就是`__block`修饰的成员包装成对象了</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__main_block_impl_0</span> &#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">__block_impl</span> impl;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">__main_block_desc_0</span>* Desc;</span><br><span class="line">    __Block_byref_a_0 *a; <span class="comment">// by ref                 // 这里是捕获的成员，与上面一样</span></span><br><span class="line">    __main_block_impl_0(<span class="type">void</span> *fp, <span class="keyword">struct</span> __main_block_desc_0 *desc, __Block_byref_a_0 *_a, <span class="type">int</span> flags=<span class="number">0</span>) : <span class="built_in">a</span>(_a-&gt;__forwarding) &#123;</span><br><span class="line">        impl.isa = &amp;_NSConcreteStackBlock;</span><br><span class="line">        impl.Flags = flags;</span><br><span class="line">        impl.FuncPtr = fp;</span><br><span class="line">        Desc = desc;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1. 创建__Block_byref_a_0包装原来的成员a</span></span><br><span class="line">    __attribute__((__blocks__(byref))) __Block_byref_a_0 a = &#123;(<span class="type">void</span>*)<span class="number">0</span>,(__Block_byref_a_0 *)&amp;a, <span class="number">0</span>, <span class="built_in">sizeof</span>(__Block_byref_a_0), <span class="number">10</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 同上面捕获的</span></span><br><span class="line">    <span class="built_in">void</span> (*blk)(<span class="type">void</span>) = ((<span class="built_in">void</span> (*)())&amp;__main_block_impl_0((<span class="type">void</span> *)__main_block_func_0, &amp;__main_block_desc_0_DATA, (__Block_byref_a_0 *)&amp;a, <span class="number">570425344</span>));</span><br><span class="line">    ((<span class="built_in">void</span> (*)(__block_impl *))((__block_impl *)blk)-&gt;FuncPtr)((__block_impl *)blk);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>block捕获可变对象其实与捕获普通变量一样，只是对原有变量包装成一个新的对象而已</p>
+<h3 id="4-捕获static变量"><a href="#4-捕获static变量" class="headerlink" title="4. 捕获static变量"></a>4. 捕获static变量</h3><p>这里例子就省了，直接上结论</p>
+<ol>
+<li>如果是局部static变量，block会当成普通局部变量一样处理，即会捕获该局部变量</li>
+<li>如果是全局static变量，block会直接使用该全局变量，不进行变量捕获处理</li>
+</ol>
+<h2 id="block类型"><a href="#block类型" class="headerlink" title="block类型"></a>block类型</h2><p>上面我们看到的block的实现<code>__main_block_impl_0</code>包含一个<code>_isa</code>字段，用于标识block的类型，block有三种类型</p>
+<ul>
+<li>_NSConcreteStackBlock：存放在Stack上</li>
+<li>_NSConcreteGlobalBlock：与全局变量一样，存放在全局区</li>
+<li>_NSConcreteMallocBlock：存放在堆上</li>
+</ul>
+<p>看下面三种代码</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="type">long</span> (^BlkSum)(<span class="type">int</span>, <span class="type">int</span>);</span><br><span class="line"></span><br><span class="line">BlkSum blk1 = ^ <span class="type">long</span> (<span class="type">int</span> a, <span class="type">int</span> b) &#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当block不捕获外部变量，就会被声明成__NSGlobalBlock</span></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;blk1 = %@&quot;</span>, blk1);              <span class="comment">// blk1 = &lt;__NSGlobalBlock__: 0xce3347d0&gt;</span></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;blk1 = %@&quot;</span>, [blk1 <span class="keyword">copy</span>]);       <span class="comment">// blk1 = &lt;__NSGlobalBlock__: 0xce3347d0&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> base = <span class="number">100</span>;</span><br><span class="line">BlkSum blk2 = ^ <span class="type">long</span> (<span class="type">int</span> a, <span class="type">int</span> b) &#123;</span><br><span class="line">    <span class="keyword">return</span> base + a + b;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当block捕获外部变量，就会被声明成__NSStackBlock__</span></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;blk2 = %@&quot;</span>, blk2);              <span class="comment">// blk2 = &lt;__NSStackBlock__: 0xbfffddf8&gt;</span></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;blk2 = %@&quot;</span>, [blk2 <span class="keyword">copy</span>]);       <span class="comment">// blk2 = &lt;__NSMallocBlock__: 0xbfffcef8&gt;</span></span><br><span class="line"></span><br><span class="line">BlkSum blk3 = [[blk2 <span class="keyword">copy</span>] autorelease];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;blk3 = %@&quot;</span>, blk3);              <span class="comment">// blk3 = &lt;__NSMallocBlock__: 0x902fda0&gt;</span></span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;blk3 = %@&quot;</span>, [blk3 <span class="keyword">copy</span>]);       <span class="comment">// blk3 = &lt;__NSMallocBlock__: 0x902fda0&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>当block存放在全局时，始终只有一份，调用copy&#x2F;retain&#x2F;release，返回的是同一个对象<br>当block存放在栈上时，如果进行copy，block会被拷贝到堆上，调用retain或release无效<br>当block存放在堆上时，如果进行copy&#x2F;retain&#x2F;release，内存管理与对象一样，引用计数+&#x2F;-1</p>
+<blockquote>
+<p>上面是MRC的行为，而在ARC上即使是block没有进行拷贝，也会被拷贝到堆上，所以在ARC上的block只有堆区和全局区，在ARC上，如果block会自动在需要的时候进行copy，如block作为返回值时，block作为参数传给另一个函数时</p>
+</blockquote>
+<h2 id="前向引用"><a href="#前向引用" class="headerlink" title="前向引用"></a>前向引用</h2><p>当我们在block使用可变变量<code>__block</code>的时候，编译器会生成<code>__Block_byref_a_0</code>内部有一个<code>__forwarding</code>字段指向自己</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">__Block_byref_a_0</span> &#123;</span><br><span class="line">    <span class="type">void</span> *__isa;</span><br><span class="line">    __Block_byref_a_0 *__forwarding;        <span class="comment">// 指向自己</span></span><br><span class="line">    <span class="type">int</span> __flags;</span><br><span class="line">    <span class="type">int</span> __size;</span><br><span class="line">    <span class="type">int</span> a;              <span class="comment">// 原来的成员</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>为什么要用一个变量指向自己，看下面这个例子</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    __block <span class="type">int</span> val = <span class="number">0</span>;</span><br><span class="line">    <span class="type">void</span> (^blk)(<span class="type">void</span>) = [^&#123;</span><br><span class="line">        ++val;</span><br><span class="line">    &#125; <span class="keyword">copy</span>];</span><br><span class="line">    ++val;</span><br><span class="line">    blk();</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;%d&quot;</span>, val);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据上面编译的代码，我们可以分析转换成的代码大致如下</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 1. 创建byref对象包装int val</span></span><br><span class="line">    __Block_byref_a_0 val;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 创建block对象__main_block_impl_0，这个时候block是存放在栈上的</span></span><br><span class="line">    __main_block_impl_0 blk = __main_block_impl_0(...)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 拷贝block，返回新的block，新的block存放在堆上</span></span><br><span class="line">    __main_block_impl_0 newBlk = _Block_copy(blk)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对变量＋1</span></span><br><span class="line">    ++(val-&gt;__forwarding-&gt;val)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用函数</span></span><br><span class="line">    newBlk-&gt;FuncP();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印</span></span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;%d&quot;</span>, val);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面有两个block（blk和newBlk）一个存放在栈上，一个存放在堆上<br>上面也有两个__Block_byref_a_0，当进行拷贝时，栈上的val也会被拷贝一份到堆上</p>
+<p>当离开函数作用域时，栈上的内存会被释放，所以当block从栈拷贝到堆上时，会把堆上变量的__forwarding指针，指向堆，故后面及时我们使用局部变量val，实际上内部使用的已经是拷贝到堆上的变量了，这时候和block内部使用的变量是统一变量</p>
+<h2 id="循环引用常见问题"><a href="#循环引用常见问题" class="headerlink" title="循环引用常见问题"></a>循环引用常见问题</h2><ul>
+<li>NSTimer：<a target="_blank" rel="noopener" href="https://blog.bombox.org/2017-05-08/nstimer-notes/">https://blog.bombox.org/2017-05-08/nstimer-notes/</a></li>
+<li>CADisplayLink: 注意事项和用法与NSTimer类似</li>
+<li>block：任何使用block的地方都需要考虑几个问题<ul>
+<li>是否造成循环引用</li>
+<li>对于异步操作是否因为强持有导致延后释放（例如网路请求）</li>
+<li>除了self，被self强持有的变量也会导致循环引用</li>
+<li>多层循环引用</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2017-07-03/block-start/" title="block学习笔记">http://zhengbomo.github.io/2017-07-03/block-start/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/block/" rel="tag"># block</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017-05-08/nstimer-notes/" rel="prev" title="NSTimer学习笔记">
+      <i class="fa fa-chevron-left"></i> NSTimer学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018-06-14/swift-generic/" rel="next" title="swift泛型笔记">
+      swift泛型笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">引用计数内存管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#autorelease%E4%B8%8Erunloop"><span class="nav-number">2.</span> <span class="nav-text">autorelease与runloop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E4%B8%8Eblock"><span class="nav-number">3.</span> <span class="nav-text">函数与block</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#block%E7%9A%84%E7%BC%96%E8%AF%91"><span class="nav-number">4.</span> <span class="nav-text">block的编译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8D%E6%8D%95%E8%8E%B7%E5%8F%98%E9%87%8F"><span class="nav-number">4.1.</span> <span class="nav-text">1. 不捕获变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%8D%95%E8%8E%B7%E4%B8%8D%E5%8F%AF%E5%8F%98%E5%8F%98%E9%87%8F"><span class="nav-number">4.2.</span> <span class="nav-text">2. 捕获不可变变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%8D%95%E8%8E%B7%E5%8F%AF%E5%8F%98%E5%8F%98%E9%87%8F"><span class="nav-number">4.3.</span> <span class="nav-text">3. 捕获可变变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%8D%95%E8%8E%B7static%E5%8F%98%E9%87%8F"><span class="nav-number">4.4.</span> <span class="nav-text">4. 捕获static变量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#block%E7%B1%BB%E5%9E%8B"><span class="nav-number">5.</span> <span class="nav-text">block类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E5%90%91%E5%BC%95%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">前向引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-number">7.</span> <span class="nav-text">循环引用常见问题</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

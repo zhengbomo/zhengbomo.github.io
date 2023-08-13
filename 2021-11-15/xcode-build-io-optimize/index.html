@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Xcode是增量编译的，所以日常开发很多时候，我们都是改少量的代码或不改代码而重复调试，实际使用发现，从工程要跑到手机上调试仍然非常耗时，由于缓存的存在，编译可能不是最耗时的环节了，这里探究和优化影响编译完成到App启动调试速度的因素。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Xcode调试链优化(速度提升50&amp;#37+)">
+<meta property="og:url" content="http://zhengbomo.github.io/2021-11-15/xcode-build-io-optimize/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="Xcode是增量编译的，所以日常开发很多时候，我们都是改少量的代码或不改代码而重复调试，实际使用发现，从工程要跑到手机上调试仍然非常耗时，由于缓存的存在，编译可能不是最耗时的环节了，这里探究和优化影响编译完成到App启动调试速度的因素。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcodebuildopt/xcode_build_review.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcodebuildopt/xcode_xcassets.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcodebuildopt/xcode_build_opt_tool.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcodebuildopt/xcode_io_time.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcodebuildopt/xcode_build_time.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcodebuildopt/xcode_macro_time.png">
+<meta property="article:published_time" content="2021-11-15T06:48:37.000Z">
+<meta property="article:modified_time" content="2021-11-15T06:48:37.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/xcodebuildopt/xcode_build_review.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2021-11-15/xcode-build-io-optimize/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Xcode调试链优化(速度提升50&#37+) | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2021-11-15/xcode-build-io-optimize/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Xcode调试链优化(速度提升50&#37+)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-15 14:48:37" itemprop="dateCreated datePublished" datetime="2021-11-15T14:48:37+08:00">2021-11-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Xcode是增量编译的，所以日常开发很多时候，我们都是改少量的代码或不改代码而重复调试，实际使用发现，从工程要跑到手机上调试仍然非常耗时，由于缓存的存在，编译可能不是最耗时的环节了，这里探究和优化影响<code>编译完成</code>到<code>App启动调试</code>速度的因素。</p>
+<span id="more"></span>
+
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>这里只考虑DEBUG包，我们看一张Xcode打包日志细节图</p>
+<img src="/images/post/xcodebuildopt/xcode_build_review.png" class="" width="600" title="Xcode编译时间">
+
+<p>上图选中的为主要耗时的步骤，可以看出，编译成功后，还有下面步骤较为耗时</p>
+<ul>
+<li>Linking</li>
+<li>Embed Pod Frameworks</li>
+<li>Copy Pods Resources</li>
+<li>Custom Script（这里为自定义脚本，主要用于资源处理）</li>
+<li>Sign</li>
+</ul>
+<blockquote>
+<p>还有一个较为耗时的时间是<code>Deploy</code>，但Xcode并不没有输出Deploy的时间，后面使用<code>ideviceinstaller</code>工具单独测试，时间总体上与Xcode基本一致</p>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装</span></span><br><span class="line"><span class="comment"># brew install ideviceinstaller</span></span><br><span class="line"></span><br><span class="line">begin=`<span class="built_in">date</span> <span class="string">&#x27;+%s&#x27;</span>`</span><br><span class="line"><span class="comment"># 这里直接拿编译好的app文件安装即可</span></span><br><span class="line">ideviceinstaller -i <span class="string">&#x27;xxx.ipa&#x27;</span></span><br><span class="line">end=`<span class="built_in">date</span> <span class="string">&#x27;+%s&#x27;</span>`</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算时间差，单位s</span></span><br><span class="line"><span class="built_in">expr</span> <span class="variable">$begin</span> - <span class="variable">$end</span></span><br></pre></td></tr></table></figure>
+
+<p>分析</p>
+<ol>
+<li>Linking: 合并静态资源与地址修正，考虑使用第三方更快的link工具<code>zld</code></li>
+<li>Embed Pod Frameworks: 主要是处理动态库，拷贝到目标路径，主要影响是<code>动态库文件数量</code></li>
+<li>Copy Pods Resources: 主要对文件资源拷贝，主要影响是<code>文件IO</code></li>
+<li>Custom Script：这里是自定义脚本，主要是的图片文件的处理，主要是对图片文件进行展开，文件多则<code>文件IO</code>耗时长</li>
+<li>Sign：对整个包签名，主要影响是文件数量和大小，文件多则<code>文件IO</code>耗时长</li>
+<li>Deploy：主要是拷贝文件和签名校验，主要影响是文件数量，文件多则<code>文件IO</code>耗时长，文件大小影响首次安装，而二次安装会做差异拷贝，有缓存，影响会减小</li>
+</ol>
+<p>有上面可以看出，减少IO操作是一个可行的优化方向，项目中的图片资源是放到根目录的，由于项目中用到的图片非常多，直接使用目录管理，并且使用<code>Custom Script</code>脚本单独处理图片，把图片拷贝到包的根目录上，查看<code>xx直播</code>在编译完成后的包，总文件数为<code>9297</code>个, 其中<code>8821</code>个为图片，占<code>95%</code>，文件数量占比大，这意味着每次都要进行大量的IO操作，如果能减少文件的数量，就能减少整个流程的时间</p>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><h3 id="关于IO问题"><a href="#关于IO问题" class="headerlink" title="关于IO问题"></a>关于IO问题</h3><p>对于图片，我们知道除了可以放到根目录，还有可以放到<code>Images.xcassets</code>，放到<code>Images.xcassets</code>的图片最终会被编译成<code>Assets.car</code>，这里考虑把png和jpg图片提前制作成<code>Assets.car</code>，在日常开发迭代过程中，项目中用到的图片不会频繁的变动，这里我们考虑提前把图片做成<code>Assets.car</code>，如果有变动，再重新编译一次，操作步骤如下</p>
+<ol>
+<li>如果项目已经存在<code>Images.xcassets</code>，则拷贝一份出来，在它的基础上添加图片</li>
+<li>通过工具把所有图片构造成<code>xxx.imageset</code>，放到<code>Images.xcassets</code>里面，如</li>
+</ol>
+<p>把<code>bottom_logo@2x.png</code>和<code>bottom_logo@3x.png</code>构造成下面目录结构</p>
+<pre><code><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">├── bottom_logo.imageset</span><br><span class="line">│   ├── Contents.json</span><br><span class="line">│   ├── bottom_logo@2x.png</span><br><span class="line">│   └── bottom_logo@3x.png</span><br></pre></td></tr></table></figure>
+</code></pre>
+<p>其中<code>Content.json</code>为</p>
+<pre><code><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;images&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;idiom&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;universal&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;filename&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;bottom_logo@2x.png&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;scale&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;2x&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;idiom&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;universal&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;filename&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;bottom_logo@3x.png&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;scale&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;3x&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;info&quot;</span> <span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;version&quot;</span> <span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;author&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;xcode&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+<ol start="2">
+<li>使用<code>actool</code>编译<code>Images.xcassets</code></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 输入</span></span><br><span class="line">xcassetPath=<span class="string">&quot;path/to/Images.xcassets&quot;</span></span><br><span class="line"><span class="comment"># 输出文件夹</span></span><br><span class="line">outputPath=<span class="string">&quot;path/to/outputpath&quot;</span></span><br><span class="line"></span><br><span class="line">dependenciesPath=<span class="string">&quot;path/to/outputpath/dependenciesPath&quot;</span></span><br><span class="line">generatedInfoPath=<span class="string">&quot;path/to/outputpath/generatedInfoPath&quot;</span></span><br><span class="line"></span><br><span class="line">/usr/bin/actool                                             \</span><br><span class="line">      --output-format <span class="string">&quot;human-readable-text&quot;</span>                 \</span><br><span class="line">      --notices                                             \</span><br><span class="line">      --export-dependency-info <span class="string">&quot;<span class="variable">$dependenciesPath</span>&quot;</span>          \</span><br><span class="line">      --output-partial-info-plist <span class="string">&quot;<span class="variable">$generatedInfoPath</span>&quot;</span>      \</span><br><span class="line">      --app-icon <span class="string">&quot;AppIcon&quot;</span>                                  \</span><br><span class="line">      --compress-pngs                                       \</span><br><span class="line">      --enable-on-demand-resources <span class="string">&quot;YES&quot;</span>                    \</span><br><span class="line">      --development-region <span class="string">&quot;English&quot;</span>                        \</span><br><span class="line">      --target-device <span class="string">&quot;iphone&quot;</span>                              \</span><br><span class="line">      --minimum-deployment-target <span class="string">&quot;9.0&quot;</span>                     \</span><br><span class="line">      --platform <span class="string">&quot;iphoneos&quot;</span>                                 \</span><br><span class="line">      --compile <span class="string">&quot;<span class="variable">$outputPath</span>&quot;</span> <span class="string">&quot;<span class="variable">$xcassetPath</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>编译后得到<code>Assets.car</code></p>
+<ol start="3">
+<li>由于<code>Images.xcassets</code>已经编译好了，去掉工程对<code>Images.xcassets</code>的引用，并且把编译好的<code>Assets.car</code>引入工程，上面我们只把<code>jpg/png</code>图片编译进了<code>Assets.car</code>，对于其他文件（不多），这里我通过工具单独引入工程</li>
+</ol>
+<img src="/images/post/xcodebuildopt/xcode_xcassets.png" class="" width="800">
+
+<ol start="4">
+<li>把<code>Run Script</code>中的图片拷贝去掉，我这里的是去掉<code>Pods-xxx-resources.sh</code>文件中对图片资源的引用</li>
+</ol>
+<p>经过上面一番处理后，重新测试，数据对比如下</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>优化前</th>
+<th>优化后</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Copy Pod Resources</td>
+<td>11s</td>
+<td>0.1s（减少97%）</td>
+</tr>
+<tr>
+<td>Run Custom Script</td>
+<td>32.5</td>
+<td>0s(减少100%)</td>
+</tr>
+<tr>
+<td>Sign</td>
+<td>4.5</td>
+<td>2.5s（减少45%）</td>
+</tr>
+</tbody></table>
+<p>从上面的测试结果来看，速度提升效果显著</p>
+<blockquote>
+<p>因为优化后的方案有前置处理时间，需要把编译图片为<code>Assets.car</code>，这个时间没算上，上面的对比仅供参考</p>
+</blockquote>
+<p>需要注意的是，<code>Assets.car</code>的图片只能通过<code>UIImage.named(&quot;xxx&quot;)</code>读取，如果项目中是通过路径</p>
+<p>上面的操作过于繁琐，这里我写了一个工具进行处理【一键操作】</p>
+<img src="/images/post/xcodebuildopt/xcode_build_opt_tool.png" class="" width="800">
+
+<h3 id="关于Linking"><a href="#关于Linking" class="headerlink" title="关于Linking"></a>关于Linking</h3><p>有一个第三方的linking工具<a target="_blank" rel="noopener" href="https://github.com/michaeleisel/zld">zld</a>，优化的缓存策略，在<code>Other Linker Flag</code>添加<code>-fuse-ld=&#39;/path/to/zld&#39; -Wl,-zld_original_ld_path,$(DT_TOOLCHAIN_DIR)/usr/bin/ld</code>即可</p>
+<p>经测试，Linking时间从<code>15s</code>减少到<code>10.1s</code>，减少了<code>32%</code></p>
+<h3 id="关于CodeSign"><a href="#关于CodeSign" class="headerlink" title="关于CodeSign"></a>关于CodeSign</h3><ol>
+<li><p>Xcode默认使用<code>SHA-256</code>签名，我们可以改成更快的<code>SHA-1</code>，由于只是本地开发调试使用，不会有安全性问题，在<code>Other Code Signing Flags</code>添加<code>--digest-algorithm=sha1</code></p>
+</li>
+<li><p>iOS校验签名只会二进制的签名，其他文件不签名也不会报错，可以通过过滤文件减少签名的文件，在<code>Other Code Signing Flags</code>添加<code>--resource-rules=/path/to/rule.plist</code>，<code>rule.plist</code>文件如下</p>
+ <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>rules<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">key</span>&gt;</span>.*<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">false</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>上面处理并不会影响正常开发，通过上面处理编译后的包<code>_CodeSignature/CodeResources</code>文件从<code>2.88 MB</code>减少到<code>589 Byte</code>，减少了<code>99.98%</code><br>Sign时间从<code>2.2s</code>减少到<code>0.5s</code>，减少了<code>77%</code></p>
+<h3 id="关于Deploy"><a href="#关于Deploy" class="headerlink" title="关于Deploy"></a>关于Deploy</h3><p>由于<code>APFS</code>的特性，相同的文件不会深拷贝，省去拷贝的时间，由于文件数量大大减少，IO次数也大幅提高，如果不改动文件的话，基本可以达到秒启动，由于Xcode没有输出安装所有的时间，这里使用<code>ideviceinstaller</code>进行测试，这里把优化前后打出来的<code>xxx.app</code>安装到手机上（卸载），测试时间</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ideviceinstaller</span></span><br><span class="line"><span class="comment"># brew install -HEAD libimobiledevice</span></span><br><span class="line"></span><br><span class="line">ideviceinstaller -i xxx.ipa</span><br></pre></td></tr></table></figure>
+
+<p>优化前：<code>40s</code>，优化后：<code>18s</code>，时间减少了<code>55%</code></p>
+<h2 id="综合统计"><a href="#综合统计" class="headerlink" title="综合统计"></a>综合统计</h2><h3 id="微观统计"><a href="#微观统计" class="headerlink" title="微观统计"></a>微观统计</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>优化前</th>
+<th>优化后</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Linking</td>
+<td>15s</td>
+<td>10.1s（下降32%）</td>
+</tr>
+<tr>
+<td>Copy Pod Resources</td>
+<td>11s</td>
+<td>0.1（减少97%）</td>
+</tr>
+<tr>
+<td>Run Custom Script</td>
+<td>32.5s</td>
+<td>0（下降100%)）</td>
+</tr>
+<tr>
+<td>Sign</td>
+<td>2.2s</td>
+<td>0.5s（下降77%）</td>
+</tr>
+<tr>
+<td>Deploy</td>
+<td>40s</td>
+<td>18s（下降55%）</td>
+</tr>
+<tr>
+<td>汇总</td>
+<td>100.7s</td>
+<td>28.7s（下降71%）</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>数据来源：Xcode编译日志</p>
+</blockquote>
+<img src="/images/post/xcodebuildopt/xcode_io_time.png" class="">
+
+
+<h3 id="宏观统计"><a href="#宏观统计" class="headerlink" title="宏观统计"></a>宏观统计</h3><p>为了减少编译时间的影响，工程中大多数组件都使用二进制库，数据来源为Xcode编译打包后显示的时间（不包含Deploy和Run），如下</p>
+<img src="/images/post/xcodebuildopt/xcode_build_time.png" class="" width="400">
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>首次</th>
+<th>二次（修改代码）</th>
+<th>二次（不改代码）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>优化前</td>
+<td>88.75s</td>
+<td>27.4s</td>
+<td>9.2s</td>
+</tr>
+<tr>
+<td>优化后</td>
+<td>37.35s</td>
+<td>14.2s</td>
+<td>2.2s</td>
+</tr>
+<tr>
+<td>对比</td>
+<td>减少58%</td>
+<td>减少48%</td>
+<td>减少76%</td>
+</tr>
+</tbody></table>
+ <img src="/images/post/xcodebuildopt/xcode_macro_time.png" class="">
+
+
+<blockquote>
+<p>测试设备：Mac Mini M1 16G</p>
+</blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>经过一段时间的使用，上面所有操作都是基于对开发效率的提升（for DEBUG），通过一些细节优化，可以把项目入侵降到最小，可以做到提高效率的同时，基本不影响日常开发</p>
+<p>市面上大多数App包里面都会带非常多图片资源，图片太多确实会影响调试性能，减少图片数量从而减少IO次数，提升开发体验明显</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2021-11-15/xcode-build-io-optimize/" title="Xcode调试链优化(速度提升50&amp;#37+)">http://zhengbomo.github.io/2021-11-15/xcode-build-io-optimize/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021-09-27/fanxing-build-optimize/" rel="prev" title="xx直播编译优化(减少372.7s)">
+      <i class="fa fa-chevron-left"></i> xx直播编译优化(减少372.7s)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8EIO%E9%97%AE%E9%A2%98"><span class="nav-number">2.1.</span> <span class="nav-text">关于IO问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8ELinking"><span class="nav-number">2.2.</span> <span class="nav-text">关于Linking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8ECodeSign"><span class="nav-number">2.3.</span> <span class="nav-text">关于CodeSign</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8EDeploy"><span class="nav-number">2.4.</span> <span class="nav-text">关于Deploy</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%BC%E5%90%88%E7%BB%9F%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">综合统计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E8%A7%82%E7%BB%9F%E8%AE%A1"><span class="nav-number">3.1.</span> <span class="nav-text">微观统计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8F%E8%A7%82%E7%BB%9F%E8%AE%A1"><span class="nav-number">3.2.</span> <span class="nav-text">宏观统计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

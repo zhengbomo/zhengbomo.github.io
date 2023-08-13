@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Xcode在生成库（.a或.framework）的时候，通常会生成两个版本，一个是用于真机的版本，一个是用于模拟器的版本  真机：armv7, armv7s, arm64架构 模拟器：i386, x86_64">
+<meta property="og:type" content="article">
+<meta property="og:title" content="合并和分离.a和.framework库">
+<meta property="og:url" content="http://zhengbomo.github.io/2016-04-29/merge-ios-lib/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="Xcode在生成库（.a或.framework）的时候，通常会生成两个版本，一个是用于真机的版本，一个是用于模拟器的版本  真机：armv7, armv7s, arm64架构 模拟器：i386, x86_64">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/73528845.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/37235497.jpg">
+<meta property="og:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/39574369.jpg">
+<meta property="article:published_time" content="2016-04-29T10:50:52.000Z">
+<meta property="article:modified_time" content="2016-04-29T10:51:41.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/73528845.jpg">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2016-04-29/merge-ios-lib/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>合并和分离.a和.framework库 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-04-29/merge-ios-lib/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          合并和分离.a和.framework库
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2016-04-29 18:50:52 / 修改时间：18:51:41" itemprop="dateCreated datePublished" datetime="2016-04-29T18:50:52+08:00">2016-04-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Xcode在生成库（.a或.framework）的时候，通常会生成两个版本，一个是用于真机的版本，一个是用于模拟器的版本</p>
+<ul>
+<li>真机：<code>armv7</code>, <code>armv7s</code>, <code>arm64</code>架构</li>
+<li>模拟器：<code>i386</code>, <code>x86_64</code></li>
+</ul>
+<span id="more"></span>
+
+<p>如果在库和项目在同一个工程中，通常会自动根据当前是模拟器还是真机自动引用相关的库文件</p>
+<p>在使用第三方库的时候通常只有一个.a库，这个库既能用于真机调试，又能用于模拟器调试，这个时候我们需要对不同的架构的库进行合并</p>
+<p>使用<code>lipo</code>对不同架构的库进行合并，在编译的时候会自动识别</p>
+<h2 id="一、-a库合并与拆分"><a href="#一、-a库合并与拆分" class="headerlink" title="一、.a库合并与拆分"></a>一、.a库合并与拆分</h2><p>例如有两个不同架构的库<code>liba-arm64.a</code>, <code>liba-i386.a</code></p>
+<ol>
+<li><p>查看库的架构信息</p>
+  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lipo -info liba-arm64.<span class="keyword">a</span></span><br><span class="line">input <span class="built_in">file</span> liba-arm64.<span class="keyword">a</span> is <span class="keyword">not</span> <span class="keyword">a</span> fat <span class="built_in">file</span></span><br><span class="line">Non-fat <span class="built_in">file</span>: liba-arm64.<span class="keyword">a</span> is architecture: arm64</span><br></pre></td></tr></table></figure>
+<p>  如果静态库支持多种架构，那么就是一个<code>fat file</code></p>
+</li>
+<li><p>合并两个库</p>
+  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lipo -<span class="built_in">create</span> liba-arm64.<span class="keyword">a</span> liba-i386.<span class="keyword">a</span> -output liba.<span class="keyword">a</span></span><br></pre></td></tr></table></figure>
+<p>  合并成<code>liba.a</code>到当前目录</p>
+</li>
+<li><p>抽取出<code>arm64</code>库</p>
+  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lipo liba.<span class="keyword">a</span> -thin arm64 -output liba-arm64.<span class="keyword">a</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="二、-Framework库合并与拆分"><a href="#二、-Framework库合并与拆分" class="headerlink" title="二、.Framework库合并与拆分"></a>二、.Framework库合并与拆分</h2><p>.framework库与.a库类似，只是.framework库可以包含Header和Bundle，其实相当于一个目录，所以操作的是里面的库文件，而不是<code>xxx.framework</code>文件</p>
+<p>例如有两个不同架构的库</p>
+<ul>
+<li><code>IJKMediaFramework_x86_64.framework</code></li>
+<li><code>IJKMediaFramework_arm64.framework</code></li>
+</ul>
+<ol>
+<li>查看.framework信息  <figure class="highlight vhdl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lipo -info IJKMediaFramework_arm64.framework/IJKMediaFramework</span><br><span class="line">input <span class="keyword">file</span> IJKMediaFramework_arm64.framework/IJKMediaFramework <span class="keyword">is</span> <span class="keyword">not</span> a fat <span class="keyword">file</span></span><br><span class="line">Non-fat <span class="keyword">file</span>: IJKMediaFramework_arm64.framework/IJKMediaFramework <span class="keyword">is</span> <span class="keyword">architecture</span>: arm64</span><br></pre></td></tr></table></figure></li>
+<li>合并库  <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lipo -create IJKMediaFramework_x86_64.framework<span class="regexp">/IJKMediaFramework IJKMediaFramework_arm64.framework/</span>IJKMediaFramework -output IJKMediaFramework</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>  得到通用的库<code>IJKMediaFramework</code>替换到<code>IJKMediaFramework_x86_64.framework/IJKMediaFramework</code>，这时候<code>IJKMediaFramework_x86_64.framework</code>就是通用framework</p>
+<ol start="3">
+<li>抽取出<code>arm64</code>库  <figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lipo IJKMediaFramework_x86_64.framework/IJKMediaFramework -thin x86_64 -<span class="keyword">output</span> IJKMediaFramework</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="三、xcode脚本自动合并库"><a href="#三、xcode脚本自动合并库" class="headerlink" title="三、xcode脚本自动合并库"></a>三、xcode脚本自动合并库</h2><p>如果是自己生成的库，有个技巧，xcode生成库的时候自动执行脚本完成合并的操作，需要选择真机和模拟器分别编译一遍</p>
+<p>在Build Phases添加Run Script<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/73528845.jpg"><br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/37235497.jpg"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编译的时候</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$&#123;ACTION&#125;</span>&quot;</span> = <span class="string">&quot;build&quot;</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成通用framework的目录</span></span><br><span class="line">INSTALL_DIR=<span class="variable">$&#123;SRCROOT&#125;</span>/Products/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line"></span><br><span class="line"><span class="comment"># 需要合并的framework</span></span><br><span class="line">DEVICE_DIR=<span class="variable">$&#123;BUILD_ROOT&#125;</span>/<span class="variable">$&#123;CONFIGURATION&#125;</span>-iphoneos/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line">SIMULATOR_DIR=<span class="variable">$&#123;BUILD_ROOT&#125;</span>/<span class="variable">$&#123;CONFIGURATION&#125;</span>-iphonesimulator/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果已经存在，则删除</span></span><br><span class="line"><span class="keyword">if</span> [ -d <span class="string">&quot;<span class="variable">$&#123;INSTALL_DIR&#125;</span>&quot;</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line"><span class="built_in">rm</span> -rf <span class="string">&quot;<span class="variable">$&#123;INSTALL_DIR&#125;</span>&quot;</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="string">&quot;<span class="variable">$&#123;INSTALL_DIR&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 拷贝Header到目标目录</span></span><br><span class="line"><span class="built_in">cp</span> -R <span class="string">&quot;<span class="variable">$&#123;DEVICE_DIR&#125;</span>/&quot;</span> <span class="string">&quot;<span class="variable">$&#123;INSTALL_DIR&#125;</span>/&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 合并framework</span></span><br><span class="line">lipo -create <span class="string">&quot;<span class="variable">$&#123;DEVICE_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>&quot;</span> <span class="string">&quot;<span class="variable">$&#123;SIMULATOR_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>&quot;</span> -output <span class="string">&quot;<span class="variable">$&#123;INSTALL_DIR&#125;</span>/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译完成后打开文件夹</span></span><br><span class="line"><span class="comment">#open &quot;$&#123;DEVICE_DIR&#125;&quot;</span></span><br><span class="line">open <span class="string">&quot;<span class="variable">$&#123;SRCROOT&#125;</span>/Products/<span class="variable">$&#123;PRODUCT_NAME&#125;</span>.framework&quot;</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<p>切换到Release模式，分别切换到模拟器和真机编译一次，编译完成后会自动打开输出文件夹，通过<code>lipo</code>命令查看<br><img src="http://7xqzvt.com1.z0.glb.clouddn.com/16-4-29/39574369.jpg"></p>
+<p>完成，接下来可以直接用了合并后的库了</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2016-04-29/merge-ios-lib/" title="合并和分离.a和.framework库">http://zhengbomo.github.io/2016-04-29/merge-ios-lib/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016-04-28/hexo-no-generate-categories-tags-index-page/" rel="prev" title="hexo不生成categories和tags的index页">
+      <i class="fa fa-chevron-left"></i> hexo不生成categories和tags的index页
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016-05-04/cocoapod-specs-start/" rel="next" title="为自己的库添加CocoaPods支持">
+      为自己的库添加CocoaPods支持 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81-a%E5%BA%93%E5%90%88%E5%B9%B6%E4%B8%8E%E6%8B%86%E5%88%86"><span class="nav-number">1.</span> <span class="nav-text">一、.a库合并与拆分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-Framework%E5%BA%93%E5%90%88%E5%B9%B6%E4%B8%8E%E6%8B%86%E5%88%86"><span class="nav-number">2.</span> <span class="nav-text">二、.Framework库合并与拆分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81xcode%E8%84%9A%E6%9C%AC%E8%87%AA%E5%8A%A8%E5%90%88%E5%B9%B6%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">三、xcode脚本自动合并库</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

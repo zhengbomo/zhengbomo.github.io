@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="所有的程序，最终编译为机器（汇编）代码，运行起来，本质都是操作CPU的寄存器和内存，了解了寄存器和内存的操作，就能知道程序具体做了什么">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初识ARM64汇编">
+<meta property="og:url" content="http://zhengbomo.github.io/2019-10-08/ios-arm64-asm/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="所有的程序，最终编译为机器（汇编）代码，运行起来，本质都是操作CPU的寄存器和内存，了解了寄存器和内存的操作，就能知道程序具体做了什么">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcode-show-register.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/pc-register.png">
+<meta property="article:published_time" content="2019-10-08T08:29:04.000Z">
+<meta property="article:modified_time" content="2019-10-08T08:29:04.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="ARM64">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/xcode-show-register.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2019-10-08/ios-arm64-asm/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>初识ARM64汇编 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-10-08/ios-arm64-asm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          初识ARM64汇编
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-10-08 16:29:04" itemprop="dateCreated datePublished" datetime="2019-10-08T16:29:04+08:00">2019-10-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>所有的程序，最终编译为机器（汇编）代码，运行起来，本质都是操作CPU的寄存器和内存，了解了寄存器和内存的操作，就能知道程序具体做了什么</p>
+<span id="more"></span>
+
+<p>汇编是依赖机器架构的，不同的CPU的指令不同</p>
+<p>iOS汇编</p>
+<ul>
+<li>真机：amr64，GNU 汇编</li>
+<li>模拟器：x86，AT&amp;T 汇编</li>
+</ul>
+<h2 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h2><p>CPU运行时用于临时存储的数据，都会放到寄存器中</p>
+<h3 id="通用寄存器-数据地址寄存器"><a href="#通用寄存器-数据地址寄存器" class="headerlink" title="通用寄存器(数据地址寄存器)"></a>通用寄存器(数据地址寄存器)</h3><p>主要用户存储临时数据，例如加法运算，地址操作等</p>
+<ul>
+<li>64bit 的：0x ~ x28，有29个寄存器</li>
+<li>32bit 的：w0 ~ w28（属于 x0 ~ x28的低32bit）</li>
+</ul>
+<blockquote>
+<p>其中 x0 ~ x7通常用来存放函数的参数，超过的食用堆栈来存放<br>x0 通常用来存放函数的返回值</p>
+</blockquote>
+<p>通过 lldb 存取寄存器</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取所有寄存器地址的值</span></span><br><span class="line">registe <span class="built_in">read</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取寄存器地址为x0的值</span></span><br><span class="line">registe <span class="built_in">read</span> x0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 向寄存器地址为x0写入值</span></span><br><span class="line">registe write x0 0x1100000000000011</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取寄存器x0的值</span></span><br><span class="line">registe <span class="built_in">read</span> x0</span><br><span class="line">    x0 = 0x1100000000000011</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取寄存器 w0的值(相当于取 x0 的低32bit)</span></span><br><span class="line">registe <span class="built_in">read</span> w0</span><br><span class="line">    x0 = 0x00000011</span><br></pre></td></tr></table></figure>
+
+<p>再xcode查看寄存器的值</p>
+<p><img src="/images/post/xcode-show-register.png" alt=" "></p>
+<h3 id="PC寄存器-program-counter"><a href="#PC寄存器-program-counter" class="headerlink" title="PC寄存器(program counter)"></a>PC寄存器(program counter)</h3><p>PC寄存器为指令指针寄存器，用于存放当前CPU要读取的指令的地址，PC寄存器指到哪，CPU执行到哪</p>
+<p><img src="/images/post/pc-register.png" alt=" "></p>
+<h3 id="SP寄存器（stack-pointer-registers）"><a href="#SP寄存器（stack-pointer-registers）" class="headerlink" title="SP寄存器（stack pointer registers）"></a>SP寄存器（stack pointer registers）</h3><p>是一个指向堆栈顶部的寄存器，通常用于为方法执行开辟空间和回收空间，进入方法入栈，离开方法出栈，例如下面</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Test`main:</span><br><span class="line">    0x100dc3f9c &lt;+0&gt;:  sub    sp, sp, #0x10             ; sp的指针往下移 0x10，开辟栈空间用于存放临时变量</span><br><span class="line">    0x100dc3fa0 &lt;+4&gt;:  str    wzr, [sp, #0xc]</span><br><span class="line">    0x100dc3fa4 &lt;+8&gt;:  str    w0, [sp, #0x8]</span><br><span class="line">    0x100dc3fa8 &lt;+12&gt;: str    x1, [sp]</span><br><span class="line">-&gt;  0x100dc3fac &lt;+16&gt;: mov    w0, #0x1</span><br><span class="line">    0x100dc3fb0 &lt;+20&gt;: add    sp, sp, #0x10             ; sp的指针往上移 0x10，回收栈空间</span><br><span class="line">    0x100dc3fb4 &lt;+24&gt;: ret</span><br></pre></td></tr></table></figure>
+
+<h3 id="CPSR状态寄存器（current-program-status-register）"><a href="#CPSR状态寄存器（current-program-status-register）" class="headerlink" title="CPSR状态寄存器（current program status register）"></a>CPSR状态寄存器（current program status register）</h3><p>CPSR是状态寄存器，用于存放程序运行中一些状态标识。其他寄存器是用来存放数据的，而CPSR寄存器是按位起作用的，它的每一位都有专门的含义，通常存放比较结果，溢出等信息，下面为C语言判断语句的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (a == <span class="number">10</span>) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;aa&quot;</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;bb&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对应的汇编代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"></span><br><span class="line">cmp    w8, #0xa                  ; =0xa                      ; 比较w8和#0xa的值，w8就是a，比较结果会放到CPSR寄存器中</span><br><span class="line">b.ne   0x104037f64               ; &lt;+60&gt; at main.m:16:9      ; 如果不等，则跳到 0x104037f64，通过CPSR的状态判断</span><br><span class="line"></span><br><span class="line">adrp   x0, 0</span><br><span class="line">add    x0, x0, #0xfb0            ; =0xfb0</span><br><span class="line">bl     0x104037f80               ; symbol stub for: printf</span><br><span class="line">b      0x104037f70               ; &lt;+72&gt; at main.m:18:1      ; 跳到 0x104037f70</span><br><span class="line"></span><br><span class="line">adrp   x0, 0</span><br><span class="line">add    x0, x0, #0xfb3            ; =0xfb3</span><br><span class="line">bl     0x104037f80               ; symbol stub for: printf</span><br><span class="line"></span><br><span class="line">ldur   w0, [x29, #-0x4]                                      ; 判断外</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="高速缓存"><a href="#高速缓存" class="headerlink" title="高速缓存"></a>高速缓存</h2><p>由于CPU读取指令需要从内存中读取，而内存的读写速度要远远低于寄存器的速度，为了拟补这里的时间差，通常CPU还会提供一个速度介于内存和寄存器的高速缓存，再程序运行前，会先将要执行的指令和数据提前读取到高速缓存中，而CPU从高速缓存中读取指令来执行</p>
+<h2 id="指令"><a href="#指令" class="headerlink" title="指令"></a>指令</h2><p>汇编使用<code>;</code>分号开头表示注释</p>
+<h3 id="函数定义"><a href="#函数定义" class="headerlink" title="函数定义"></a>函数定义</h3><p>声名 test 函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">; global 用于声明函数为公开的，可以被外部调用</span><br><span class="line">; 汇编语言的函数比上层函数多一个下划线（外部调用为 test），如果是内部使用的函数，可以不加下划线</span><br><span class="line">.global _test, _add, _sub</span><br><span class="line"></span><br><span class="line">_test:</span><br><span class="line">; 赋值操作: x0 = 0x8</span><br><span class="line">mov x0 #0x8</span><br><span class="line">; 赋值赋值: x1 = x0</span><br><span class="line">mov x1, x0</span><br><span class="line">; 函数返回: return</span><br><span class="line">ret</span><br></pre></td></tr></table></figure>
+
+<h3 id="mov：赋值操作"><a href="#mov：赋值操作" class="headerlink" title="mov：赋值操作"></a>mov：赋值操作</h3><p>mov指令只允许操作寄存器的，不允许直接操作内存</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">; 把 0x8 赋值给寄存器 x0</span><br><span class="line">mov x0, #0x8</span><br></pre></td></tr></table></figure>
+
+<h3 id="add-加法运算"><a href="#add-加法运算" class="headerlink" title="add: 加法运算"></a>add: 加法运算</h3><p>add只能对寄存器做加法，内存中的数据必须先放到寄存器中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">; x1 = x1 + x0</span><br><span class="line">add x1, x0</span><br></pre></td></tr></table></figure>
+
+<h3 id="sub：减法"><a href="#sub：减法" class="headerlink" title="sub：减法"></a>sub：减法</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">; sp的指针往下移 0x20</span><br><span class="line">sub    sp, sp, #0x20  </span><br><span class="line"></span><br><span class="line">; sp的指针往上移 0x20</span><br><span class="line">add    sp, sp, #0x20</span><br></pre></td></tr></table></figure>
+
+<h3 id="ret指令"><a href="#ret指令" class="headerlink" title="ret指令"></a>ret指令</h3><p>返回函数调用出，相当于c语言的return，与<code>bl</code>和<code>lr</code>配合使用，本质是将lr寄存器的值赋值给pc寄存器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ret</span><br></pre></td></tr></table></figure>
+
+<h3 id="cmp：比较两个数（减法）"><a href="#cmp：比较两个数（减法）" class="headerlink" title="cmp：比较两个数（减法）"></a>cmp：比较两个数（减法）</h3><p>比较结果会被放在 cpsr（程序状态寄存器里面），cpsr使用标识位控制</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov x0, #0x3</span><br><span class="line">mov x1, #0x2</span><br><span class="line">cmp x0, x1</span><br></pre></td></tr></table></figure>
+
+<h3 id="b跳转指令"><a href="#b跳转指令" class="headerlink" title="b跳转指令"></a>b跳转指令</h3><p>相当于 C 语言的 goto</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">; 直接跳到 mycode</span><br><span class="line">b mycode</span><br><span class="line">mov x0, #0x5</span><br><span class="line">mycode:</span><br><span class="line">mov x1, #0x6</span><br></pre></td></tr></table></figure>
+
+<p><code>b</code>指令可以带条件，通常跟 cmp 配合使用</p>
+<ul>
+<li>eq: 相等</li>
+<li>ne：不相等</li>
+<li>gt：大于</li>
+<li>lt：小于</li>
+<li>ge：大于或等于</li>
+<li>le：小于或等于</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mov x0, #0x1</span><br><span class="line">mov x1, #0x2</span><br><span class="line">; 比较 x0, x1</span><br><span class="line">cmp x0, x1</span><br><span class="line"></span><br><span class="line">; 如果x0 = x1就跳转</span><br><span class="line">beq mycode</span><br><span class="line">; 如果x0 &gt; x1则跳转</span><br><span class="line">bgt mycode</span><br></pre></td></tr></table></figure>
+
+<h3 id="bl指令"><a href="#bl指令" class="headerlink" title="bl指令"></a>bl指令</h3><p>可以带返回的跳转指令，跳转执行完成后会回到调用的地方继续往下执行，相当于函数调用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">privatecode:</span><br><span class="line">mov x0, #0x1</span><br><span class="line">mov x2, #0x2</span><br><span class="line">add x2, x0, x1</span><br><span class="line">ret</span><br><span class="line"></span><br><span class="line">_test:</span><br><span class="line">; 在 privatecode ret 之后，回继续走下面的语句，如果是 b 指令的话，不会走下面的语句</span><br><span class="line">bl privatecode</span><br><span class="line">mov x3, #0x2</span><br><span class="line">mov x4, #0x4</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>bl 会将吓一跳指令的地址存储到 lr（x30）寄存器中</p>
+</blockquote>
+<h3 id="ldr-x2F-ldur-x2F-ldp（从内存读取数据）"><a href="#ldr-x2F-ldur-x2F-ldp（从内存读取数据）" class="headerlink" title="ldr&#x2F;ldur&#x2F;ldp（从内存读取数据）"></a>ldr&#x2F;ldur&#x2F;ldp（从内存读取数据）</h3><p>如果偏移地址是正数，用<code>ldr</code>，如果是负数，用<code>ldur</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">; 从x1的地址中读取数据值到 x0 中</span><br><span class="line">ldr x0, [x1]</span><br><span class="line"></span><br><span class="line">; 从[x1 + 0x4]地址读取数据值到 x0 中</span><br><span class="line">ldr x0, [x1, #0x4]</span><br><span class="line"></span><br><span class="line">; 在上面的基础上，加上 x1 = x1 + 0x4 的操作，会改变 x1</span><br><span class="line">ldr x0, [x1, #0x4]!</span><br><span class="line"></span><br><span class="line">ldur x0, [x1, #-0x8]</span><br></pre></td></tr></table></figure>
+
+<p><code>ldp</code>，读取一对数据到（2个）寄存器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">; x1偏移0x4的地址分别读取4个字节到 w1 和 w2</span><br><span class="line">ldp w1, w2, [x1, #0x4]</span><br></pre></td></tr></table></figure>
+
+<h3 id="str-x2F-stur-x2F-stp（往内存写数据）"><a href="#str-x2F-stur-x2F-stp（往内存写数据）" class="headerlink" title="str&#x2F;stur&#x2F;stp（往内存写数据）"></a>str&#x2F;stur&#x2F;stp（往内存写数据）</h3><p>寄存器在左边，如果偏移地址是正数，用<code>str</code>，如果是负数，用<code>stur</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">; 把 w0的数据写到 x1的地址</span><br><span class="line">str w0, [x1, #0x5]</span><br><span class="line"></span><br><span class="line">stur w0, [x1, #-0x5]</span><br></pre></td></tr></table></figure>
+
+<p><code>stp</code>: 写入2个寄存器的数据到连续的内存</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">; x1偏移0x4的地址分别读取4个字节到 w1 和 w2</span><br><span class="line">stp w1, w2, [x1, #-0x5]!</span><br></pre></td></tr></table></figure>
+
+<h3 id="wzr-x2F-xzr（零寄存器）"><a href="#wzr-x2F-xzr（零寄存器）" class="headerlink" title="wzr&#x2F;xzr（零寄存器）"></a>wzr&#x2F;xzr（零寄存器）</h3><p>里面存储的值为0，不能在lldb中读&#x2F;写，表示清零操作（false, nil, 0）</p>
+<ul>
+<li>wzr（32bit）</li>
+<li>xzr（64bit）</li>
+</ul>
+<h3 id="lr寄存器"><a href="#lr寄存器" class="headerlink" title="lr寄存器"></a>lr寄存器</h3><p><code>lr</code>：存储函数的返回地址，与<code>bl</code>配合使用（bl执行跳转执行指令ret后，会回到调用的地方，就是根据lr存放的地址）</p>
+<h2 id="函数的分类"><a href="#函数的分类" class="headerlink" title="函数的分类"></a>函数的分类</h2><ul>
+<li>叶子函数：内部不再调用其他函数的函数，不用再开辟栈空间</li>
+<li>非叶子函数：函数内部会调用其他的函数</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2019-10-08/ios-arm64-asm/" title="初识ARM64汇编">http://zhengbomo.github.io/2019-10-08/ios-arm64-asm/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/ARM64/" rel="tag"># ARM64</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019-09-12/ios-mach-o/" rel="prev" title="【iOS逆向】Mach-O文件">
+      <i class="fa fa-chevron-left"></i> 【iOS逆向】Mach-O文件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019-10-10/make-cydia-source/" rel="next" title="搭建自己的Cydia源">
+      搭建自己的Cydia源 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8-%E6%95%B0%E6%8D%AE%E5%9C%B0%E5%9D%80%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">1.1.</span> <span class="nav-text">通用寄存器(数据地址寄存器)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PC%E5%AF%84%E5%AD%98%E5%99%A8-program-counter"><span class="nav-number">1.2.</span> <span class="nav-text">PC寄存器(program counter)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SP%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%88stack-pointer-registers%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">SP寄存器（stack pointer registers）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CPSR%E7%8A%B6%E6%80%81%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%88current-program-status-register%EF%BC%89"><span class="nav-number">1.4.</span> <span class="nav-text">CPSR状态寄存器（current program status register）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98"><span class="nav-number">2.</span> <span class="nav-text">高速缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">指令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%AE%9A%E4%B9%89"><span class="nav-number">3.1.</span> <span class="nav-text">函数定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mov%EF%BC%9A%E8%B5%8B%E5%80%BC%E6%93%8D%E4%BD%9C"><span class="nav-number">3.2.</span> <span class="nav-text">mov：赋值操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#add-%E5%8A%A0%E6%B3%95%E8%BF%90%E7%AE%97"><span class="nav-number">3.3.</span> <span class="nav-text">add: 加法运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sub%EF%BC%9A%E5%87%8F%E6%B3%95"><span class="nav-number">3.4.</span> <span class="nav-text">sub：减法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ret%E6%8C%87%E4%BB%A4"><span class="nav-number">3.5.</span> <span class="nav-text">ret指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cmp%EF%BC%9A%E6%AF%94%E8%BE%83%E4%B8%A4%E4%B8%AA%E6%95%B0%EF%BC%88%E5%87%8F%E6%B3%95%EF%BC%89"><span class="nav-number">3.6.</span> <span class="nav-text">cmp：比较两个数（减法）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b%E8%B7%B3%E8%BD%AC%E6%8C%87%E4%BB%A4"><span class="nav-number">3.7.</span> <span class="nav-text">b跳转指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bl%E6%8C%87%E4%BB%A4"><span class="nav-number">3.8.</span> <span class="nav-text">bl指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ldr-x2F-ldur-x2F-ldp%EF%BC%88%E4%BB%8E%E5%86%85%E5%AD%98%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE%EF%BC%89"><span class="nav-number">3.9.</span> <span class="nav-text">ldr&#x2F;ldur&#x2F;ldp（从内存读取数据）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#str-x2F-stur-x2F-stp%EF%BC%88%E5%BE%80%E5%86%85%E5%AD%98%E5%86%99%E6%95%B0%E6%8D%AE%EF%BC%89"><span class="nav-number">3.10.</span> <span class="nav-text">str&#x2F;stur&#x2F;stp（往内存写数据）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#wzr-x2F-xzr%EF%BC%88%E9%9B%B6%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%89"><span class="nav-number">3.11.</span> <span class="nav-text">wzr&#x2F;xzr（零寄存器）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lr%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">3.12.</span> <span class="nav-text">lr寄存器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E7%9A%84%E5%88%86%E7%B1%BB"><span class="nav-number">4.</span> <span class="nav-text">函数的分类</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

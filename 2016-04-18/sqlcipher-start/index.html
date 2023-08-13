@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="介绍使用SQLite数据库的时候，有时候对于数据库要求比较高，特别是在iOS8.3之前，未越狱的系统也可以通过工具拿到应用程序沙盒里面的文件，这个时候我们就可以考虑对SQLite数据库进行加密，这样就不用担心sqlite文件泄露了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQLCipher数据库加解密">
+<meta property="og:url" content="http://zhengbomo.github.io/2016-04-18/sqlcipher-start/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="介绍使用SQLite数据库的时候，有时候对于数据库要求比较高，特别是在iOS8.3之前，未越狱的系统也可以通过工具拿到应用程序沙盒里面的文件，这个时候我们就可以考虑对SQLite数据库进行加密，这样就不用担心sqlite文件泄露了">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-04-18T03:23:00.000Z">
+<meta property="article:modified_time" content="2023-06-11T03:02:51.859Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="SQLCipher">
+<meta property="article:tag" content="SQLite">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2016-04-18/sqlcipher-start/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SQLCipher数据库加解密 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-04-18/sqlcipher-start/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SQLCipher数据库加解密
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-04-18 11:23:00" itemprop="dateCreated datePublished" datetime="2016-04-18T11:23:00+08:00">2016-04-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-11 11:02:51" itemprop="dateModified" datetime="2023-06-11T11:02:51+08:00">2023-06-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>使用SQLite数据库的时候，有时候对于数据库要求比较高，特别是在iOS8.3之前，未越狱的系统也可以通过工具拿到应用程序沙盒里面的文件，这个时候我们就可以考虑对SQLite数据库进行加密，这样就不用担心sqlite文件泄露了</p>
+<span id="more"></span>
+
+<p>通常数据库加密一般有两种方式</p>
+<ol>
+<li>对所有数据进行加密</li>
+<li>对数据库文件加密</li>
+</ol>
+<blockquote>
+<p>第一种方式虽然加密了数据，但是并不完全，还是可以通过数据库查看到表结构等信息，并且对于数据库的数据，数据都是分散的，要对所有数据都进行加解密操作会严重影响性能，通常的做法是采取对文件加密的方式</p>
+</blockquote>
+<p>iOS 免费版的sqlite库并不提供了加密的功能，SQLite只提供了加密的接口，但并没有实现，iOS上支持的加密库有下面几种</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="http://www.hwaci.com/sw/sqlite/see.html">The SQLite Encryption Extension (SEE)</a></p>
+<ul>
+<li>收费，有以下几种加密方式<blockquote>
+<p>RC4<br>AES-128 in OFB mode<br>AES-128 in CCM mode<br>AES-256 in OFB mode</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://www.sqlite-encrypt.com/">SQLiteEncrypt</a></p>
+<ul>
+<li>收费，使用AES加密</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://sqlite-crypt.com/index.htm">SQLiteCrypt</a></p>
+<ul>
+<li>收费，使用256-bit AES加密</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://sqlcipher.net/">SQLCipher</a></p>
+<ul>
+<li>开源，托管在<a target="_blank" rel="noopener" href="https://github.com/sqlcipher/sqlcipher">github</a>上，实现了SQLite官方的加密接口，也加了一些新的接口，详情参见<a target="_blank" rel="noopener" href="https://www.zetetic.net/sqlcipher/sqlcipher-api/">这里</a></li>
+</ul>
+</li>
+</ul>
+<p>前三种都是收费的，SQLCipher是开源的，这里我们使用<a target="_blank" rel="noopener" href="https://www.zetetic.net/sqlcipher/">SQLCipher</a></p>
+<h2 id="集成"><a href="#集成" class="headerlink" title="集成"></a>集成</h2><p>如果你使用cocoapod的话就不需要自己配置了，为了方便，我们直接使用<a target="_blank" rel="noopener" href="https://github.com/ccgus/fmdb">FMDB</a>进行操作数据库，FMDB也支持SQLCipher</p>
+<blockquote>
+<p>pod ‘FMDB&#x2F;SQLCipher’, ‘~&gt; 2.6.2’</p>
+</blockquote>
+<h3 id="打开加密数据库"><a href="#打开加密数据库" class="headerlink" title="打开加密数据库"></a>打开加密数据库</h3><p>使用方式与原来的方式一样，只需要数据库open之后调用setKey设置一下秘钥即可<br>下面摘了一段FMDatabase的open函数，在sqlite3_open成功后调用setKey方法设置秘钥</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="type">BOOL</span>)open &#123;</span><br><span class="line">    <span class="keyword">if</span> (_db) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> err = sqlite3_open([<span class="keyword">self</span> sqlitePath], &amp;_db );</span><br><span class="line">    <span class="keyword">if</span>(err != SQLITE_OK) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;error opening!: %d&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NO</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//数据库open后设置加密key</span></span><br><span class="line">        [<span class="keyword">self</span> setKey:encryptKey_];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (_maxBusyRetryTimeInterval &gt; <span class="number">0.0</span>) &#123;</span><br><span class="line">        <span class="comment">// set the handler</span></span><br><span class="line">        [<span class="keyword">self</span> setMaxBusyRetryTimeInterval:_maxBusyRetryTimeInterval];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为了不修改FMDB的源代码，我们可以继承自FMDatabase类重写需要setKey的几个方法，这里我继承FMDatabase定义了一个 <code>FMEncryptDatabase</code> 类，提供打开加密文件的功能（具体定义见 <a target="_blank" rel="noopener" href="https://github.com/zhengbomo/sqlcipherDemo">Demo</a> ）</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">FMEncryptDatabase</span> : <span class="title">FMDatabase</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="keyword">instancetype</span>)databaseWithPath:(<span class="built_in">NSString</span>*)aPath encryptKey:(<span class="built_in">NSString</span> *)encryptKey;</span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithPath:(<span class="built_in">NSString</span>*)aPath encryptKey:(<span class="built_in">NSString</span> *)encryptKey;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<p>用法与FMDatabase一样，只是需要传入secretKey</p>
+<h2 id="SQLite数据库加解密"><a href="#SQLite数据库加解密" class="headerlink" title="SQLite数据库加解密"></a>SQLite数据库加解密</h2><p>SQLCipher提供了几个命令用于加解密操作</p>
+<h4 id="加密"><a href="#加密" class="headerlink" title="加密"></a>加密</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ./sqlcipher plaintext.db  </span><br><span class="line">sqlite&gt; ATTACH DATABASE &#x27;encrypted.db&#x27; AS encrypted KEY &#x27;testkey&#x27;;  </span><br><span class="line">sqlite&gt; SELECT sqlcipher_export(&#x27;encrypted&#x27;);  </span><br><span class="line">sqlite&gt; DETACH DATABASE encrypted;  </span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>打开非加密数据库</li>
+<li>创建一个新的加密的数据库附加到原数据库上</li>
+<li>导出数据到新数据库上</li>
+<li>卸载新数据库</li>
+</ol>
+<h4 id="解密"><a href="#解密" class="headerlink" title="解密"></a>解密</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ./sqlcipher encrypted.db  </span><br><span class="line">sqlite&gt; PRAGMA key = &#x27;testkey&#x27;;  </span><br><span class="line">sqlite&gt; ATTACH DATABASE &#x27;plaintext.db&#x27; AS plaintext KEY &#x27;&#x27;;  -- empty key will disable encryption</span><br><span class="line">sqlite&gt; SELECT sqlcipher_export(&#x27;plaintext&#x27;);  </span><br><span class="line">sqlite&gt; DETACH DATABASE plaintext;  </span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>打开加密数据库</li>
+<li>创建一个新的不加密的数据库附加到原数据库上</li>
+<li>导出数据到新数据库上</li>
+<li>卸载新数据库</li>
+</ol>
+<h3 id="代码操作"><a href="#代码操作" class="headerlink" title="代码操作"></a>代码操作</h3><pre><code class="objc">
+/** encrypt sqlite database to new file */
++ (BOOL)encryptDatabase:(NSString *)sourcePath targetPath:(NSString *)targetPath encryptKey:(NSString *)encryptKey
+&#123;
+    const char* sqlQ = [[NSString stringWithFormat:@&quot;ATTACH DATABASE &#39;%@&#39; AS encrypted KEY &#39;%@&#39;;&quot;, targetPath, encryptKey] UTF8String];
+
+    sqlite3 *unencrypted_DB;
+    if (sqlite3_open([sourcePath UTF8String], &amp;unencrypted_DB) == SQLITE_OK) &#123;
+        char *errmsg;
+        // Attach empty encrypted database to unencrypted database
+        sqlite3_exec(unencrypted_DB, sqlQ, NULL, NULL, &amp;errmsg);
+        if (errmsg) &#123;
+            NSLog(@&quot;%@&quot;, [NSString stringWithUTF8String:errmsg]);
+            sqlite3_close(unencrypted_DB);
+            return NO;
+        &#125;
+
+        // export database
+        sqlite3_exec(unencrypted_DB, &quot;SELECT sqlcipher_export(&#39;encrypted&#39;);&quot;, NULL, NULL, &amp;errmsg);
+        if (errmsg) &#123;
+            NSLog(@&quot;%@&quot;, [NSString stringWithUTF8String:errmsg]);
+            sqlite3_close(unencrypted_DB);
+            return NO;
+        &#125;
+
+        // Detach encrypted database
+        sqlite3_exec(unencrypted_DB, &quot;DETACH DATABASE encrypted;&quot;, NULL, NULL, &amp;errmsg);
+        if (errmsg) &#123;
+            NSLog(@&quot;%@&quot;, [NSString stringWithUTF8String:errmsg]);
+            sqlite3_close(unencrypted_DB);
+            return NO;
+        &#125;
+
+        sqlite3_close(unencrypted_DB);
+
+        return YES;
+    &#125;
+    else &#123;
+        sqlite3_close(unencrypted_DB);
+        NSAssert1(NO, @&quot;Failed to open database with message &#39;%s&#39;.&quot;, sqlite3_errmsg(unencrypted_DB));
+
+        return NO;
+    &#125;
+&#125;
+
+/** decrypt sqlite database to new file */
++ (BOOL)unEncryptDatabase:(NSString *)sourcePath targetPath:(NSString *)targetPath encryptKey:(NSString *)encryptKey
+&#123;
+    const char* sqlQ = [[NSString stringWithFormat:@&quot;ATTACH DATABASE &#39;%@&#39; AS plaintext KEY &#39;&#39;;&quot;, targetPath] UTF8String];
+
+    sqlite3 *encrypted_DB;
+    if (sqlite3_open([sourcePath UTF8String], &amp;encrypted_DB) == SQLITE_OK) &#123;
+
+
+        char* errmsg;
+
+        sqlite3_exec(encrypted_DB, [[NSString stringWithFormat:@&quot;PRAGMA key = &#39;%@&#39;;&quot;, encryptKey] UTF8String], NULL, NULL, &amp;errmsg);
+
+        // Attach empty unencrypted database to encrypted database
+        sqlite3_exec(encrypted_DB, sqlQ, NULL, NULL, &amp;errmsg);
+
+        if (errmsg) &#123;
+            NSLog(@&quot;%@&quot;, [NSString stringWithUTF8String:errmsg]);
+            sqlite3_close(encrypted_DB);
+            return NO;
+        &#125;
+
+        // export database
+        sqlite3_exec(encrypted_DB, &quot;SELECT sqlcipher_export(&#39;plaintext&#39;);&quot;, NULL, NULL, &amp;errmsg);
+        if (errmsg) &#123;
+            NSLog(@&quot;%@&quot;, [NSString stringWithUTF8String:errmsg]);
+            sqlite3_close(encrypted_DB);
+            return NO;
+        &#125;
+
+        // Detach unencrypted database
+        sqlite3_exec(encrypted_DB, &quot;DETACH DATABASE plaintext;&quot;, NULL, NULL, &amp;errmsg);
+        if (errmsg) &#123;
+            NSLog(@&quot;%@&quot;, [NSString stringWithUTF8String:errmsg]);
+            sqlite3_close(encrypted_DB);
+            return NO;
+        &#125;
+
+        sqlite3_close(encrypted_DB);
+
+        return YES;
+    &#125;
+    else &#123;
+        sqlite3_close(encrypted_DB);
+        NSAssert1(NO, @&quot;Failed to open database with message &#39;%s&#39;.&quot;, sqlite3_errmsg(encrypted_DB));
+
+        return NO;
+    &#125;
+&#125;
+
+/** change secretKey for sqlite database */
++ (BOOL)changeKey:(NSString *)dbPath originKey:(NSString *)originKey newKey:(NSString *)newKey
+&#123;
+    sqlite3 *encrypted_DB;
+    if (sqlite3_open([dbPath UTF8String], &amp;encrypted_DB) == SQLITE_OK) &#123;
+
+        sqlite3_exec(encrypted_DB, [[NSString stringWithFormat:@&quot;PRAGMA key = &#39;%@&#39;;&quot;, originKey] UTF8String], NULL, NULL, NULL);
+
+        sqlite3_exec(encrypted_DB, [[NSString stringWithFormat:@&quot;PRAGMA rekey = &#39;%@&#39;;&quot;, newKey] UTF8String], NULL, NULL, NULL);
+
+        sqlite3_close(encrypted_DB);
+        return YES;
+    &#125;
+    else &#123;
+        sqlite3_close(encrypted_DB);
+        NSAssert1(NO, @&quot;Failed to open database with message &#39;%s&#39;.&quot;, sqlite3_errmsg(encrypted_DB));
+
+        return NO;
+    &#125;
+&#125;
+</code></pre>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>SQLCipher使用起来还是很方便的，基本上不需要怎么配置，需要注意的是，尽量不要在操作过程中修改secretKey，否则，可能导致读不了数据，在使用第三方库的时候尽量不去修改源代码，可以通过扩展或继承的方式修改原来的行为，这样第三方库代码可以与官方保持一致，可以跟随官方版本升级，具体代码可以到我的<a target="_blank" rel="noopener" href="https://github.com/zhengbomo/sqlcipherDemo">github</a>上下载咯</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://www.cocoachina.com/industry/20140522/8517.html">http://www.cocoachina.com/industry/20140522/8517.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.zetetic.net/sqlcipher/">https://www.zetetic.net/sqlcipher/</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2016-04-18/sqlcipher-start/" title="SQLCipher数据库加解密">http://zhengbomo.github.io/2016-04-18/sqlcipher-start/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SQLCipher/" rel="tag"># SQLCipher</a>
+              <a href="/tags/SQLite/" rel="tag"># SQLite</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2016-04-18/hexo-for-blog/" rel="next" title="使用Hexo和github pages搭建博客">
+      使用Hexo和github pages搭建博客 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E6%88%90"><span class="nav-number">2.</span> <span class="nav-text">集成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%93%E5%BC%80%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">2.1.</span> <span class="nav-text">打开加密数据库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQLite%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8A%A0%E8%A7%A3%E5%AF%86"><span class="nav-number">3.</span> <span class="nav-text">SQLite数据库加解密</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86"><span class="nav-number">3.0.1.</span> <span class="nav-text">加密</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%AF%86"><span class="nav-number">3.0.2.</span> <span class="nav-text">解密</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E6%93%8D%E4%BD%9C"><span class="nav-number">3.1.</span> <span class="nav-text">代码操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

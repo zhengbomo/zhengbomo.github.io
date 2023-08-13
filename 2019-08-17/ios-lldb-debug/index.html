@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="正向开发的时候通常是使用xcode对app进行调试，我们先来看看xcode的调试流程  手机启动app进程 手机启动debugservice服务，debugserver附加到App进程 调试器lldb通过连接debugservice进行调试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【iOS逆向】LLDB动态调试">
+<meta property="og:url" content="http://zhengbomo.github.io/2019-08-17/ios-lldb-debug/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="正向开发的时候通常是使用xcode对app进行调试，我们先来看看xcode的调试流程  手机启动app进程 手机启动debugservice服务，debugserver附加到App进程 调试器lldb通过连接debugservice进行调试">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/xcode-lldb-debug.png">
+<meta property="article:published_time" content="2019-08-17T12:50:11.000Z">
+<meta property="article:modified_time" content="2019-08-17T12:50:11.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="逆向">
+<meta property="article:tag" content="lldb">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/xcode-lldb-debug.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2019-08-17/ios-lldb-debug/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【iOS逆向】LLDB动态调试 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-08-17/ios-lldb-debug/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【iOS逆向】LLDB动态调试
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-08-17 20:50:11" itemprop="dateCreated datePublished" datetime="2019-08-17T20:50:11+08:00">2019-08-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>正向开发的时候通常是使用xcode对app进行调试，我们先来看看xcode的调试流程</p>
+<ul>
+<li>手机启动app进程</li>
+<li>手机启动<code>debugservice</code>服务，debugserver附加到App进程</li>
+<li>调试器<code>lldb</code>通过连接<code>debugservice</code>进行调试</li>
+</ul>
+<span id="more"></span>
+
+<img src="/images/post/xcode-lldb-debug.png" class="" width="500">
+
+<h2 id="debugservice"><a href="#debugservice" class="headerlink" title="debugservice"></a>debugservice</h2><p>Xcode调试用到的<code>debugservice</code>位于<code>/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/DeviceSupport/13.2/DeveloperDiskImage.dmg</code>这个dmg下面，打开后可以在<code>usr/bin/debugserver</code>找到</p>
+<p>当手机第一次通过xcode调试时，会把该文件拷贝到手机<code>/Developer/usr/bin/debugserver</code>下，未使用xcode调试过的手机没有该文件，这个程序只能调试通过xcode安装的app，无法调试从商店下载的app，为了调试其他的App，我们需要修改它的权限，把下面权限签到可执行文件</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">key</span>&gt;</span>com.apple.springboard.debugapplications<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">key</span>&gt;</span>get-task-allow<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">key</span>&gt;</span>task_for_pid-allow<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">key</span>&gt;</span>run-unsigned-code<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>使用ldid签名</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ldid</span></span><br><span class="line">brew install ldid</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从原来的debugserver导出权限文件</span></span><br><span class="line">ldid -e debugserver &gt; debugserver.entitlements</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改debugserver.entitlements，换成上面文件的内容</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新签名</span></span><br><span class="line">ldid -Sdebugserver.entitlements debugserver</span><br></pre></td></tr></table></figure>
+
+<p>得到新的<code>debugserver</code>，传到手机<code>/user/bin/debugserver</code>上，这样可以直接在命令行使用</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp debugserver root@xx.xx.xx.xx:/user/bin/</span><br></pre></td></tr></table></figure>
+
+<p>还需要给<code>debugserver</code>添加可执行权限</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x debugserver</span><br></pre></td></tr></table></figure>
+
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><h3 id="1-debugserver附加到进程"><a href="#1-debugserver附加到进程" class="headerlink" title="1. debugserver附加到进程"></a>1. debugserver附加到进程</h3><p>让<code>debugserver</code>附加到App进程上，指定<code>端口号</code>和<code>进程</code></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">debugserver 127.0.0.1:端口号 -a 进程<span class="built_in">id</span>/进程名称</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如调试器附加到微信进程，端口号随机，只要没有被占用都可以</span></span><br><span class="line">debugserver 127.0.0.1:3333 -a WeChat</span><br><span class="line"></span><br><span class="line"><span class="comment"># 附加成功后会等待链接，输出下面字符</span></span><br><span class="line">debugserver-@(<span class="comment">#)PROGRAM:LLDB  PROJECT:lldb-900.3.98</span></span><br><span class="line"> <span class="keyword">for</span> arm64.</span><br><span class="line">Attaching to process WeChat...</span><br><span class="line">Listening to port 3333 <span class="keyword">for</span> a connection from localhost...</span><br></pre></td></tr></table></figure>
+
+<p>我们如果直接使用xcode自带的<code>debugserver</code>来操作的话，会报下面错误，原因是debugserver权限不足</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">debugserver-@(<span class="comment">#)PROGRAM:LLDB  PROJECT:lldb-900.3.98</span></span><br><span class="line"> <span class="keyword">for</span> arm64.</span><br><span class="line">Attaching to process wework...</span><br><span class="line">error: failed to attach to process named: <span class="string">&quot;&quot;</span> unable to start the exception thread</span><br><span class="line">Exiting.</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.iosre.com/t/ios12-debugserver-lldb/14429">iOS12 下配置debugserver + lldb调试环境的小技巧和问题处理</a></p>
+</blockquote>
+<h3 id="2-debugserver启动调试"><a href="#2-debugserver启动调试" class="headerlink" title="2. debugserver启动调试"></a>2. debugserver启动调试</h3><p>如果App没有运行，可以直接启动App调试</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 后面接的是完整路径</span></span><br><span class="line">debugserver -x auto xx.xx.xx.xx:3333 /private/var/containers/Bundle/Application/B7984908-D77C-47AE-97AF-3803988F1401/Test.app/Test</span><br></pre></td></tr></table></figure>
+
+<h3 id="通过lldb连接调试器"><a href="#通过lldb连接调试器" class="headerlink" title="通过lldb连接调试器"></a>通过lldb连接调试器</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入lldb模式</span></span><br><span class="line">$ lldb</span><br><span class="line"><span class="comment"># 连接调试器</span></span><br><span class="line">(lldb) process connect connect://xx.xx.xx.xx:3333</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接成功后，会输出下面信息</span></span><br><span class="line">Process 40349 stopped</span><br><span class="line">* thread <span class="comment">#1, queue = &#x27;com.apple.main-thread&#x27;, stop reason = signal SIGSTOP</span></span><br><span class="line">    frame <span class="comment">#0: 0x0000000181971198 libsystem_kernel.dylib`mach_msg_trap + 8</span></span><br><span class="line">libsystem_kernel.dylib`mach_msg_trap:</span><br><span class="line">-&gt;  0x181971198 &lt;+8&gt;: ret</span><br><span class="line"></span><br><span class="line">libsystem_kernel.dylib`mach_msg_overwrite_trap:</span><br><span class="line">    0x18197119c &lt;+0&gt;: mov    x16, <span class="comment">#-0x20</span></span><br><span class="line">    0x1819711a0 &lt;+4&gt;: svc    <span class="comment">#0x80</span></span><br><span class="line">    0x1819711a4 &lt;+8&gt;: ret</span><br><span class="line">Target 0: (WeChat) stopped.</span><br><span class="line">(lldb)</span><br></pre></td></tr></table></figure>
+
+<p>这个时候进程会被暂停，可以使用<code>continue</code>让程序继续走</p>
+<p>可能会出现下面问题</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(lldb) process connect connect://xx.xx.xx.xx:12121</span><br><span class="line">error: Failed to connect port</span><br></pre></td></tr></table></figure>
+
+<p>如果出现上面问题，可以通过端口转发到本地，使用USB端口转发速度也会更快，ip换成localhost</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iproxy 2333 3333</span><br></pre></td></tr></table></figure>
+
+<p>接下来使用lldb命令即可，与xcode调试一样</p>
+<p>退出调试</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(lldb) <span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+
+<p>每次连接调试的时候都很麻烦，我们可以通过<code>别名</code>来简化连接，如下</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用 con 代替 process connect connect://xx.xx.xx.xx:12121</span></span><br><span class="line">(lldb) <span class="built_in">command</span> <span class="built_in">alias</span> con process connect connect://xx.xx.xx.xx:12121</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接下来就可以直接使用con连接</span></span><br><span class="line">(lldb) con</span><br></pre></td></tr></table></figure>
+
+<h3 id="lldb常用命令"><a href="#lldb常用命令" class="headerlink" title="lldb常用命令"></a>lldb常用命令</h3><ul>
+<li>列出所有断点：<code>breakpoint list, br li</code></li>
+<li>打开、关闭某个断点：<code>breakpoint enable, breakpoint disable, br dis, br del</code></li>
+<li>打印参数：<code>frame variable, fr v</code></li>
+<li>打印方法名和行数：<code>frame info</code></li>
+<li>打印寄存器的值：<code>register read</code></li>
+<li>修改寄存器的值：<code>register write rax 123</code></li>
+<li>列出文件加载基地址：<code>image list</code></li>
+<li>执行地址的加减运算：<code>p/x</code></li>
+</ul>
+<h2 id="反调试"><a href="#反调试" class="headerlink" title="反调试"></a>反调试</h2><h3 id="使用ptrace函数反调试"><a href="#使用ptrace函数反调试" class="headerlink" title="使用ptrace函数反调试"></a>使用<code>ptrace</code>函数反调试</h3><p><code>debugserver</code>之所以可以调试APP, 是依赖一个系统函数<code>ptrace</code>(process trace 进程跟踪). 此函数提供了一个进程监听控制另外一个进程, 并且可以检查被控制进程的内容和寄存器里面的数据. 可以用来实现断电调试和系统调用跟踪. iOS中没有提供此函数的头文件, 但不是私有API.</p>
+<p><code>ptrace</code>函数在iOS项目中不能找到，在MacOS工程可以引用到，我们把需要用到的函数声明搬过来</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * request: 要做的事情</span></span><br><span class="line"><span class="comment"> * pid: 要监听/操作的id</span></span><br><span class="line"><span class="comment"> * addr: 为request代表的操作提供的地址</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">ptrace(<span class="type">int</span> _request, <span class="type">pid_t</span> _pid, <span class="type">caddr_t</span> _addr, <span class="type">int</span> _data)</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_TRACE_ME 0   <span class="comment">/* child declares it&#x27;s being traced */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_READ_I   1   <span class="comment">/* read word in child&#x27;s I space */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_READ_D   2   <span class="comment">/* read word in child&#x27;s D space */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_READ_U   3   <span class="comment">/* read word in child&#x27;s user structure */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_WRITE_I  4   <span class="comment">/* write word in child&#x27;s I space */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_WRITE_D  5   <span class="comment">/* write word in child&#x27;s D space */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_WRITE_U  6   <span class="comment">/* write word in child&#x27;s user structure */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_CONTINUE 7   <span class="comment">/* continue the child */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_KILL     8   <span class="comment">/* kill the child process */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_STEP     9   <span class="comment">/* single step the child */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_ATTACH   ePtAttachDeprecated <span class="comment">/* trace some running process */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_DETACH   11  <span class="comment">/* stop tracing a process */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_SIGEXC   12  <span class="comment">/* signals as exceptions for current_proc */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_THUPDATE 13  <span class="comment">/* signal for thread# */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_ATTACHEXC    14  <span class="comment">/* attach to running process with signal exception */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_FORCEQUOTA   30  <span class="comment">/* Enforce quota for root */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_DENY_ATTACH  31</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PT_FIRSTMACH    32  <span class="comment">/* for machine-specific requests */</span></span></span><br></pre></td></tr></table></figure>
+
+<p>找地方执行，可以在load方法</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="type">void</span>)load &#123;</span><br><span class="line">    <span class="comment">// PT_DENY_ATTACH 表示拒绝调试</span></span><br><span class="line">    ptrace(PT_DENY_ATTACH, getpid(), <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用sysctl函数反调试"><a href="#使用sysctl函数反调试" class="headerlink" title="使用sysctl函数反调试"></a>使用<code>sysctl</code>函数反调试</h3><p>使用<code>sysctl</code>函数可以判断当前程序是否正在被调试，需要隔一段时间检测一下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="string">&lt;sys/sysctl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">isDebuging</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 控制码</span></span><br><span class="line">    <span class="type">int</span> name[<span class="number">4</span>];                <span class="comment">// 里面放字节码, 查询信息</span></span><br><span class="line">    name[<span class="number">0</span>] = CTL_KERN;         <span class="comment">// 内核</span></span><br><span class="line">    name[<span class="number">1</span>] = KERN_PROC;        <span class="comment">// 查询进程</span></span><br><span class="line">    name[<span class="number">2</span>] = KERN_PROC_PID;    <span class="comment">// 通过id查询, 传递的参数是进程id</span></span><br><span class="line">    name[<span class="number">3</span>] = getpid();         <span class="comment">// 拿到当前进程id</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">kinfo_proc</span> <span class="title">info</span>;</span>     <span class="comment">// 结束进程查询结果的结构体</span></span><br><span class="line">    <span class="type">size_t</span> info_size = <span class="keyword">sizeof</span>(info);    <span class="comment">// 结构体的大小</span></span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> error = sysctl(name, <span class="keyword">sizeof</span>(name)/<span class="keyword">sizeof</span>(*name), &amp;info, &amp;info_size, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!error) &#123;</span><br><span class="line">        <span class="comment">// p_flag 的值转换为二进制, 假如从低位到高位第12位的值为1(0x800), 则正在被调试</span></span><br><span class="line">        <span class="keyword">if</span> (info.kp_proc.p_flag &amp; P_TRACED) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="反反调试"><a href="#反反调试" class="headerlink" title="反反调试"></a>反反调试</h3><p>上面反调试方法都是C语言的方法，而我们知道<a target="_blank" rel="noopener" href="https://github.com/facebook/fishhook"><code>fishhook</code></a>可以 hook C方法，所以上面两个方法可以被fishhook替换掉</p>
+<p>这时候我们就需要<code>让系统的C方法不被hook</code>，我们可以在别人hook之前换成我们自己的实现，然后别人再hook的时候就只是hook我们替换过的实现了，如何<code>确保我们的hook在别人之前调用</code>呢</p>
+<p>我们知道，dyld加载App的时候，动态库是先加载的，而动态库的加载顺序是根据MachO文件描述的顺序（XCode中编译的顺序一样，也就是Frameworks,Libraries,and Embedded Content配置的顺序），我们可以用一个<code>防护的动态库</code>让我们的动态库先执行</p>
+<p>当然如果MachO文件的动态链接库的顺序被改变了，还是会被别人先hook，这个成本就比较高了</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2019-08-17/ios-lldb-debug/" title="【iOS逆向】LLDB动态调试">http://zhengbomo.github.io/2019-08-17/ios-lldb-debug/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/%E9%80%86%E5%90%91/" rel="tag"># 逆向</a>
+              <a href="/tags/lldb/" rel="tag"># lldb</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019-08-06/ios-lldb/" rel="prev" title="lldb常用命令">
+      <i class="fa fa-chevron-left"></i> lldb常用命令
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019-09-12/ios-mach-o/" rel="next" title="【iOS逆向】Mach-O文件">
+      【iOS逆向】Mach-O文件 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#debugservice"><span class="nav-number">1.</span> <span class="nav-text">debugservice</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E8%AF%95"><span class="nav-number">2.</span> <span class="nav-text">调试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-debugserver%E9%99%84%E5%8A%A0%E5%88%B0%E8%BF%9B%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">1. debugserver附加到进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-debugserver%E5%90%AF%E5%8A%A8%E8%B0%83%E8%AF%95"><span class="nav-number">2.2.</span> <span class="nav-text">2. debugserver启动调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E8%BF%87lldb%E8%BF%9E%E6%8E%A5%E8%B0%83%E8%AF%95%E5%99%A8"><span class="nav-number">2.3.</span> <span class="nav-text">通过lldb连接调试器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lldb%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">2.4.</span> <span class="nav-text">lldb常用命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8D%E8%B0%83%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">反调试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8ptrace%E5%87%BD%E6%95%B0%E5%8F%8D%E8%B0%83%E8%AF%95"><span class="nav-number">3.1.</span> <span class="nav-text">使用ptrace函数反调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8sysctl%E5%87%BD%E6%95%B0%E5%8F%8D%E8%B0%83%E8%AF%95"><span class="nav-number">3.2.</span> <span class="nav-text">使用sysctl函数反调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8D%E5%8F%8D%E8%B0%83%E8%AF%95"><span class="nav-number">3.3.</span> <span class="nav-text">反反调试</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

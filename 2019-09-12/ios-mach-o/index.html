@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Mach-O是Mach object的缩写，是Mac&#x2F;iOS上用于存储程序、库的标准格式，这里简要解析Mach-O文件格式，结构和一些要点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【iOS逆向】Mach-O文件">
+<meta property="og:url" content="http://zhengbomo.github.io/2019-09-12/ios-mach-o/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="Mach-O是Mach object的缩写，是Mac&#x2F;iOS上用于存储程序、库的标准格式，这里简要解析Mach-O文件格式，结构和一些要点">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/mach-o-info.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/machoview-demo.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/010editor-demo.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/macho-header.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/macho-segment.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/macho-load.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/machoview-text.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/machoview-data.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/hopper-method-address.png">
+<meta property="article:published_time" content="2019-09-12T08:31:26.000Z">
+<meta property="article:modified_time" content="2019-09-12T08:31:26.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="逆向">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/mach-o-info.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2019-09-12/ios-mach-o/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【iOS逆向】Mach-O文件 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-09-12/ios-mach-o/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【iOS逆向】Mach-O文件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-09-12 16:31:26" itemprop="dateCreated datePublished" datetime="2019-09-12T16:31:26+08:00">2019-09-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Mach-O是Mach object的缩写，是Mac&#x2F;iOS上用于存储程序、库的标准格式，这里简要解析Mach-O文件格式，结构和一些要点</p>
+<span id="more"></span>
+
+<h2 id="Mach-O格式"><a href="#Mach-O格式" class="headerlink" title="Mach-O格式"></a>Mach-O格式</h2><p>Mach-O是一个以数据块分组的二进制字节流，这些数据块包含元信息，比如字节顺序、CPU类型、数据块大小等等</p>
+<p>典型的Mach-O文件通常包含三个主要区域</p>
+<ul>
+<li><code>Header</code>: 描述Mach-O文件的基本信息，如标识文件类型，目标架构类型，内存对齐大小，大小端序，加载命令数量，flags信息等</li>
+<li><code>Load commands</code>: 描述文件中每个段的信息（物理内存大小，虚拟内存等信息）</li>
+<li><code>Raw data</code>: 在Load command中定义的segment的原始数据</li>
+</ul>
+<p>如下图</p>
+<img src="/images/post/mach-o-info.png" class="" width="400">
+
+<h3 id="查看Mach-O文件结构"><a href="#查看Mach-O文件结构" class="headerlink" title="查看Mach-O文件结构"></a>查看Mach-O文件结构</h3><ol>
+<li><p><code>file</code>: 查看Mach-O文件类型</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Hugu为可执行文件</span></span><br><span class="line">file Hugo</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>otool</code>：查看Mach-O特定部分和段的内容</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看mach-o header</span></span><br><span class="line">otool -h Hugo</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看load command</span></span><br><span class="line">otool -l Hugo</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看链接的动态库</span></span><br><span class="line">otool -L Hugo</span><br><span class="line"></span><br><span class="line"><span class="comment"># otool 支持很多参数，查看不同的信息</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>size</code>：查看段的内存分布</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">size -l -m -x Hugo</span><br></pre></td></tr></table></figure>
+
+<p> 输出</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">Segment __PAGEZERO: 0x100000000 (vmaddr 0x0 fileoff 0)</span><br><span class="line">Segment __TEXT: 0x1308000 (vmaddr 0x100000000 fileoff 0)</span><br><span class="line">Section __text: 0x104f4cc (addr 0x100005150 offset 20816)</span><br><span class="line">Section __stubs: 0x42d8 (addr 0x10105461c offset 17122844)</span><br><span class="line">Section __stub_helper: 0x42c0 (addr 0x1010588f4 offset 17139956)</span><br><span class="line">Section __objc_methname: 0xbf942 (addr 0x10105cbb4 offset 17157044)</span><br><span class="line">Section __objc_classname: 0x130d2 (addr 0x10111c4f6 offset 17941750)</span><br><span class="line">Section __objc_methtype: 0x1c635 (addr 0x10112f5c8 offset 18019784)</span><br><span class="line">Section __cstring: 0xf26fd (addr 0x10114bc00 offset 18136064)</span><br><span class="line">Section __ustring: 0xd3a0 (addr 0x10123e2fe offset 19129086)</span><br><span class="line">Section __const: 0x2db07 (addr 0x10124b6a0 offset 19183264)</span><br><span class="line">Section __gcc_except_tab: 0x21a80 (addr 0x1012791a8 offset 19370408)</span><br><span class="line">Section __swift5_typeref: 0xc382 (addr 0x10129ac28 offset 19508264)</span><br><span class="line">Section __swift5_fieldmd: 0xb028 (addr 0x1012a6fac offset 19558316)</span><br><span class="line">Section __swift5_builtin: 0x76c (addr 0x1012b1fd4 offset 19603412)</span><br><span class="line">Section __swift5_reflstr: 0x1417d (addr 0x1012b2740 offset 19605312)</span><br><span class="line">Section __swift5_assocty: 0xd38 (addr 0x1012c68c0 offset 19687616)</span><br><span class="line">Section __swift5_proto: 0x624 (addr 0x1012c75f8 offset 19691000)</span><br><span class="line">Section __swift5_types: 0x998 (addr 0x1012c7c1c offset 19692572)</span><br><span class="line">Section __swift5_capture: 0xb524 (addr 0x1012c85b4 offset 19695028)</span><br><span class="line">Section __swift5_protos: 0x50 (addr 0x1012d3ad8 offset 19741400)</span><br><span class="line">Section __dof_RACSignal: 0x37b (addr 0x1012d3b28 offset 19741480)</span><br><span class="line">Section __dof_RACCompou: 0x2e8 (addr 0x1012d3ea3 offset 19742371)</span><br><span class="line">Section __unwind_info: 0x31ce4 (addr 0x1012d418c offset 19743116)</span><br><span class="line">Section __eh_frame: 0x2184 (addr 0x101305e70 offset 19947120)</span><br><span class="line">total 0x1302e97</span><br><span class="line">Segment __DATA: 0x560000 (vmaddr 0x101308000 fileoff 19955712)</span><br><span class="line">Section __got: 0x1190 (addr 0x101308000 offset 19955712)</span><br><span class="line">Section __la_symbol_ptr: 0x2c90 (addr 0x101309190 offset 19960208)</span><br><span class="line">Section __mod_init_func: 0x40 (addr 0x10130be20 offset 19971616)</span><br><span class="line">Section __const: 0x48950 (addr 0x10130be60 offset 19971680)</span><br><span class="line">Section __cfstring: 0x6fea0 (addr 0x1013547b0 offset 20268976)</span><br><span class="line">Section __objc_classlist: 0x68c8 (addr 0x1013c4650 offset 20727376)</span><br><span class="line">Section __objc_nlclslist: 0x2c0 (addr 0x1013caf18 offset 20754200)</span><br><span class="line">Section __objc_catlist: 0x1ef8 (addr 0x1013cb1d8 offset 20754904)</span><br><span class="line">Section __objc_nlcatlist: 0x88 (addr 0x1013cd0d0 offset 20762832)</span><br><span class="line">Section __objc_protolist: 0x11f8 (addr 0x1013cd158 offset 20762968)</span><br><span class="line">Section __objc_imageinfo: 0x8 (addr 0x1013ce350 offset 20767568)</span><br><span class="line">Section __objc_const: 0x3c85f8 (addr 0x1013ce358 offset 20767576)</span><br><span class="line">Section __objc_selrefs: 0x2e430 (addr 0x101796950 offset 24734032)</span><br><span class="line">Section __objc_protorefs: 0x4a8 (addr 0x1017c4d80 offset 24923520)</span><br><span class="line">Section __objc_classrefs: 0x5c00 (addr 0x1017c5228 offset 24924712)</span><br><span class="line">Section __objc_superrefs: 0x39d8 (addr 0x1017cae28 offset 24948264)</span><br><span class="line">Section __objc_ivar: 0xc120 (addr 0x1017ce800 offset 24963072)</span><br><span class="line">Section __objc_data: 0x59c10 (addr 0x1017da920 offset 25012512)</span><br><span class="line">Section __data: 0x1c885 (addr 0x101834530 offset 25380144)</span><br><span class="line">Section __swift_hooks: 0xb8 (addr 0x101850db8 offset 25497016)</span><br><span class="line">Section __bss: 0x12e30 (addr 0x101850e70 offset 0)</span><br><span class="line">Section __common: 0x1b88 (addr 0x101863ca0 offset 0)</span><br><span class="line">total 0x55d825</span><br><span class="line">Segment __LINKEDIT: 0x168000 (vmaddr 0x101868000 fileoff 25509888)</span><br><span class="line">total 0x1019d0000</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>也可以通过<a target="_blank" rel="noopener" href="https://github.com/gdbinit/MachOView"><code>MachOView</code></a>查看Segment相关信息</p>
+<p> <img src="/images/post/machoview-demo.png" alt="_"></p>
+</li>
+<li><p>还有一个功能非常强大的二进制编辑器<a target="_blank" rel="noopener" href="https://www.sweetscape.com/010editor/"><code>010Editor</code></a>，需要安装一下MachO模板，与MachOView类似，使用起来也非常方便</p>
+<p> <img src="/images/post/010editor-demo.png" alt="_"></p>
+</li>
+</ol>
+<h2 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h2><p>我们通过machoview查看</p>
+<p><img src="/images/post/macho-header.png" alt="_"></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>magic</td>
+<td>Mach-O魔数，FAT:0xcafebabe, ARMv7:0xfeedface, ARM64:0xfeedfacf</td>
+</tr>
+<tr>
+<td>cputype、cpusubtype</td>
+<td>CPU架构及子版本</td>
+</tr>
+<tr>
+<td>filetype</td>
+<td>mach-o文件类型</td>
+</tr>
+<tr>
+<td>ncmds</td>
+<td>加载命令的数量</td>
+</tr>
+<tr>
+<td>sizeofcmds</td>
+<td>所有加载命令的大小</td>
+</tr>
+<tr>
+<td>flags</td>
+<td>dyld加载需要的一些标记</td>
+</tr>
+<tr>
+<td>reserved</td>
+<td>64位保留字段</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>在Header信息中，flags标志信息有一个标志为<code>MH_PIE</code>（在xnu项目的<code>EXTERNAL_HEADERS/mach-o/loader.h</code>中可以找到），意思是开启<code>ASLR</code></p>
+</blockquote>
+<p>笔者尝试把<code>MH_PIE</code>去掉，然后重签名跑到真机上，发现会闪退</p>
+<h2 id="Mach-O文件类型"><a href="#Mach-O文件类型" class="headerlink" title="Mach-O文件类型"></a>Mach-O文件类型</h2><p>在苹果开源的内核<a target="_blank" rel="noopener" href="https://opensource.apple.com/tarballs/xnu/"><code>xnu</code></a>源码中<code>EXTERNAL_HEADERS/mach-o/loader.h</code>可以找到Mach-O文件格式的定义</p>
+<figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> MH_OBJECT 0x1  <span class="comment">/* relocatable object file */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MH_EXECUTE 0x2  <span class="comment">/* demand paged executable file */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MH_FVMLIB 0x3  <span class="comment">/* fixed VM shared library file */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MH_CORE  0x4  <span class="comment">/* core file */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MH_PRELOAD 0x5  <span class="comment">/* preloaded executable file */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MH_DYLIB 0x6  <span class="comment">/* dynamically bound shared library */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MH_DYLINKER 0x7  <span class="comment">/* dynamic link editor */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MH_BUNDLE 0x8  <span class="comment">/* dynamically bound bundle file */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MH_DYLIB_STUB 0x9  <span class="comment">/* shared library stub for static */</span></span></span><br><span class="line">     <span class="comment">/*  linking only, no section contents */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MH_DSYM  0xa  <span class="comment">/* companion file with only debug */</span></span></span><br><span class="line">     <span class="comment">/*  sections */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MH_KEXT_BUNDLE 0xb  <span class="comment">/* x86_64 kexts */</span></span></span><br></pre></td></tr></table></figure>
+
+<p>常见的类型有</p>
+<ul>
+<li>MH_OBJECT<ul>
+<li>目标文件（.o）</li>
+<li>静态库文件（.a）（多个目标文件合并）</li>
+</ul>
+</li>
+<li>MH_EXECUTE：<ul>
+<li>可执行文件，我们编译出来的App的主程序就是该类型</li>
+</ul>
+</li>
+<li>MH_DYLIB：动态库<ul>
+<li>dylib文件</li>
+<li>framework动态库(.framework&#x2F;xx)</li>
+</ul>
+</li>
+<li>MH_DYLINKER<ul>
+<li><code>/usr/lib/dyld</code>：动态链接器</li>
+</ul>
+</li>
+<li>MH_DSYM<ul>
+<li>.dSYM&#x2F;Contents&#x2F;Resources&#x2F;DWARF&#x2F;xx（符号表）</li>
+</ul>
+</li>
+</ul>
+<h3 id="Universal-Binary（通用二进制文件）"><a href="#Universal-Binary（通用二进制文件）" class="headerlink" title="Universal Binary（通用二进制文件）"></a>Universal Binary（通用二进制文件）</h3><p>包含多个CPU架构的二进制文件，在运行时，只会加载对应架构的二进制</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ file jcm</span><br><span class="line">jcm: Mach-O universal binary with 2 architectures: [arm_v7:Mach-O executable arm_v7] [arm64]</span><br><span class="line">jcm (<span class="keyword">for</span> architecture armv7):   Mach-O executable arm_v7</span><br><span class="line">jcm (<span class="keyword">for</span> architecture arm64):   Mach-O 64-bit executable arm64</span><br></pre></td></tr></table></figure>
+
+<h2 id="Segment"><a href="#Segment" class="headerlink" title="Segment"></a>Segment</h2><p>在machoview的load commands可以看到所有段的</p>
+<p><img src="/images/post/macho-segment.png" alt="_"></p>
+<ul>
+<li>LC_SEGMENT_64：记录一个段，加载后被映射到内存中</li>
+<li>LC_DYLD_INFO_ONLY：记录动态链接的重要信息，动态链接器要根据它来进行地址重定向</li>
+<li>LC_SYMTAB：文件所使用的符号表，符号数，字符串表的偏移量和大小</li>
+<li>LC_DYSYMTAB：动态链接器所使用的符号表，找到后获取间接符号表偏移量</li>
+<li>LC_LOAD_DYLINKER：默认的加载器路径（<code>/usr/bin/dylb</code>）</li>
+<li>LC_UUID: Mach-O文件的唯一标识</li>
+<li>LC_MAIN：程序的入口，动态链接器获取该地址，然后程序跳转到该处运行</li>
+<li>LC_SOURCE_VERSION：构建二进制文件的源代码版本</li>
+<li>LC_VERSION_MIN_IPHONEOS：最低支持系统版本</li>
+<li>LC_ENCRYPTION_INFO_64：文件加密信息，我们判断是否脱壳，就是用了这里的信息</li>
+<li>LC_RPATH：链接器搜索路径列表，主要搜索framework</li>
+<li>LC_FUNCTION_STARTS: 函数其实地址表，调试器货其他程序能判断一个地址是否在该表范围内</li>
+<li>LC_DATA_IN_CODE: 定义在代码内的非指令表</li>
+<li>LC_CODE_SIGNATURE: 代码签名信息</li>
+</ul>
+<h3 id="LC-SEGMENT-64"><a href="#LC-SEGMENT-64" class="headerlink" title="LC_SEGMENT_64"></a>LC_SEGMENT_64</h3><p>图中可以看到，<code>LC_SEGMENT_64</code>段有4个</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">* LC_SEGMENT_64(`__PAGEZERO`)</span><br><span class="line">  * VM Address：0x0000000000000000</span><br><span class="line">  * VM Size：   0x0000000100000000</span><br><span class="line">  * File Offset: 0</span><br><span class="line">  * File Offset: 0</span><br><span class="line">* LC_SEGMENT_64(`__TEXT`)</span><br><span class="line">  * VM Address：0x100000000</span><br><span class="line">  * VM Size：   0x001308000</span><br><span class="line">  * File Offset: 0x000000000</span><br><span class="line">  * File Size:   0x001308000</span><br><span class="line">* LC_SEGMENT_64(`__DATA`)</span><br><span class="line">  * VM Address：0x101308000</span><br><span class="line">  * VM Size：   0x000560000</span><br><span class="line">  * File Offset: 0x001308000</span><br><span class="line">  * File Size:   0x00054C000</span><br><span class="line">* LC_SEGMENT_64(`__LINKEDIT`)</span><br><span class="line">  * VM Address：0x101868000</span><br><span class="line">  * VM Size：   0x000168000</span><br><span class="line">  * File Offset: 0x001854000</span><br><span class="line">  * File Size:   0x000166AB0</span><br></pre></td></tr></table></figure>
+
+<p>上面可以看出</p>
+<ul>
+<li>PAGEZERO段并不占用文件大小，当mach-o加载到内存时会占用8个字节（64位）</li>
+<li>TEXT段从0开始的，也就是header和loadcommand也属于TEXT段，加载到内存后，排在PAGEZERO后面</li>
+</ul>
+<p><img src="/images/post/macho-load.png" alt="_"></p>
+<h3 id="TEXT段"><a href="#TEXT段" class="headerlink" title="__TEXT段"></a>__TEXT段</h3><p>TEXT段包含可执行的代码和一些只读数据，静态链接器设置该段位可读可执行，进程被允许执行这些代码，但不能修改</p>
+<img src="/images/post/machoview-text.png" class="" width="400">
+
+<ul>
+<li>__text：主程序代码</li>
+<li>__stubs: 帮助动态链接库绑定符号</li>
+<li>__const: const关键字修饰的常量</li>
+<li>__cstring: 只读c语言字符串</li>
+<li>__objc_methname: OC方法名</li>
+<li>__objc_classname：OC类名</li>
+<li>__objc_methtype：OC方法类型（方法签名）</li>
+<li>__unwind_info：编译器自动生成，用于确定异常发生时栈所对应的信息</li>
+</ul>
+<h3 id="DATA段"><a href="#DATA段" class="headerlink" title="__DATA段"></a>__DATA段</h3><p>包含了将会被更改的数据，静态链接器设置该段的虚拟内存权限位可读写</p>
+<img src="/images/post/machoview-data.png" class="" width="400">
+
+<ul>
+<li>__got: 全局非懒绑定符号指针表</li>
+<li>__la_symbol_ptr: 懒绑定符号指针表</li>
+<li>__mod_init_func：C++类的构造函数</li>
+<li>__const：未初始化过的常亮</li>
+<li>__cfstring：CoreFoundation字符串</li>
+<li>__objc_class_list：OC类列表</li>
+<li>__objc_nlclslist：实现了<code>+load</code>方法的OC类列表</li>
+<li>__objc_catlist：OC分类列表</li>
+<li>__objc_protolist：OC协议列表</li>
+<li>__objc_imageinfo：镜像信息，可用它区别Objective1.0与2.0</li>
+<li>__objc_const：OC初始化过的常量</li>
+<li>__objc_selrefs：OC选择器引用列表</li>
+<li>__objc_protorefs：OC协议引用列表</li>
+<li>__objc_classrefs：OC类引用列表</li>
+<li>__objc_superrefs: OC父类引用列表</li>
+<li>__objc_ivar: OC类的实例变量</li>
+<li>__objc_data: OC初始化过的变量</li>
+<li>__data：实际初始化数据段</li>
+<li>__common：未初始化过的符号声明</li>
+<li>__bss：未初始化的全局变量</li>
+</ul>
+<h3 id="LINKEDIT"><a href="#LINKEDIT" class="headerlink" title="__LINKEDIT"></a>__LINKEDIT</h3><p>包含动态链接库的原始数据，如符号，字符串，重定向表条目等</p>
+<h2 id="dyld"><a href="#dyld" class="headerlink" title="dyld"></a>dyld</h2><p>dyld用于加载以下类型的Mach-O文件，在iOS中，App的可执行文件和动态库都是由dyld负责加载的</p>
+<ul>
+<li>MH_EXECUTE</li>
+<li>MH_DYLIB</li>
+<li>MH_BUNDLE</li>
+</ul>
+<p>关于dyld如何加载mach-o文件，可以参考<a target="_blank" rel="noopener" href="https://www.dllhook.com/post/238.html">这里</a></p>
+<h3 id="ASLR（Address-Space-Layout-Randomization）"><a href="#ASLR（Address-Space-Layout-Randomization）" class="headerlink" title="ASLR（Address Space Layout Randomization）"></a>ASLR（Address Space Layout Randomization）</h3><p>iOS4.3开始引入了ASLR技术，地址空间布局随机化，系统在加载Mach-O文件的时候，会随机在头部添加一部分内存空间，从而让Mach-O文件在每次加载到内存时的地址都不相同，是一种针对缓冲区溢出的安全保护技术，通过对堆、栈、共享库映射等线性区布局的随机化，通过增加攻击者预测目的地址的难度，防止攻击者直接定位攻击代码位置，达到阻止溢出攻击的目的的一种技术</p>
+<p>ASLR 会在程序每次载入的时候随机在原来的基础上添加随机的内存区域，已达到每次运行的程序地址都不一样，相当于<code>__PAGEZERO</code>段的位置后移了</p>
+<p>我们可以在<code>lldb</code>调试器查看程序每个模块的偏移大小<code>ASLR</code>偏移的大小</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -o 表示虚拟地址偏移量，-f 表示路径</span></span><br><span class="line">(lldb) image list -o -f</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">[  0] 0x00000000003f8000 /private/var/containers/Bundle/Application/943EF984-E5F8-45FC-A466-99474D559B68/Test.app/Test(0x00000001003f8000)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>0x00000000003f8000</code> 为主程序Test的内存偏移地址，这个偏移地址每次启动App都是随机的</li>
+<li><code>0x00000001003f8000</code> 为主程序__TEXT段的起始地址，即ASLR偏移地址+__PAGEZERO的大小</li>
+</ul>
+<p>由于MachO文件加载到内存中的数据和MachO文件的数据是一致的，连续的，所以，我们可以通过ASLR的偏移地址加上在MachO静态分析的地址，得到运行时的地址，我们再Hopper查看到的地址，其实就是没有算上ASLR，即上面的<code>0x00000000003f8000</code></p>
+<p><img src="/images/post/hopper-method-address.png" alt="_"></p>
+<p>再Hopper搜索<code>[ViewController test:]</code>方法，可以看到该函数的地址为<code>0x0000000100005744</code>，根据上面得到的ASLR的偏移地址，就可以算出函数在内存中的地址，由于Hopper显示的地址是算上<code>__PAGEZERO</code>段的，所以直接加上即可</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x00000000003f8000 + 0x0000000100005744</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>了解Mach-O可以帮助我们理解dyld的加载Mach-O的过程以及与Mach-O相关的读取或操作，为逆向分析提供更好的思路</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2019-09-12/ios-mach-o/" title="【iOS逆向】Mach-O文件">http://zhengbomo.github.io/2019-09-12/ios-mach-o/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/%E9%80%86%E5%90%91/" rel="tag"># 逆向</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019-08-17/ios-lldb-debug/" rel="prev" title="【iOS逆向】LLDB动态调试">
+      <i class="fa fa-chevron-left"></i> 【iOS逆向】LLDB动态调试
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019-10-08/ios-arm64-asm/" rel="next" title="初识ARM64汇编">
+      初识ARM64汇编 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Mach-O%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">Mach-O格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8BMach-O%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">查看Mach-O文件结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Header"><span class="nav-number">2.</span> <span class="nav-text">Header</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mach-O%E6%96%87%E4%BB%B6%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">Mach-O文件类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Universal-Binary%EF%BC%88%E9%80%9A%E7%94%A8%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">Universal Binary（通用二进制文件）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Segment"><span class="nav-number">4.</span> <span class="nav-text">Segment</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LC-SEGMENT-64"><span class="nav-number">4.1.</span> <span class="nav-text">LC_SEGMENT_64</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TEXT%E6%AE%B5"><span class="nav-number">4.2.</span> <span class="nav-text">__TEXT段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DATA%E6%AE%B5"><span class="nav-number">4.3.</span> <span class="nav-text">__DATA段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LINKEDIT"><span class="nav-number">4.4.</span> <span class="nav-text">__LINKEDIT</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dyld"><span class="nav-number">5.</span> <span class="nav-text">dyld</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ASLR%EF%BC%88Address-Space-Layout-Randomization%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">ASLR（Address Space Layout Randomization）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">小结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

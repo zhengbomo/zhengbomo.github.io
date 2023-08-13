@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="为了更好的学习 OpenGL，我们需要对部分专业属于有一些基本认识，本文介绍在计算机图形学常用的一些专业名词">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenGL名词解释">
+<meta property="og:url" content="http://zhengbomo.github.io/2020-07-01/opengl-words/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="为了更好的学习 OpenGL，我们需要对部分专业属于有一些基本认识，本文介绍在计算机图形学常用的一些专业名词">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-01T12:27:18.000Z">
+<meta property="article:modified_time" content="2023-06-11T03:02:51.868Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="OpenGL">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2020-07-01/opengl-words/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>OpenGL名词解释 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-07-01/opengl-words/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OpenGL名词解释
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-01 20:27:18" itemprop="dateCreated datePublished" datetime="2020-07-01T20:27:18+08:00">2020-07-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-11 11:02:51" itemprop="dateModified" datetime="2023-06-11T11:02:51+08:00">2023-06-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OpenGL/" itemprop="url" rel="index"><span itemprop="name">OpenGL</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>为了更好的学习 OpenGL，我们需要对部分专业属于有一些基本认识，本文介绍在计算机图形学常用的一些专业名词</p>
+<span id="more"></span>
+
+<h2 id="图形API"><a href="#图形API" class="headerlink" title="图形API"></a>图形API</h2><p><code>OpenGL</code>（Open Graphics Library）是⼀个跨编程语⾔、跨平台的编程图形程序接⼝，它将计算机的资源抽象称为⼀个OpenGL的对象，对这些资源的操作抽象为⼀个个的OpenGL指令</p>
+<p><code>OpenGL ES</code>（OpenGL for Embedded Systems）是OpenGL的API子集，针对⼿机、PDA和游戏主机等嵌⼊式设备⽽设计，去除了许多不必要和性能较低的API接⼝</p>
+<p><code>DirectX</code>是Windows平台的多媒体处理工具，包含图形API，功能比较多，按性质分类，可以分为四⼤部分，显示部分、声⾳部分、输⼊部分和⽹络部分</p>
+<p><code>Metal</code>是Apple为游戏开发者推出了新的平台技术，苹果宣称该技术能够为 3D 图像提⾼ 10 倍的渲染性能，是Apple为了解决3D渲染⽽推出的框架</p>
+<h3 id="图形API的作用"><a href="#图形API的作用" class="headerlink" title="图形API的作用"></a>图形API的作用</h3><p>图形API用于实现图形的底层渲染，最终输出到显示屏上，例如，图形从点线面，再到3D图形，最终渲染称屏幕上看到的2D图像这个过程</p>
+<ul>
+<li>⽐如在游戏开发中,对于游戏场景&#x2F;游戏⼈物的渲染</li>
+<li>⽐如在⾳视频开发中,对于视频解码后的数据渲染</li>
+<li>⽐如在地图引擎,对于地图上的数据渲染</li>
+<li>⽐如在动画中,实现动画的绘制</li>
+<li>⽐如在视频处理中,对于视频加上滤镜效果</li>
+</ul>
+<p>OpenGL &#x2F;OpenGL ES&#x2F; Metal 在任何项⽬中解决问题的本质就是利⽤<code>GPU芯⽚</code>来⾼效渲染图形图像，开发者可以通过这些图形API间接利用GPU</p>
+<blockquote>
+<p>OpenGL只是协议层，而具体的实现是由硬件厂商完成的，不同厂商实现上有差异，通常都是高度优化过的</p>
+</blockquote>
+<h2 id="OpenGL上下⽂（Context）"><a href="#OpenGL上下⽂（Context）" class="headerlink" title="OpenGL上下⽂（Context）"></a>OpenGL上下⽂（Context）</h2><p>在使用OpenGL操作之前，需要先创建一个OpenGL上下文，这是一个<code>状态机</code>，保存了各种用于描述OpenGL如何运行的状态，例如拍照的时候开启滤镜等，上下文是OpenGL所有操作的基础</p>
+<ul>
+<li>OpenGL API是面向过程的，本质上是对OpenGL上下文状态机的某个状态或对象进行操作</li>
+<li>应用程序中可以创建多个不同的上下文，他们分别在各自的线程中使用。上下文之间共享纹理，缓冲区等资源，采用这中方案更为高效，因为它避免了反复切换上下文，或者大量修改渲染状态所造成的较大的开销。</li>
+</ul>
+<p>iOS中的<code>CoreGraphics</code>里面的API就与OpenGL的API有些类似，面向过程</p>
+<p>假设当我们想告诉OpenGL去画线段而不是三角形的时候，我们通过改变一些上下文变量来改变OpenGL状态，从而告诉OpenGL如何去绘图。一旦我们改变了OpenGL的状态为绘制线段，下一个绘制命令就会画出线段而不是三角形。</p>
+<ul>
+<li>上下文OpenGL指令执⾏的基础，所有绘制操作都需要通过上下文进行</li>
+<li>OpenGL上下文对象切换操作开销大</li>
+<li>OpenGL的函数虽然是面向过程的，但可以把相关的调用封装为面向过程的图形API。</li>
+</ul>
+<h2 id="OpenGL状态机"><a href="#OpenGL状态机" class="headerlink" title="OpenGL状态机"></a>OpenGL状态机</h2><p>状态机描述了⼀个对象在其⽣命周期内的各种状态变化，和响应事件，体现在代码中就是<code>上下文</code></p>
+<ul>
+<li>有<code>状态</code>，能保存当前的状态</li>
+<li>有<code>输⼊</code>和<code>输出</code>，根据输⼊的内容和⾃⼰的原先状态，修改⾃⼰当前状态，并且可以有对应输出</li>
+<li>能<code>关闭</code>，当进⼊特殊状态（停机状态）的时候，就不再接收输⼊，停⽌⼯作</li>
+</ul>
+<h2 id="渲染（Rendering）"><a href="#渲染（Rendering）" class="headerlink" title="渲染（Rendering）"></a>渲染（Rendering）</h2><p>将图形&#x2F;图像数据转换成3D空间图像操作，从图元到图像的过程</p>
+<h2 id="图元"><a href="#图元" class="headerlink" title="图元"></a>图元</h2><p>图元可以理解为组成图形的基本单元，比如点、线、三角形。 我们可以通过一系列函数或顶点数据帮助我们实现多种多样的图形</p>
+<blockquote>
+<p>在<code>OpenGL ES</code>有三种图元：<code>点</code>，<code>线</code>，<code>三角形</code>，其他所有图形都是由这三种图形组合而成的</p>
+</blockquote>
+<h2 id="顶点数组和顶点缓冲区（VertexArray-amp-VertexBuffer）"><a href="#顶点数组和顶点缓冲区（VertexArray-amp-VertexBuffer）" class="headerlink" title="顶点数组和顶点缓冲区（VertexArray &amp; VertexBuffer）"></a>顶点数组和顶点缓冲区（VertexArray &amp; VertexBuffer）</h2><p><code>顶点数组</code>用于描述图形的轮廓（如三个顶点可以描述一个三角形），图元是由顶点组成的，顶点数组通常存放在显存上（性能更高），而这部分内存称为<code>顶点缓冲区</code></p>
+<h2 id="管线"><a href="#管线" class="headerlink" title="管线"></a>管线</h2><p>在OpenGL下渲染图形,就会有经历⼀个⼀个节点步骤，⽽这样的操作可以理解管线。管线是⼀个抽象的概念，之所以称之为管线是因为显卡在处理数据的时候是按照⼀个固定的顺序来的，⽽且严格按照这个顺序。就像⽔从⼀根管⼦的⼀端流到另⼀端，这个顺序<code>固定的</code>，<code>不能修改</code></p>
+<h2 id="固定管线"><a href="#固定管线" class="headerlink" title="固定管线"></a>固定管线</h2><p>在早期的OpenGL版本中，封装了很多API，用于完成特定的功能，例如光照，坐标变换，裁切等，这些API被称为固定管线，而对于一些特殊需求的场景，固定管线无法实现，这部分可以通过<code>可编程管线</code>来实现</p>
+<blockquote>
+<p>固定管线在实际开发中用的少，大多已经废弃，基本都是通过编程来实现需求</p>
+</blockquote>
+<h2 id="着⾊器程序（Shader）"><a href="#着⾊器程序（Shader）" class="headerlink" title="着⾊器程序（Shader）"></a>着⾊器程序（Shader）</h2><p>将<code>固定渲染管线架构</code>变为<code>可编程渲染管线</code></p>
+<p>OpenGL在实际调⽤绘制函数之前，还需要指定⼀个由shader编译成的着⾊器程序。常⻅的着⾊器主要有</p>
+<ul>
+<li><code>顶点着⾊器</code>（VertexShader）</li>
+<li><code>⽚段着⾊器</code>&#x2F;<code>像素着⾊器</code>（FragmentShader&#x2F;PixelShader）</li>
+<li><code>⼏何着⾊器</code>（GeometryShader）</li>
+<li><code>曲⾯细分着⾊器</code>（TessellationShader）。</li>
+</ul>
+<p><code>OpenGL ES</code>只⽀持了<code>顶点着⾊器</code>和<code>⽚段着⾊器</code>两个着⾊器</p>
+<p>着色器程序处理流程</p>
+<ol>
+<li>OpenGL在处理shader时，和其他编译器⼀样。通过编译、链接等步骤，⽣成了<code>着⾊器程序</code>（glProgram），着⾊器程序同时包含了顶点着⾊器和⽚段着⾊器的运算逻辑</li>
+<li>在OpenGL进⾏绘制的时候，⾸先由顶点着⾊器对传⼊的顶点数据进⾏运算。再通过图元装配，将顶点转换为图元</li>
+<li>然后进⾏<code>光栅化</code>，将图元这种⽮量图形，转换为栅格化数据</li>
+<li>将栅格化数据传⼊<code>⽚段着⾊器</code>中进⾏运算。⽚段着⾊器会对栅格化数据中的每⼀个像素进⾏运算，并决定像素的颜⾊</li>
+</ol>
+<h3 id="顶点着⾊器（VertexShader）"><a href="#顶点着⾊器（VertexShader）" class="headerlink" title="顶点着⾊器（VertexShader）"></a>顶点着⾊器（VertexShader）</h3><ul>
+<li>⼀般⽤来处理图形每个顶点变换(<code>旋转</code>&#x2F;<code>平移</code>&#x2F;<code>投影</code>等)，顶点坐标由⾃身坐标系转换到归⼀化坐标系的运算</li>
+<li>顶点着⾊器是OpenGL中⽤于计算顶点属性的程序。顶点着⾊器是逐顶点运算的程序，这个过程是<code>并⾏的</code>，并且顶点着⾊器运算过程中⽆法访问其他顶点的数据</li>
+</ul>
+<p>过程</p>
+<ol>
+<li>确定位置</li>
+<li>缩放&#x2F;平移&#x2F;旋转位置换算</li>
+<li>3D图形数据-&gt;2D(投影换算)</li>
+</ol>
+<h3 id="⽚段着⾊器-x2F-片元着色器（FragmentShader）"><a href="#⽚段着⾊器-x2F-片元着色器（FragmentShader）" class="headerlink" title="⽚段着⾊器&#x2F;片元着色器（FragmentShader）"></a>⽚段着⾊器&#x2F;片元着色器（FragmentShader）</h3><ul>
+<li>⼀般⽤来处理图形中每个像素点<code>颜⾊计算和填充</code></li>
+<li>⽚段着⾊器是OpenGL中⽤于计算⽚段（像素）颜⾊的程序。⽚段着⾊器是逐像素运算的程序，也就是说每个像素都会执⾏⼀次⽚段着⾊器，也是<code>并⾏的</code></li>
+</ul>
+<h3 id="GLSL（OpenGL-Shading-Language）"><a href="#GLSL（OpenGL-Shading-Language）" class="headerlink" title="GLSL（OpenGL Shading Language）"></a>GLSL（OpenGL Shading Language）</h3><p><code>GLSL</code>是OpenGL着⾊语⾔，是⽤来在OpenGL中着⾊编程的语⾔，运行在GPU上，代替了固定的渲染管线的⼀部分，⽐如：视图转换、投影转换等。GLSL（GL Shading Language）的着⾊器代码分成2个部分：</p>
+<ul>
+<li>Vertex Shader（顶点着⾊器）</li>
+<li>Fragment Shader（⽚断着⾊器&#x2F;片元着色器）</li>
+</ul>
+<h3 id="光栅化（Rasterization）"><a href="#光栅化（Rasterization）" class="headerlink" title="光栅化（Rasterization）"></a>光栅化（Rasterization）</h3><p>栅格化或者像素化，就是把矢量图形转化成像素点的过程，该过程包含了两部分的工作</p>
+<ol>
+<li>决定窗口坐标中的哪些整型栅格区域被基本图元占用</li>
+<li>分配一个颜色值和一个深度值到各个区域。光栅化过程产生的是片元。</li>
+</ol>
+<h3 id="纹理（Texture）"><a href="#纹理（Texture）" class="headerlink" title="纹理（Texture）"></a>纹理（Texture）</h3><p>纹理可以理解为图⽚，在OpenGL习惯叫纹理</p>
+<h3 id="混合（Blending）"><a href="#混合（Blending）" class="headerlink" title="混合（Blending）"></a>混合（Blending）</h3><p>不同图层进行<code>颜色混合</code>，例如<code>组透明度</code>（例如将两个图层（透明度0.2的红色图层和透明度0.5的绿色图层）混合叠加在一起，这个过程就叫做混合），OpenGL提供的默认的混合算法混合算法，如果需要更加复杂的混合算法，⼀般可以通过像素着⾊器进⾏实现，当然性能会⽐原⽣的混合算法差⼀些</p>
+<h3 id="变换矩阵（Transformation）"><a href="#变换矩阵（Transformation）" class="headerlink" title="变换矩阵（Transformation）"></a>变换矩阵（Transformation）</h3><p>用于对图形进行平移，缩放，旋转变换操作时使用</p>
+<h3 id="投影矩阵（Projection）"><a href="#投影矩阵（Projection）" class="headerlink" title="投影矩阵（Projection）"></a>投影矩阵（Projection）</h3><p>⽤于将3D坐标转换为⼆维屏幕坐标时使用</p>
+<h3 id="渲染上屏-x2F-交换缓冲区-SwapBuffer"><a href="#渲染上屏-x2F-交换缓冲区-SwapBuffer" class="headerlink" title="渲染上屏&#x2F;交换缓冲区(SwapBuffer)"></a>渲染上屏&#x2F;交换缓冲区(SwapBuffer)</h3><ol>
+<li>渲染缓冲区⼀般映射的是系统的资源⽐如窗⼝。如果将图像直接渲染到窗⼝对应的渲染缓冲区，则可以将图像显示到屏幕上。</li>
+<li>但是，如果每个窗⼝只有⼀个缓冲区，那么在绘制过程中屏幕进⾏了刷新，窗⼝可能显示出不完整的图像，前后两次绘制重叠</li>
+<li>为了解决这个问题，常规的OpenGL程序⾄少都会有两个缓冲区。显示在屏幕上的称为屏幕缓冲区，没有显示的称为离屏缓冲区。在⼀个缓冲区渲染完成之后，通过将屏幕缓冲区和离屏缓冲区交换，实现图像在屏幕上的显示，就是<code>双缓冲</code></li>
+<li>由于显示器的刷新⼀般是逐⾏进⾏的，因此为了防⽌交换缓冲区的时候屏幕上下区域的图像分属于两个不同的帧，因此交换⼀般会等待显示器刷新完成的信号，在显示器两次刷新的间隔中进⾏交换，这个信号就被称为垂直同步信号（VSync），这个技术被称为<code>垂直同步</code></li>
+<li>使⽤了双缓冲区和垂直同步技术之后，由于总是要等待缓冲区交换之后再进⾏下⼀帧的渲染，使得帧率⽆法完全达到硬件允许的最⾼⽔平。为了解决这个问题，引⼊了<code>三缓冲区技术</code>，在等待垂直同步时，来回交替渲染两个离屏的缓冲区，⽽垂直同步发⽣时，屏幕缓冲区和最近渲染完成的离屏缓冲区交换，实现充分利⽤硬件性能的⽬的</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2020-07-01/opengl-words/" title="OpenGL名词解释">http://zhengbomo.github.io/2020-07-01/opengl-words/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/OpenGL/" rel="tag"># OpenGL</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-06-30/flutter-chat-listview/" rel="prev" title="flutter仿微信聊天交互">
+      <i class="fa fa-chevron-left"></i> flutter仿微信聊天交互
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-07-04/flutter-key/" rel="next" title="理解flutter中的Key">
+      理解flutter中的Key <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BE%E5%BD%A2API"><span class="nav-number">1.</span> <span class="nav-text">图形API</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BE%E5%BD%A2API%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">1.1.</span> <span class="nav-text">图形API的作用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OpenGL%E4%B8%8A%E4%B8%8B%E2%BD%82%EF%BC%88Context%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">OpenGL上下⽂（Context）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OpenGL%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="nav-number">3.</span> <span class="nav-text">OpenGL状态机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93%EF%BC%88Rendering%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">渲染（Rendering）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BE%E5%85%83"><span class="nav-number">5.</span> <span class="nav-text">图元</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B6%E7%82%B9%E6%95%B0%E7%BB%84%E5%92%8C%E9%A1%B6%E7%82%B9%E7%BC%93%E5%86%B2%E5%8C%BA%EF%BC%88VertexArray-amp-VertexBuffer%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">顶点数组和顶点缓冲区（VertexArray &amp; VertexBuffer）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E7%BA%BF"><span class="nav-number">7.</span> <span class="nav-text">管线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BA%E5%AE%9A%E7%AE%A1%E7%BA%BF"><span class="nav-number">8.</span> <span class="nav-text">固定管线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9D%80%E2%BE%8A%E5%99%A8%E7%A8%8B%E5%BA%8F%EF%BC%88Shader%EF%BC%89"><span class="nav-number">9.</span> <span class="nav-text">着⾊器程序（Shader）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%B6%E7%82%B9%E7%9D%80%E2%BE%8A%E5%99%A8%EF%BC%88VertexShader%EF%BC%89"><span class="nav-number">9.1.</span> <span class="nav-text">顶点着⾊器（VertexShader）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%BD%9A%E6%AE%B5%E7%9D%80%E2%BE%8A%E5%99%A8-x2F-%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8%EF%BC%88FragmentShader%EF%BC%89"><span class="nav-number">9.2.</span> <span class="nav-text">⽚段着⾊器&#x2F;片元着色器（FragmentShader）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GLSL%EF%BC%88OpenGL-Shading-Language%EF%BC%89"><span class="nav-number">9.3.</span> <span class="nav-text">GLSL（OpenGL Shading Language）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E6%A0%85%E5%8C%96%EF%BC%88Rasterization%EF%BC%89"><span class="nav-number">9.4.</span> <span class="nav-text">光栅化（Rasterization）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%B9%E7%90%86%EF%BC%88Texture%EF%BC%89"><span class="nav-number">9.5.</span> <span class="nav-text">纹理（Texture）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%B7%E5%90%88%EF%BC%88Blending%EF%BC%89"><span class="nav-number">9.6.</span> <span class="nav-text">混合（Blending）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5%EF%BC%88Transformation%EF%BC%89"><span class="nav-number">9.7.</span> <span class="nav-text">变换矩阵（Transformation）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%95%E5%BD%B1%E7%9F%A9%E9%98%B5%EF%BC%88Projection%EF%BC%89"><span class="nav-number">9.8.</span> <span class="nav-text">投影矩阵（Projection）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93%E4%B8%8A%E5%B1%8F-x2F-%E4%BA%A4%E6%8D%A2%E7%BC%93%E5%86%B2%E5%8C%BA-SwapBuffer"><span class="nav-number">9.9.</span> <span class="nav-text">渲染上屏&#x2F;交换缓冲区(SwapBuffer)</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

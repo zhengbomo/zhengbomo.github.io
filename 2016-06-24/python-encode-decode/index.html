@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="python使用中文字符串的时候，经常会遇到乱码，升值是根本无法使用的问题，经常无端报错，有找不到原因，有时候使用decode或encode可以解决问题，但是并不知道为什么，今天在这里总结一下关于python编解码的一些相关要点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python编解码">
+<meta property="og:url" content="http://zhengbomo.github.io/2016-06-24/python-encode-decode/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="python使用中文字符串的时候，经常会遇到乱码，升值是根本无法使用的问题，经常无端报错，有找不到原因，有时候使用decode或encode可以解决问题，但是并不知道为什么，今天在这里总结一下关于python编解码的一些相关要点">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-06-24T07:53:43.000Z">
+<meta property="article:modified_time" content="2016-06-24T07:53:43.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="编码">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2016-06-24/python-encode-decode/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>python编解码 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2016-06-24/python-encode-decode/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          python编解码
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-06-24 15:53:43" itemprop="dateCreated datePublished" datetime="2016-06-24T15:53:43+08:00">2016-06-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>python使用中文字符串的时候，经常会遇到乱码，升值是根本无法使用的问题，经常无端报错，有找不到原因，有时候使用decode或encode可以解决问题，但是并不知道为什么，今天在这里总结一下关于python编解码的一些相关要点</p>
+<span id="more"></span>
+<h2 id="1-python的字符串"><a href="#1-python的字符串" class="headerlink" title="1. python的字符串"></a>1. python的字符串</h2><p>python有两种类型的字符串，分别是<code>unicode</code>和<code>str</code>，我们知道，大部分其他语言的字符串都只有一种，使用同一的编码方式，为什么python要搞出两个来坑人？</p>
+<p>先来看看声明，以便下面区别，str字符串没有前缀，unicode字符串有前缀<code>u</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="string">&#x27;str字符串&#x27;</span></span><br><span class="line">u = <span class="string">u&#x27;unicode字符串&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>在python中，str是字节串，而unicode才是真正意义上的字符串，str是unicode字符串经过编码后字节组成，而它们是可以互相转换的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># unicode -&gt; str</span></span><br><span class="line">s = <span class="string">u&#x27;abc中文&#x27;</span>.encode(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">type</span>(s)             <span class="comment"># &lt;type &#x27;str&#x27;&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># str -&gt; unicode</span></span><br><span class="line"><span class="built_in">print</span> s.decode(<span class="string">&#x27;utf-8&#x27;</span>)   <span class="comment"># abc中文</span></span><br></pre></td></tr></table></figure>
+
+<p>unicode编码是python处理字符串的中间编码，其他编码都是通过unicode进行转换的，所以为了避免混乱，这里推荐一个原则：<strong>不要对unicode使用decode，不要对str使用encode</strong></p>
+<p>如果要把gbk编码的str转为utf16编码的str，我们需要用unicode编码做中转</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">s8 = <span class="string">u&#x27;abc中文&#x27;</span>.encode(<span class="string">&#x27;gbk&#x27;</span>)   <span class="comment"># &#x27;abc\xd6\xd0\xce\xc4&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 转成unicode</span></span><br><span class="line">temp = s8.decode(<span class="string">&#x27;gbk&#x27;</span>)        <span class="comment"># u&#x27;abc\u4e2d\u6587&#x27;</span></span><br><span class="line"><span class="comment"># 转成str</span></span><br><span class="line">s16 = temp.encode(<span class="string">&#x27;utf-16&#x27;</span>)      <span class="comment"># &#x27;\xff\xfea\x00b\x00c\x00-N\x87e&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 合起来</span></span><br><span class="line">s16 = s8.decode(<span class="string">&#x27;gbk&#x27;</span>).encode(<span class="string">&#x27;utf-16&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>s16使用的是<code>utf-16</code>编码，这时候我们在控制台或IDE输出一下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span> s16</span><br><span class="line"><span class="comment"># 输出：��abc-N�e</span></span><br></pre></td></tr></table></figure>
+<p>我们看到了乱码，这是由于控制台或IDE的编码与字符串的编码不一致导致的，如果一致，就正常输出</p>
+<h2 id="2-py文件编码"><a href="#2-py文件编码" class="headerlink" title="2. py文件编码"></a>2. py文件编码</h2><p>在python中，如果源文件使用了非Ascii字符，必须在文件头（前几行）声明文件编码格式，这样python解释器在解释的时候，会把相应的str字符串编码为响应的编码格式</p>
+<p>声明py文件编码格式如下，下面四种方式可以，第一句<code>#!/usr/bin/python</code>是用来兼容linux，声明python解释器的位置，通常也加上</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment">#coding:utf-16</span></span><br><span class="line"><span class="comment">#coding=gbk</span></span><br></pre></td></tr></table></figure>
+<p><strong>注意上面声明的编码格式必须与文件保存的编码格式一致，否则会读取失败或出现乱码</strong><br>文件头声明的编码是给解释器看的，它会把文件中的字符串用响应的格式进行编码</p>
+<p>test.py（文件编码为GBK，py编码声明为GBK）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment">#coding=gbk</span></span><br><span class="line"></span><br><span class="line">u = <span class="string">u&#x27;abc中文&#x27;</span></span><br><span class="line">s = <span class="string">&#x27;abc中文&#x27;</span></span><br><span class="line"><span class="built_in">print</span> u                     <span class="comment"># abc中文</span></span><br><span class="line"><span class="built_in">print</span> s                     <span class="comment"># 出现乱码</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 转为unicode字符串，正常</span></span><br><span class="line"><span class="built_in">print</span> s.decode(<span class="string">&#x27;gbk&#x27;</span>)       <span class="comment"># abc中文</span></span><br></pre></td></tr></table></figure>
+<p>上面代码运行的后，直接打印s会出现乱码，因为s是用GBK进行编码的str字符串，而IDE或控制台使用的编码为UTF8，不一致，所以输出乱码，解决办法可以吧s转换为unicode字符串</p>
+<h2 id="3-读取文件"><a href="#3-读取文件" class="headerlink" title="3. 读取文件"></a>3. 读取文件</h2><p>假定文件<code>test.txt</code>是用GBK编码存储的，我们现在读取其内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> io</span><br><span class="line"></span><br><span class="line">io.<span class="built_in">open</span>(<span class="string">&#x27;test.txt&#x27;</span>)</span><br><span class="line">f = io.<span class="built_in">open</span>(<span class="string">&#x27;test.txt&#x27;</span>, encoding=<span class="string">&#x27;gbk&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span> f.read()</span><br><span class="line"><span class="comment"># 这是一个GBK编码存储的文件</span></span><br></pre></td></tr></table></figure>
+<p>默认使用utf-8编码读取，不指定编码格式可能会读不了或出现乱码</p>
+<h2 id="4-getdefaultencoding-x2F-setdefaultencoding"><a href="#4-getdefaultencoding-x2F-setdefaultencoding" class="headerlink" title="4. getdefaultencoding&#x2F;setdefaultencoding"></a>4. getdefaultencoding&#x2F;setdefaultencoding</h2><p>上面我们说到，把gbk编码转换成utf16的时候，我们需要借助unicode编码进行中转，其实不中转也是可以的，python会自动帮我们转</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先拿到一个gbk编码的str</span></span><br><span class="line">gbk = <span class="string">u&#x27;abc中文&#x27;</span>.encode(<span class="string">&#x27;gbk&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 严谨的方式是这样的</span></span><br><span class="line">gbk.decode(<span class="string">&#x27;gbk&#x27;</span>).encode(<span class="string">&#x27;utf16&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 省去解码这一步（会报错）</span></span><br><span class="line">gbk.encode(<span class="string">&#x27;utf16&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>上面我们直接对str进行encode，python解释器会自动帮我们吧str先转成unicode，而解码方式使用系统默认的方式，一般默认的解码方式是<code>ascii</code>，可以通过<code>sys.getdefaultencoding()</code>取到，所以上面语句相当于，显然会报错</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gbk.decode(<span class="string">&#x27;ascii&#x27;</span>).encode(<span class="string">&#x27;utf16&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>这个时候我们可以设置<code>defaultencoding</code>为gbk就可以了，设置之前，需要reload一下sys库</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> sys.getdefaultencoding()      <span class="comment"># ascii</span></span><br><span class="line">reload(sys)</span><br><span class="line">sys.setdefaultencoding(<span class="string">&#x27;gbk&#x27;</span>)</span><br><span class="line"></span><br><span class="line">gbk = <span class="string">u&#x27;abc中文&#x27;</span>.encode(<span class="string">&#x27;gbk&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span> gbk.encode(<span class="string">&#x27;utf16&#x27;</span>)           <span class="comment"># 输出：&#x27;\xff\xfea\x00b\x00c\x00-N\x87e&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>输出成功</p>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><ul>
+<li>文件编码，存储时的编码格式，与python无关</li>
+<li>python编码声明，放在py文件前几行，为了避免冲突，通常保持与文件编码一致</li>
+<li>IDE&#x2F;控制台编码，当我们在IDE&#x2F;或控制台输出的字符串的时候，如果IDE的编码与字符串的编码不一致，也导致输出乱码</li>
+<li>str字符串encode的时候，会自动先转为unicode，再进行编码，setdefaultencoding可以设置str字符串默认转换为unicode的编码</li>
+<li>在python中，真正用来执行操作的还是unicode字符串，而str字符串仅用于前后的编码的转换而已</li>
+</ul>
+<p>为了保证编码正确，我们可以尽量把其他编码格式的str字符串根据响应的编码格式，转换为unicode字符串，再使用</p>
+<p>在开发中我们尽量都使用UTF8作为编码的格式，包括IDE，文件编码默认都是用UTF8</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2016-06-24/python-encode-decode/" title="python编解码">http://zhengbomo.github.io/2016-06-24/python-encode-decode/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E7%A0%81/" rel="tag"># 编码</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016-06-23/python-urllib2/" rel="prev" title="python网络请求库urllib">
+      <i class="fa fa-chevron-left"></i> python网络请求库urllib
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016-06-27/python-lagou/" rel="next" title="python爬取拉勾网数据">
+      python爬取拉勾网数据 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-python%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">1.</span> <span class="nav-text">1. python的字符串</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-py%E6%96%87%E4%BB%B6%E7%BC%96%E7%A0%81"><span class="nav-number">2.</span> <span class="nav-text">2. py文件编码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">3. 读取文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-getdefaultencoding-x2F-setdefaultencoding"><span class="nav-number">4.</span> <span class="nav-text">4. getdefaultencoding&#x2F;setdefaultencoding</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">5. 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

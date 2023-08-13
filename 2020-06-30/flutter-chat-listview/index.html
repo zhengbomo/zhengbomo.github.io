@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="最近在做一个聊天的页面，参考微信的聊天页面，对ListView有下面几个需求  使用列表Widget，例如：ListView, CustomScrollView等 支持scrollToEnd，当键盘，表情面板，工具面板弹出时，消息滑动到底部 支持获取位置用于跳转getCurrentIndexInfo，用于保持加载数据时候的位置不变 支持jumpToIndex和scrollToIndex，避免手动计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flutter仿微信聊天交互">
+<meta property="og:url" content="http://zhengbomo.github.io/2020-06-30/flutter-chat-listview/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="最近在做一个聊天的页面，参考微信的聊天页面，对ListView有下面几个需求  使用列表Widget，例如：ListView, CustomScrollView等 支持scrollToEnd，当键盘，表情面板，工具面板弹出时，消息滑动到底部 支持获取位置用于跳转getCurrentIndexInfo，用于保持加载数据时候的位置不变 支持jumpToIndex和scrollToIndex，避免手动计">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/flutter/flutter-chat-message-list.gif">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/flutter/scroll_controller_scroll_to_end.gif">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/flutter/flutter-listview-insert-keep-position.gif">
+<meta property="article:published_time" content="2020-06-30T00:16:15.000Z">
+<meta property="article:modified_time" content="2020-06-30T00:16:15.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="flutter">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/flutter/flutter-chat-message-list.gif">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2020-06-30/flutter-chat-listview/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>flutter仿微信聊天交互 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-06-30/flutter-chat-listview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          flutter仿微信聊天交互
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-30 08:16:15" itemprop="dateCreated datePublished" datetime="2020-06-30T08:16:15+08:00">2020-06-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/flutter/" itemprop="url" rel="index"><span itemprop="name">flutter</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近在做一个聊天的页面，参考微信的聊天页面，对<code>ListView</code>有下面几个需求</p>
+<ol>
+<li>使用列表Widget，例如：ListView, CustomScrollView等</li>
+<li>支持<code>scrollToEnd</code>，当键盘，表情面板，工具面板弹出时，消息滑动到底部</li>
+<li>支持获取位置用于跳转<code>getCurrentIndexInfo</code>，用于保持加载数据时候的位置不变</li>
+<li>支持<code>jumpToIndex</code>和<code>scrollToIndex</code>，避免手动计算位置</li>
+<li>滑动位置要准确，没有误差</li>
+<li>滑动到底部不会出现bounce</li>
+<li>由于键盘上移的时候scrollToEnd</li>
+</ol>
+<span id="more"></span>
+
+<img src="/images/post/flutter/flutter-chat-message-list.gif" class="" width="300">
+
+<h2 id="scrollToEnd"><a href="#scrollToEnd" class="headerlink" title="scrollToEnd"></a>scrollToEnd</h2><p>以<code>ListView</code>为例，网上推荐的做法是</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// <span class="language-markdown">滑动到底部</span></span></span><br><span class="line"><span class="keyword">void</span> _scrollToEnd() &#123;</span><br><span class="line">  <span class="keyword">final</span> offset = _scrollController.position.maxScrollExtent;</span><br><span class="line">    _scrollController.animateTo(offset,</span><br><span class="line">    duration: <span class="built_in">Duration</span>(milliseconds: <span class="number">250</span>),</span><br><span class="line">    curve: Curves.easeInOut</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但上面做法存在一个问题，就是误差，当内容是高度可变的时候就会有误差，如下面例子</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> _random = Random();</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_TestPageState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">TestPage</span>&gt; </span>&#123;</span><br><span class="line">  <span class="built_in">List</span>&lt;<span class="built_in">double</span>&gt; _items =</span><br><span class="line">      <span class="built_in">List</span>.generate(<span class="number">180</span>, (index) =&gt; _random.nextInt(<span class="number">100</span>) + <span class="number">100.0</span>);</span><br><span class="line">  ScrollController _scrollController = ScrollController();</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> Scaffold(</span><br><span class="line">      appBar: AppBar(</span><br><span class="line">        title: Text(<span class="string">&quot;scrollToEnd&quot;</span>),</span><br><span class="line">        actions: &lt;Widget&gt;[</span><br><span class="line">          IconButton(</span><br><span class="line">            icon: Icon(Icons.add),</span><br><span class="line">            onPressed: _scrollToEnd,</span><br><span class="line">          ),</span><br><span class="line">        ],</span><br><span class="line">      ),</span><br><span class="line">      body: ListView.builder(</span><br><span class="line">          controller: _scrollController,</span><br><span class="line">          itemBuilder: (c, i) &#123;</span><br><span class="line">            <span class="keyword">return</span> Container(</span><br><span class="line">              margin: EdgeInsets.all(<span class="number">8</span>),</span><br><span class="line">              height: _items[i],</span><br><span class="line">              color: Colors.orange,</span><br><span class="line">              child: Text(<span class="string">&quot;<span class="subst">$i</span>&quot;</span>),</span><br><span class="line">            );</span><br><span class="line">          &#125;,</span><br><span class="line">          itemCount: _items.length),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="/images/post/flutter/scroll_controller_scroll_to_end.gif" class="" width="300">
+
+<h3 id="存在问题"><a href="#存在问题" class="headerlink" title="存在问题"></a>存在问题</h3><p>从截图中可以看到，<code>maxScrollExtent</code>有时候偏小，有时候偏大，如果是偏大的情况，scrollView在scroll到屏幕外后再反弹（bounce的效果），这是由于ListView在渲染的时候，没出现在屏幕的Widget是不会被渲染的，这个时候还不能确定所有Widget的实际高度，ScrollView会根据当前渲染的Widget估算其他Widget的高度，所以带来误差，而如果widget是等高的，则不会有误差问题</p>
+<p>如果能<code>scrollToIndex</code>应该可以解决问题，直接滑动到某一项</p>
+<h2 id="scrollToIndex"><a href="#scrollToIndex" class="headerlink" title="scrollToIndex"></a>scrollToIndex</h2><p>自带的ScrollController不支持scrollToIndex，找到下面2个第三方库，支持scrollToIndex，两个库都可以精确滑动到对应的位置</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://pub.dev/packages/scroll_to_index"><code>scroll_to_index</code></a>: 通过分段滑动，边滑动边计算，在滑动的过程中可以得到widget的高度，达到scrollToIndex的目的</li>
+<li><a target="_blank" rel="noopener" href="https://pub.dev/packages/scrollable_positioned_list"><code>scrollable_positioned_list</code></a><ul>
+<li>对于滚动列表进行<code>extendCache</code>，缓存多两个屏幕的widget</li>
+<li>为了计算位置，我们知道滚动到第0项，位置肯定是准的，也就是<code>offset=0</code>，scrollable_positioned_list用一个辅助的列表做滚动位置，让滚动的目标为0，这样就可以避免计算的误差</li>
+<li>保持缓存区间所有Widget的位置信息，当目标位置在当前列表的缓存区间的时候，直接scrollToOffset，否则，使用辅助列表配合滚动，两个列表都只缓存开始和结束位置的widget，而不需要计算中间的widget，当列表增大时，不会带来太大的性能消耗</li>
+</ul>
+</li>
+</ol>
+<h3 id="存在问题-1"><a href="#存在问题-1" class="headerlink" title="存在问题"></a>存在问题</h3><ul>
+<li><code>scroll_to_index</code>: 由于是采用多次滚动的方式，对于数据量大的话滑动会持续时间比较长，而且看起来非常不顺滑，抖动厉害，性能消耗比较大</li>
+<li><code>scrollable_positioned_list</code>: 当滑动到底部（最后一个项）的时候，他会把index项滑动到0的位置再回弹，会出现bounce</li>
+</ul>
+<h2 id="bounce问题"><a href="#bounce问题" class="headerlink" title="bounce问题"></a>bounce问题</h2><p>基于上面问题，考虑对<code>scrollable_positioned_list</code>滑动之前添加溢出检查，避免溢出造成bounce，具体代码见<a target="_blank" rel="noopener" href="https://github.com/zhengbomo/flutter.widgets/tree/master/packages/scrollable_positioned_list">这里</a></p>
+<p>scrollable_positioned_list默认使用相对位置alignment，这里改为offset</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 这里去掉了alignment，改用offset</span></span><br><span class="line"><span class="keyword">void</span> _jumpTo(&#123;<span class="meta">@required</span> <span class="built_in">int</span> index, <span class="built_in">double</span> offset&#125;) &#123;</span><br><span class="line">    cancelScrollCallback?.call();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> controller =</span><br><span class="line">        _showFrontList ? frontScrollController : backScrollController;</span><br><span class="line">    <span class="keyword">final</span> lastTarget = _showFrontList ? frontTarget : backTarget;</span><br><span class="line">    <span class="comment">// 方向</span></span><br><span class="line">    <span class="keyword">final</span> direction = index &gt; lastTarget ? <span class="number">1</span> : <span class="number">-1</span>;</span><br><span class="line">    <span class="comment">// 更新index</span></span><br><span class="line">    setState(() &#123;</span><br><span class="line">      <span class="keyword">if</span> (lastTarget != index) &#123;</span><br><span class="line">        <span class="keyword">if</span> (_showFrontList) &#123;</span><br><span class="line">          frontTarget = index;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          backTarget = index;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">// 加上偏移量offset</span></span><br><span class="line">    <span class="keyword">var</span> jumpOffset = <span class="number">0</span> + offset;</span><br><span class="line">    <span class="keyword">if</span> (direction == <span class="number">-1</span>) &#123;</span><br><span class="line">      controller.jumpTo(jumpOffset);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      controller.jumpTo(jumpOffset);</span><br><span class="line">      <span class="comment">// 渲染后如果发现溢出，马上修正</span></span><br><span class="line">      WidgetsBinding.instance.addPostFrameCallback((timeStamp) &#123;</span><br><span class="line">        <span class="keyword">var</span> offset = min(jumpOffset, controller.position.maxScrollExtent);</span><br><span class="line">        <span class="keyword">if</span> (controller.offset != offset) &#123;</span><br><span class="line">          controller.jumpTo(offset);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于scrollToIndex</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (itemPosition != <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="comment">// 不用切换列表</span></span><br><span class="line">    <span class="keyword">final</span> localScrollAmount = itemPosition.itemLeadingEdge *</span><br><span class="line">        startingScrollController.position.viewportDimension;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> animateOffset =</span><br><span class="line">        startingScrollController.offset + localScrollAmount - offset;</span><br><span class="line">    <span class="comment">// 添加溢出check</span></span><br><span class="line">    animateOffset =</span><br><span class="line">        min(animateOffset, startingScrollController.position.maxScrollExtent);</span><br><span class="line">    <span class="keyword">await</span> startingScrollController.animateTo(animateOffset,</span><br><span class="line">        duration: duration, curve: curve);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 需要切换两个列表</span></span><br><span class="line">    ...</span><br><span class="line">    startAnimationCallback = () &#123;</span><br><span class="line">        SchedulerBinding.instance.addPostFrameCallback((_) <span class="keyword">async</span> &#123;</span><br><span class="line">          frontOpacity.parent = _opacityAnimation(startingListDisplay).animate(</span><br><span class="line">              AnimationController(vsync: <span class="keyword">this</span>, duration: duration)..forward());</span><br><span class="line">          startAnimationCallback = () &#123;&#125;;</span><br><span class="line">          <span class="keyword">var</span> endJump = -direction *</span><br><span class="line">              (_screenScrollCount *</span><br><span class="line">                      startingScrollController.position.viewportDimension -</span><br><span class="line">                  offset);</span><br><span class="line">          <span class="keyword">var</span> startScroll =</span><br><span class="line">              startingScrollController.offset + direction * scrollAmount;</span><br><span class="line"></span><br><span class="line">          endingScrollController.jumpTo(endJump);</span><br><span class="line">          <span class="comment">// 修正位置，避免溢出</span></span><br><span class="line">          <span class="keyword">var</span> endScroll = min(</span><br><span class="line">              <span class="number">0.0</span> + offset, endingScrollController.position.maxScrollExtent);</span><br><span class="line">          endScroll =</span><br><span class="line">              max(endScroll, endingScrollController.position.minScrollExtent);</span><br><span class="line">          endCompleter.complete(endingScrollController.animateTo(endScroll,</span><br><span class="line">              duration: duration, curve: curve));</span><br><span class="line"></span><br><span class="line">          startCompleter.complete(startingScrollController</span><br><span class="line">              .animateTo(startScroll, duration: duration, curve: curve));</span><br><span class="line"></span><br><span class="line">          cancelScrollCallback = () =&gt; _cancelScroll(startingListDisplay);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="获取index位置"><a href="#获取index位置" class="headerlink" title="获取index位置"></a>获取index位置</h2><p>当列表滑动到顶部的时候，需要加载上一页的聊天数据，我们希望加载数据后刷新页面，用户所在的位置不变（不要跳动），可以保留当前位置，在刷新后更新位置</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 第一个为index，第二个为offset</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">dynamic</span>&gt; _getCurrentIndexInfo(<span class="built_in">bool</span> wholeVisible) &#123;</span><br><span class="line">    <span class="keyword">final</span> controller =</span><br><span class="line">        _showFrontList ? frontScrollController : backScrollController;</span><br><span class="line">    <span class="keyword">final</span> notifier =</span><br><span class="line">        _showFrontList ? frontItemPositionNotifier : backItemPositionNotifier;</span><br><span class="line">    <span class="comment">/// <span class="language-markdown">获取viewport上元素的Position信息</span></span></span><br><span class="line">    <span class="keyword">var</span> visibleItems = notifier.itemPositions.value.where((i) &#123;</span><br><span class="line">      <span class="keyword">if</span> (wholeVisible) &#123;</span><br><span class="line">        <span class="keyword">return</span> i.itemLeadingEdge &gt;= <span class="number">0</span> &amp;&amp; i.itemTrailingEdge &lt;= <span class="number">1</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> i.itemTrailingEdge &gt; <span class="number">0</span> &amp;&amp; i.itemLeadingEdge &lt; <span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">/// <span class="language-markdown">取最小index</span></span></span><br><span class="line">    ItemPosition firstVisibleItem = visibleItems.fold(<span class="keyword">null</span>, (v, i) &#123;</span><br><span class="line">      <span class="keyword">if</span> (v == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> i;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (i.index &lt; v.index) &#123;</span><br><span class="line">        <span class="keyword">return</span> i;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">// 计算偏移量</span></span><br><span class="line">    <span class="keyword">var</span> offset = controller.position.viewportDimension *</span><br><span class="line">        firstVisibleItem.itemLeadingEdge;</span><br><span class="line">    <span class="keyword">return</span> [firstVisibleItem.index, offset];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="/images/post/flutter/flutter-listview-insert-keep-position.gif" class="" width="300">
+
+<h2 id="键盘处理"><a href="#键盘处理" class="headerlink" title="键盘处理"></a>键盘处理</h2><p>键盘弹出的时候，我们希望ChatBar是动画上移的，并且listview需要scrollToEnd，<code>Scaffold</code>有个属性<code>resizeToAvoidBottomInset</code>用于控制键盘弹出时的内容区域，但是没有动画，直接变化看起来非常突兀，这里关掉了这个属性，我们自己来控制键盘弹出时的UI变化</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Scaffold(</span><br><span class="line">    resizeToAvoidBottomInset: <span class="keyword">false</span>,</span><br><span class="line">    ...</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>如果使用动画修改ListView的高度，则无法和scrollToEnd配合起来，应为scrollToEnd无法根据动画一致滚动，这样性能上会比较差，这里采用占位的方式，键盘弹出的时候，不修改ListView的高度，而是在ListView底部添加一个<code>占位item</code>，修改这个占位item高度（不需要动画），然后scrollToEnd，这个滚动可以做到平滑，另外ChatBar键盘弹出时添加上动画即可</p>
+<p>仿写微信项目在<a target="_blank" rel="noopener" href="https://github.com/zhengbomo/flutter_wechat">这里</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2020-06-30/flutter-chat-listview/" title="flutter仿微信聊天交互">http://zhengbomo.github.io/2020-06-30/flutter-chat-listview/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/flutter/" rel="tag"># flutter</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-06-19/ios-performance/" rel="prev" title="iOS性能优化">
+      <i class="fa fa-chevron-left"></i> iOS性能优化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-07-01/opengl-words/" rel="next" title="OpenGL名词解释">
+      OpenGL名词解释 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#scrollToEnd"><span class="nav-number">1.</span> <span class="nav-text">scrollToEnd</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.</span> <span class="nav-text">存在问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#scrollToIndex"><span class="nav-number">2.</span> <span class="nav-text">scrollToIndex</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E9%97%AE%E9%A2%98-1"><span class="nav-number">2.1.</span> <span class="nav-text">存在问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bounce%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">bounce问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96index%E4%BD%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">获取index位置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%AE%E7%9B%98%E5%A4%84%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">键盘处理</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

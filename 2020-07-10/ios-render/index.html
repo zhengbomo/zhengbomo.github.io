@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="CPU和GPU  从图中结构可以看出  CPU的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，擅长逻辑控制   GPU是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，擅长并发计算">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS图像渲染原理解析">
+<meta property="og:url" content="http://zhengbomo.github.io/2020-07-10/ios-render/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="CPU和GPU  从图中结构可以看出  CPU的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，擅长逻辑控制   GPU是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，擅长并发计算">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/cpu-gpu.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/print-structure.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/screen-scan.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/image-tear.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/double-buffer.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/jank.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/ios-render-structure.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/coreanimation-pipe.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/opengl/renderservice.png">
+<meta property="article:published_time" content="2020-07-10T13:33:03.000Z">
+<meta property="article:modified_time" content="2020-07-10T13:33:03.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="OpenGL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/opengl/cpu-gpu.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2020-07-10/ios-render/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>iOS图像渲染原理解析 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-07-10/ios-render/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS图像渲染原理解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-10 21:33:03" itemprop="dateCreated datePublished" datetime="2020-07-10T21:33:03+08:00">2020-07-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="CPU和GPU"><a href="#CPU和GPU" class="headerlink" title="CPU和GPU"></a>CPU和GPU</h2><img src="/images/post/opengl/cpu-gpu.png" class="" width="800">
+
+<p>从图中结构可以看出</p>
+<ul>
+<li><code>CPU</code>的处理单元少，由控制器和缓存单元，擅长处理复杂的逻辑以及数据结构，CPU中的并行其实是通过时间切片完成的。任务之间依赖性高，<code>擅长逻辑控制</code>  </li>
+<li><code>GPU</code>是由许多计算单元组成，每个计算单元可以独立工作，任务之间依赖性低，擅长浮点运算，<code>擅长并发计算</code></li>
+</ul>
+<span id="more"></span>
+
+<h2 id="计算机渲染原理"><a href="#计算机渲染原理" class="headerlink" title="计算机渲染原理"></a>计算机渲染原理</h2><h3 id="⾼级光栅扫描显示系统结构"><a href="#⾼级光栅扫描显示系统结构" class="headerlink" title="⾼级光栅扫描显示系统结构"></a>⾼级光栅扫描显示系统结构</h3><img src="/images/post/opengl/print-structure.png" class="" width="700">
+
+<h3 id="屏幕扫描"><a href="#屏幕扫描" class="headerlink" title="屏幕扫描"></a>屏幕扫描</h3><p><code>视频控制器/显示控制器</code>从<code>帧缓冲区</code>中读取图像信息（位图），经过数模转换（数字信号处-&gt;模拟型号）后通过<code>逐行扫描</code>把图像显示到显示器上的</p>
+<img src="/images/post/opengl/screen-scan.png" class="" width="500">
+
+<h4 id="撕裂问题"><a href="#撕裂问题" class="headerlink" title="撕裂问题"></a>撕裂问题</h4><p>显示一个完整画面是需要一定时间的，视频控制器在显示图像的过程中，如果这时候帧缓冲区的数据被刷新了，就会造成<code>撕裂</code>的问题，上面部分显示前面一帧的数据，下面部分为新的数据</p>
+<img src="/images/post/opengl/image-tear.png" class="" width="500">
+
+<h4 id="双缓冲区和垂直同步"><a href="#双缓冲区和垂直同步" class="headerlink" title="双缓冲区和垂直同步"></a>双缓冲区和垂直同步</h4><p>为了解决撕裂，苹果引入了<code>垂直同步</code>（VSync） + <code>双缓存区</code>（DoubleBuffering）来解决撕裂的问题（苹果使用的就是这个策略）</p>
+<ol>
+<li>垂直同步Vsync：每隔1&#x2F;60s就会发出一个信号，让GPU开始渲染图像，而这个时间间隔足够视频控制器显示图像了，App启动后，会在Runloop注册对应的CFRunLoopSource，通过mach_port，接受来自系统的Vsync事件（实际上是由硬件发出的，每秒钟发60次），CADisplayLink也是同样的原理</li>
+<li>双缓存区 DoubleBuffering，使用两个帧缓冲区，视频控制器使用的帧缓冲区和GPU使用的分开，避免视频控制器正在使用的缓冲区被修改，避免撕裂问题，在GPU把帧数据写到帧缓冲区后，会和视频控制器使用的帧缓冲区进行交换，然后等待下一帧的渲染</li>
+</ol>
+<img src="/images/post/opengl/double-buffer.png" class="" width="800">
+
+<h4 id="掉帧"><a href="#掉帧" class="headerlink" title="掉帧"></a>掉帧</h4><p>上面解决了撕裂的问题，但是还有一个掉帧的问题，如下图</p>
+<img src="/images/post/opengl/jank.png" class="" width="800">
+
+<p>当CPU和GPU渲染图像的时间过长，在下一个垂直同步信号来的时候，GPU并没有处理完一帧的数据，帧缓冲区也就没有交换，视频控制器就会显示原来缓冲区的内容</p>
+<h4 id="三缓冲区"><a href="#三缓冲区" class="headerlink" title="三缓冲区"></a>三缓冲区</h4><p>从上图可以看出，CPU和GPU是在垂直同步信号到来的时候才开始渲染的工作，为了<code>减少掉帧</code>的情况，引入了<code>三缓冲区</code></p>
+<p>A：显示到屏幕<br>B：提前渲染号<br>C：正在渲染</p>
+<p>其实相当于预加载，充分利用CPU和GPU的空闲时间，提前渲染好一帧B（同时也会带来画面延迟，当然1帧的延迟是可以接受的），多留出了一帧的时间，即使在渲染C的时候出现了一次掉帧，依然能刘畅渲染，这种情况大大减小了掉帧的可能</p>
+<p>但如果渲染C的时间过长（掉多帧），依然会带来掉帧的问题，三缓冲区本质上并不解决掉帧的问题，只是缓解</p>
+<blockquote>
+<p>为了解决掉帧的问题，我们只能尽可能优化我们的代码，减少CPU和GPU的渲染时间</p>
+</blockquote>
+<h2 id="iOS的渲染框架"><a href="#iOS的渲染框架" class="headerlink" title="iOS的渲染框架"></a>iOS的渲染框架</h2><h3 id="渲染框架"><a href="#渲染框架" class="headerlink" title="渲染框架"></a>渲染框架</h3><img src="/images/post/opengl/ios-render-structure.png" class="" width="800">
+
+<p>可以看到在iOS中的<code>CoreGraphics</code>, <code>CoreAnimation</code>, <code>CoreImage</code>都是通过OpenGL&#x2F;Metal进行渲染的，我们的App也可以使用OpenGL&#x2F;Metal来操作GPU进行渲染</p>
+<h3 id="CoreAnimation-渲染流⽔线"><a href="#CoreAnimation-渲染流⽔线" class="headerlink" title="CoreAnimation 渲染流⽔线"></a>CoreAnimation 渲染流⽔线</h3><img src="/images/post/opengl/coreanimation-pipe.png" class="" width="1000">
+
+<p><code>CoreAnimation</code>会在<code>Runloop</code>注册一个<code>Observer</code>监听触摸事件，当点击事件到来的时候，Runloop会被唤醒处理相关的业务逻辑（UIView的创建，修改，添加动画等）</p>
+<p>最终会在CALayer通过<code>CATransaction</code>提交到<code>RenderServer</code>中，RenderServer会对图片进行解码，并等待下一个<code>VSync</code>的到来</p>
+<p>VSync信号到来后，<code>RenderService</code>会通过OpenGL&#x2F;Metal做一些绘制操作，然后把处理完的数据（纹理，顶点，着色器等）提交给<code>GPU</code></p>
+<p>GPU通过下面渲染流程程（顶点数据-&gt;顶点着⾊器-&gt;⽚元着⾊器），渲染到<code>帧缓冲区</code>，然后交换<code>帧缓冲区</code>（双缓冲区）</p>
+<p>下一个VSync信号到来的时候，视频控制器读取帧缓冲区的数据显示到屏幕上</p>
+<p>如果此处有动画，CoreAnimation会通过<code>DisplayLink</code>等机制多次触发相关流程</p>
+<img src="/images/post/opengl/renderservice.png" class="" width="800">
+
+<h3 id="渲染流程"><a href="#渲染流程" class="headerlink" title="渲染流程"></a>渲染流程</h3><ol>
+<li><p><code>CPU</code>阶段</p>
+<ul>
+<li>布局（Frame）: <code>layoutSubviews</code>, <code>addSubview</code></li>
+<li>显示（Core Graphics）: <code>drawRect</code>, 绘制字符串</li>
+<li>准备（QuartzCore&#x2F;Core Animation）：图片<code>decode</code></li>
+<li>提交：通过<code>IPC</code>提交(打包好的layers以及动画属性)给OpenGL&#x2F;Metal，递归提交subview的layers</li>
+</ul>
+</li>
+<li><p><code>OpenGL ES/Metal</code>阶段，主要是对图层进行取色，采样，生成纹理，绑定数据，生成前后帧缓存，为GPU渲染做准备</p>
+<ul>
+<li>生成(Generate)</li>
+<li>绑定(Bind)</li>
+<li>缓存数据(Buffer Data)</li>
+<li>启用(Enable)</li>
+<li>设置指针(Set Pointers)</li>
+<li>绘图(Draw)</li>
+<li>清除(Delete)</li>
+</ul>
+</li>
+<li><p><code>GPU</code>阶段</p>
+<ul>
+<li>接收提交的纹理（Texture）和顶点描述（三角形）</li>
+<li>应用变换（transform）</li>
+<li>合并渲染（离屏渲染等）</li>
+</ul>
+</li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/39b91ecaaac8">iOS界面渲染流程分析</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2020-07-10/ios-render/" title="iOS图像渲染原理解析">http://zhengbomo.github.io/2020-07-10/ios-render/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/OpenGL/" rel="tag"># OpenGL</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-07-04/flutter-key/" rel="prev" title="理解flutter中的Key">
+      <i class="fa fa-chevron-left"></i> 理解flutter中的Key
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-07-11/opengl-triangle-demo/" rel="next" title="【OpenGL案例1】绘制一个三角形">
+      【OpenGL案例1】绘制一个三角形 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E5%92%8CGPU"><span class="nav-number">1.</span> <span class="nav-text">CPU和GPU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">计算机渲染原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%BE%BC%E7%BA%A7%E5%85%89%E6%A0%85%E6%89%AB%E6%8F%8F%E6%98%BE%E7%A4%BA%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">⾼级光栅扫描显示系统结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%8F%E5%B9%95%E6%89%AB%E6%8F%8F"><span class="nav-number">2.2.</span> <span class="nav-text">屏幕扫描</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%92%95%E8%A3%82%E9%97%AE%E9%A2%98"><span class="nav-number">2.2.1.</span> <span class="nav-text">撕裂问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%8C%E7%BC%93%E5%86%B2%E5%8C%BA%E5%92%8C%E5%9E%82%E7%9B%B4%E5%90%8C%E6%AD%A5"><span class="nav-number">2.2.2.</span> <span class="nav-text">双缓冲区和垂直同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%89%E5%B8%A7"><span class="nav-number">2.2.3.</span> <span class="nav-text">掉帧</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="nav-number">2.2.4.</span> <span class="nav-text">三缓冲区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS%E7%9A%84%E6%B8%B2%E6%9F%93%E6%A1%86%E6%9E%B6"><span class="nav-number">3.</span> <span class="nav-text">iOS的渲染框架</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93%E6%A1%86%E6%9E%B6"><span class="nav-number">3.1.</span> <span class="nav-text">渲染框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CoreAnimation-%E6%B8%B2%E6%9F%93%E6%B5%81%E2%BD%94%E7%BA%BF"><span class="nav-number">3.2.</span> <span class="nav-text">CoreAnimation 渲染流⽔线</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93%E6%B5%81%E7%A8%8B"><span class="nav-number">3.3.</span> <span class="nav-text">渲染流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

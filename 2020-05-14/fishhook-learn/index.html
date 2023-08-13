@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="首先是知识储备  Mach-O文件格式，用于定位懒绑定的函数地址 Mach-O懒加载机制，运行时绑定自定义地址">
+<meta property="og:type" content="article">
+<meta property="og:title" content="fishhook源码学习">
+<meta property="og:url" content="http://zhengbomo.github.io/2020-05-14/fishhook-learn/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="首先是知识储备  Mach-O文件格式，用于定位懒绑定的函数地址 Mach-O懒加载机制，运行时绑定自定义地址">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/fish/text-stubs.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/fish/data-la-symbol-ptr.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/fish/text-stub-helper.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/fish/data-la-symbol-ptr-reserved1.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/fish/dynamic-symbol-table-reserved1.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/fish/symbol-table-info.png">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/fish/string-table-offset.png">
+<meta property="article:published_time" content="2020-05-14T11:20:18.000Z">
+<meta property="article:modified_time" content="2020-05-14T11:20:18.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/fish/text-stubs.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2020-05-14/fishhook-learn/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>fishhook源码学习 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2020-05-14/fishhook-learn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          fishhook源码学习
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-14 19:20:18" itemprop="dateCreated datePublished" datetime="2020-05-14T19:20:18+08:00">2020-05-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>首先是知识储备</p>
+<ul>
+<li>Mach-O文件格式，用于定位懒绑定的函数地址</li>
+<li>Mach-O懒加载机制，运行时绑定自定义地址</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="懒加载例子"><a href="#懒加载例子" class="headerlink" title="懒加载例子"></a>懒加载例子</h2><p>先看个例子</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> main(<span class="type">int</span> argc, <span class="type">char</span> * argv[]) &#123;</span><br><span class="line">    printf(<span class="string">&quot;111&quot;</span>);</span><br><span class="line">    printf(<span class="string">&quot;222&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调试查看汇编为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Test`main:</span><br><span class="line">    0x10486bf24 &lt;+0&gt;:  sub    sp, sp, #0x30             ; =0x30</span><br><span class="line">    0x10486bf28 &lt;+4&gt;:  stp    x29, x30, [sp, #0x20]</span><br><span class="line">    0x10486bf2c &lt;+8&gt;:  add    x29, sp, #0x20            ; =0x20</span><br><span class="line">    0x10486bf30 &lt;+12&gt;: stur   wzr, [x29, #-0x4]</span><br><span class="line">    0x10486bf34 &lt;+16&gt;: stur   w0, [x29, #-0x8]</span><br><span class="line">    0x10486bf38 &lt;+20&gt;: str    x1, [sp, #0x10]</span><br><span class="line">    0x10486bf3c &lt;+24&gt;: adrp   x0, 0</span><br><span class="line">    0x10486bf40 &lt;+28&gt;: add    x0, x0, #0xfa4            ; =0xfa4</span><br><span class="line">-&gt;  0x10486bf44 &lt;+32&gt;: bl     0x10486bf74               ; symbol stub for: printf</span><br><span class="line">    0x10486bf48 &lt;+36&gt;: adrp   x8, 0</span><br><span class="line">    0x10486bf4c &lt;+40&gt;: add    x8, x8, #0xfad            ; =0xfad</span><br><span class="line">    0x10486bf50 &lt;+44&gt;: str    w0, [sp, #0xc]</span><br><span class="line">    0x10486bf54 &lt;+48&gt;: mov    x0, x8</span><br><span class="line">    0x10486bf58 &lt;+52&gt;: bl     0x10486bf74               ; symbol stub for: printf</span><br><span class="line">    0x10486bf5c &lt;+56&gt;: mov    w9, #0x1</span><br><span class="line">    0x10486bf60 &lt;+60&gt;: str    w0, [sp, #0x8]</span><br><span class="line">    0x10486bf64 &lt;+64&gt;: mov    x0, x9</span><br><span class="line">    0x10486bf68 &lt;+68&gt;: ldp    x29, x30, [sp, #0x20]</span><br><span class="line">    0x10486bf6c &lt;+72&gt;: add    sp, sp, #0x30             ; =0x30</span><br><span class="line">    0x10486bf70 &lt;+76&gt;: ret</span><br></pre></td></tr></table></figure>
+
+<p>进入 <code>0x10486bf74</code> 方法（用<code>si</code>命令）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Test`printf:</span><br><span class="line">    0x10486bf74 &lt;+0&gt;: nop</span><br><span class="line">    0x10486bf78 &lt;+4&gt;: ldr    x16, #0x4088              ; (void *)0x0000000102a43fa8</span><br><span class="line">-&gt;  0x10486bf7c &lt;+8&gt;: br     x16</span><br></pre></td></tr></table></figure>
+
+<p>这段代码对应MachO文件中<code>__DATA</code>段的<code>__stubs</code>，MachOView没有显示出汇编代码（文件偏移地址&#x3D;内存偏移地址 - ASLR - PAGESIZE）</p>
+<img src="/images/post/fish/text-stubs.png" class="">
+
+<ul>
+<li>第一次会跳到<code>0x0000000102a43fa8</code>这个地址，去掉ASLR为<code>0x0000000100007fa8</code>，这个值存放在对应<code>__DATA</code>段的<code>__la_symbol_ptr</code>，fishhook也是修改这里的值，达到替换方法的目的  <img src="/images/post/fish/data-la-symbol-ptr.png" class=""></li>
+<li><code>0x0000000100007fa8</code>地址对应代码<code>__TEXT</code>段<code>__stub_helper</code>里面，第一次会执行这里进行符号绑定  <img src="/images/post/fish/text-stub-helper.png" class=""></li>
+<li>绑定完成后，会修改内存中<code>__DATA</code>段的<code>__la_symbol_ptr</code>里面的值</li>
+</ul>
+<p>下面是第二次执行<code>printf</code>，x16的值以及是<code>0x000000019d06df5c</code>了，这个就是真实的<code>printf</code>地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Test`printf:</span><br><span class="line">-&gt;  0x10486bf74 &lt;+0&gt;: nop</span><br><span class="line">    0x10486bf78 &lt;+4&gt;: ldr    x16, #0x4088              ; (void *)0x000000019d06df5c: printf</span><br><span class="line">    0x10486bf7c &lt;+8&gt;: br     x16</span><br></pre></td></tr></table></figure>
+
+<h2 id="fishhook源码分析"><a href="#fishhook源码分析" class="headerlink" title="fishhook源码分析"></a>fishhook源码分析</h2><p>fishhook就是利用了MachO对于符号（如：printf）在运行时才做真实地址的绑定（<code>__DATA</code>段<code>__la_symbol_ptr</code>或<code>__nl_symbol_ptr</code>），找到对应的符号占位地址修改为我们自己的函数地址</p>
+<p><code>fishhook.c</code>源码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用于重绑定符号的链表项</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rebindings_entry</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">rebinding</span> *<span class="title">rebindings</span>;</span></span><br><span class="line">  <span class="type">size_t</span> rebindings_nel;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">rebindings_entry</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用于存放所有要重绑定符号的列表，链表结构</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">rebindings_entry</span> *_<span class="title">rebindings_head</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 重绑定符号</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">rebind_symbols</span><span class="params">(<span class="keyword">struct</span> rebinding rebindings[], <span class="type">size_t</span> rebindings_nel)</span> &#123;</span><br><span class="line">  <span class="comment">// 把rebindings放进链表_rebindings_head的头部，原来的head会被放到next</span></span><br><span class="line">  <span class="type">int</span> retval = prepend_rebindings(&amp;_rebindings_head, rebindings, rebindings_nel);</span><br><span class="line">  <span class="keyword">if</span> (retval &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> retval;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 判断是否是第一次调用（第一次的话next为空）</span></span><br><span class="line">  <span class="keyword">if</span> (!_rebindings_head-&gt;next) &#123;</span><br><span class="line">    <span class="comment">// 第一次调用的话，注册加载动态库的回调，加载完后会回调_rebind_symbols_for_image</span></span><br><span class="line">    _dyld_register_func_for_add_image(_rebind_symbols_for_image);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 已经加载完成动态库，遍历所有的动态库</span></span><br><span class="line">    <span class="type">uint32_t</span> c = _dyld_image_count();</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">uint32_t</span> i = <span class="number">0</span>; i &lt; c; i++) &#123;</span><br><span class="line">      <span class="comment">// 符号绑定，传入动态库header和ASLR偏移量</span></span><br><span class="line">      _rebind_symbols_for_image(_dyld_get_image_header(i), _dyld_get_image_vmaddr_slide(i));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> retval;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 把rebindings放到链表rebindings_head的头部</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">prepend_rebindings</span><span class="params">(<span class="keyword">struct</span> rebindings_entry **rebindings_head,</span></span><br><span class="line"><span class="params">                              <span class="keyword">struct</span> rebinding rebindings[],</span></span><br><span class="line"><span class="params">                              <span class="type">size_t</span> nel)</span> &#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">rebindings_entry</span> *<span class="title">new_entry</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> rebindings_entry));</span><br><span class="line">  <span class="keyword">if</span> (!new_entry) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  new_entry-&gt;rebindings = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> rebinding) * nel);</span><br><span class="line">  <span class="keyword">if</span> (!new_entry-&gt;rebindings) &#123;</span><br><span class="line">    <span class="built_in">free</span>(new_entry);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">memcpy</span>(new_entry-&gt;rebindings, rebindings, <span class="keyword">sizeof</span>(<span class="keyword">struct</span> rebinding) * nel);</span><br><span class="line">  new_entry-&gt;rebindings_nel = nel;</span><br><span class="line">  new_entry-&gt;next = *rebindings_head;</span><br><span class="line">  *rebindings_head = new_entry;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 绑定动态库符号</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> _rebind_symbols_for_image(<span class="type">const</span> <span class="keyword">struct</span> mach_header *header,</span><br><span class="line">                                      <span class="type">intptr_t</span> slide) &#123;</span><br><span class="line">    rebind_symbols_for_image(_rebindings_head, header, slide);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 绑定动态库符号，主要方法</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">rebind_symbols_for_image</span><span class="params">(<span class="keyword">struct</span> rebindings_entry *rebindings,</span></span><br><span class="line"><span class="params">                                     <span class="type">const</span> <span class="keyword">struct</span> mach_header *header,</span></span><br><span class="line"><span class="params">                                     <span class="type">intptr_t</span> slide)</span> &#123;</span><br><span class="line">  Dl_info info;</span><br><span class="line">  <span class="comment">// 获取 mach_header 这个符号的信息，将信息放到 info 中</span></span><br><span class="line">  <span class="keyword">if</span> (dladdr(header, &amp;info) == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="type">segment_command_t</span> *cur_seg_cmd;</span><br><span class="line">  <span class="type">segment_command_t</span> *linkedit_segment = <span class="literal">NULL</span>;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">symtab_command</span>* <span class="title">symtab_cmd</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">dysymtab_command</span>* <span class="title">dysymtab_cmd</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 遍历loadCommand，找到__LINKEDIT，LC_SYMTAB, LC_DYSYMTAB</span></span><br><span class="line">  <span class="type">uintptr_t</span> cur = (<span class="type">uintptr_t</span>)header + <span class="keyword">sizeof</span>(<span class="type">mach_header_t</span>);</span><br><span class="line">  <span class="keyword">for</span> (uint i = <span class="number">0</span>; i &lt; header-&gt;ncmds; i++, cur += cur_seg_cmd-&gt;cmdsize) &#123;</span><br><span class="line">    cur_seg_cmd = (<span class="type">segment_command_t</span> *)cur;</span><br><span class="line">    <span class="keyword">if</span> (cur_seg_cmd-&gt;cmd == LC_SEGMENT_ARCH_DEPENDENT) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="built_in">strcmp</span>(cur_seg_cmd-&gt;segname, SEG_LINKEDIT) == <span class="number">0</span>) &#123;</span><br><span class="line">        linkedit_segment = cur_seg_cmd;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cur_seg_cmd-&gt;cmd == LC_SYMTAB) &#123;</span><br><span class="line">      symtab_cmd = (<span class="keyword">struct</span> symtab_command*)cur_seg_cmd;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cur_seg_cmd-&gt;cmd == LC_DYSYMTAB) &#123;</span><br><span class="line">      dysymtab_cmd = (<span class="keyword">struct</span> dysymtab_command*)cur_seg_cmd;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 判空</span></span><br><span class="line">  <span class="keyword">if</span> (!symtab_cmd || !dysymtab_cmd || !linkedit_segment ||</span><br><span class="line">      !dysymtab_cmd-&gt;nindirectsyms) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 定位 “符号表”，“字符串表”，“重定向表” 实际内存地址</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 代码段在内存的起始位置（ASLR偏移+PAGEZERO）(PAGEZERO = vmaddr - fileoff)</span></span><br><span class="line">  <span class="type">uintptr_t</span> linkedit_base = (<span class="type">uintptr_t</span>)slide + linkedit_segment-&gt;vmaddr - linkedit_segment-&gt;fileoff;</span><br><span class="line">  <span class="comment">// 符号表的地址 = 基址 + 符号表偏移量</span></span><br><span class="line">  <span class="type">nlist_t</span> *symtab = (<span class="type">nlist_t</span> *)(linkedit_base + symtab_cmd-&gt;symoff);</span><br><span class="line">  <span class="comment">// 字符串表的地址 = 基址 + 字符串表偏移量</span></span><br><span class="line">  <span class="type">char</span> *strtab = (<span class="type">char</span> *)(linkedit_base + symtab_cmd-&gt;stroff);</span><br><span class="line">  <span class="comment">// 动态符号表地址 = 基址 + 动态符号表偏移量</span></span><br><span class="line">  <span class="type">uint32_t</span> *indirect_symtab = (<span class="type">uint32_t</span> *)(linkedit_base + dysymtab_cmd-&gt;indirectsymoff);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 为了重新遍历loadCommand，重新设置cur</span></span><br><span class="line">  cur = (<span class="type">uintptr_t</span>)header + <span class="keyword">sizeof</span>(<span class="type">mach_header_t</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 再次遍历LoadCommand</span></span><br><span class="line">  <span class="keyword">for</span> (uint i = <span class="number">0</span>; i &lt; header-&gt;ncmds; i++, cur += cur_seg_cmd-&gt;cmdsize) &#123;</span><br><span class="line">    cur_seg_cmd = (<span class="type">segment_command_t</span> *)cur;</span><br><span class="line">    <span class="keyword">if</span> (cur_seg_cmd-&gt;cmd == LC_SEGMENT_ARCH_DEPENDENT) &#123;</span><br><span class="line">      <span class="comment">// 找到__DATA段和__DATA_CONST段</span></span><br><span class="line">      <span class="keyword">if</span> (<span class="built_in">strcmp</span>(cur_seg_cmd-&gt;segname, SEG_DATA) != <span class="number">0</span> &amp;&amp;</span><br><span class="line">          <span class="built_in">strcmp</span>(cur_seg_cmd-&gt;segname, SEG_DATA_CONST) != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">for</span> (uint j = <span class="number">0</span>; j &lt; cur_seg_cmd-&gt;nsects; j++) &#123;</span><br><span class="line">        <span class="type">section_t</span> *sect =</span><br><span class="line">          (<span class="type">section_t</span> *)(cur + <span class="keyword">sizeof</span>(<span class="type">segment_command_t</span>)) + j;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对__nl_symbol_ptr以及__la_symbol_ptr进行rebind</span></span><br><span class="line">        <span class="keyword">if</span> ((sect-&gt;flags &amp; SECTION_TYPE) == S_LAZY_SYMBOL_POINTERS) &#123;</span><br><span class="line">          perform_rebinding_with_section(rebindings, sect, slide, symtab, strtab, indirect_symtab);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ((sect-&gt;flags &amp; SECTION_TYPE) == S_NON_LAZY_SYMBOL_POINTERS) &#123;</span><br><span class="line">          perform_rebinding_with_section(rebindings, sect, slide, symtab, strtab, indirect_symtab);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 重新绑定符号</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">perform_rebinding_with_section</span><span class="params">(<span class="keyword">struct</span> rebindings_entry *rebindings,</span></span><br><span class="line"><span class="params">                                           <span class="type">section_t</span> *section,</span></span><br><span class="line"><span class="params">                                           <span class="type">intptr_t</span> slide,</span></span><br><span class="line"><span class="params">                                           <span class="type">nlist_t</span> *symtab,</span></span><br><span class="line"><span class="params">                                           <span class="type">char</span> *strtab,</span></span><br><span class="line"><span class="params">                                           <span class="type">uint32_t</span> *indirect_symtab)</span> &#123;</span><br><span class="line">  <span class="comment">// 是否是__DATA_CONST常量区</span></span><br><span class="line">  <span class="type">const</span> <span class="type">bool</span> isDataConst = <span class="built_in">strcmp</span>(section-&gt;segname, SEG_DATA_CONST) == <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// `nl_symbol_ptr`和`la_symbol_ptr`section中的`reserved1`字段指明对应的`indirect symbol table`起始的index</span></span><br><span class="line">  <span class="comment">//动态符号表中第一个解析的符号的起始地址</span></span><br><span class="line">  <span class="type">uint32_t</span> *indirect_symbol_indices = indirect_symtab + section-&gt;reserved1;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// indirect_symbol_bindings是 `__la_symbol_ptr` or `__nl_symbol_ptr` 表</span></span><br><span class="line">  <span class="comment">// 它的首地址 = slide(基础偏移地址) + Section的内存相对地址 (memory address of this section)</span></span><br><span class="line">  <span class="type">void</span> **indirect_symbol_bindings = (<span class="type">void</span> **)((<span class="type">uintptr_t</span>)slide + section-&gt;addr);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 内存保护设置</span></span><br><span class="line">  <span class="type">vm_prot_t</span> oldProtection = VM_PROT_READ;</span><br><span class="line">  <span class="keyword">if</span> (isDataConst) &#123;</span><br><span class="line">    oldProtection = get_protection(rebindings);</span><br><span class="line">    <span class="comment">// 修改内存属性为可读写（__DATA_CONST段默认是只读的），便于我们修改函数地址等数据</span></span><br><span class="line">    mprotect(indirect_symbol_bindings, section-&gt;size, PROT_READ | PROT_WRITE);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 遍历表</span></span><br><span class="line">  <span class="keyword">for</span> (uint i = <span class="number">0</span>; i &lt; section-&gt;size / <span class="keyword">sizeof</span>(<span class="type">void</span> *); i++) &#123;</span><br><span class="line">    <span class="comment">// 符号表Index：根据动态符号表获取</span></span><br><span class="line">    <span class="type">uint32_t</span> symtab_index = indirect_symbol_indices[i];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果是 abs 或者 是 本地 则跳过 (因为不是动态库的外部符号)</span></span><br><span class="line">    <span class="keyword">if</span> (symtab_index == INDIRECT_SYMBOL_ABS || symtab_index == INDIRECT_SYMBOL_LOCAL ||</span><br><span class="line">        symtab_index == (INDIRECT_SYMBOL_LOCAL   | INDIRECT_SYMBOL_ABS)) &#123;</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 字符串表偏移量</span></span><br><span class="line">    <span class="type">uint32_t</span> strtab_offset = symtab[symtab_index].n_un.n_strx;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过字符串表偏移量获取符号对应的字符串（符号的名字）</span></span><br><span class="line">    <span class="type">char</span> *symbol_name = strtab + strtab_offset;</span><br><span class="line">    <span class="type">bool</span> symbol_name_longer_than_1 = symbol_name[<span class="number">0</span>] &amp;&amp; symbol_name[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取第一个元素</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rebindings_entry</span> *<span class="title">cur</span> =</span> rebindings;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历所有需要hook的符号表</span></span><br><span class="line">    <span class="keyword">while</span> (cur) &#123;</span><br><span class="line">      <span class="keyword">for</span> (uint j = <span class="number">0</span>; j &lt; cur-&gt;rebindings_nel; j++) &#123;</span><br><span class="line">        <span class="comment">// 判断符号名是否相同</span></span><br><span class="line">        <span class="keyword">if</span> (symbol_name_longer_than_1 &amp;&amp;</span><br><span class="line">            <span class="built_in">strcmp</span>(&amp;symbol_name[<span class="number">1</span>], cur-&gt;rebindings[j].name) == <span class="number">0</span>) &#123;</span><br><span class="line">          <span class="comment">// 备份原来的符号地址</span></span><br><span class="line">          <span class="keyword">if</span> (cur-&gt;rebindings[j].replaced != <span class="literal">NULL</span> &amp;&amp;</span><br><span class="line">              indirect_symbol_bindings[i] != cur-&gt;rebindings[j].replacement) &#123;</span><br><span class="line">            *(cur-&gt;rebindings[j].replaced) = indirect_symbol_bindings[i];</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">// 并且将hook函数的新函数地址 更新到 `__nl_symbol_ptr`或者`__la_symbol_ptr` 中</span></span><br><span class="line">          indirect_symbol_bindings[i] = cur-&gt;rebindings[j].replacement;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 结束该内层的遍历, 查找下一个符号</span></span><br><span class="line">          <span class="keyword">goto</span> symbol_loop;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      cur = cur-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">  symbol_loop:;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 恢复原来的内存权限改写</span></span><br><span class="line">  <span class="keyword">if</span> (isDataConst) &#123;</span><br><span class="line">    <span class="type">int</span> protection = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (oldProtection &amp; VM_PROT_READ) &#123;</span><br><span class="line">      protection |= PROT_READ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (oldProtection &amp; VM_PROT_WRITE) &#123;</span><br><span class="line">      protection |= PROT_WRITE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (oldProtection &amp; VM_PROT_EXECUTE) &#123;</span><br><span class="line">      protection |= PROT_EXEC;</span><br><span class="line">    &#125;</span><br><span class="line">    mprotect(indirect_symbol_bindings, section-&gt;size, protection);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>整个过程</p>
+<ul>
+<li>获取LoadCommand的地址和数量</li>
+<li>遍历LoadCommand，获取到<code>__LINKEDIT</code>，<code>LC_SYMTAB</code>, <code>LC_DYSYMTAB</code>信息</li>
+<li>根据LoadCommand的段偏移量和ASLR偏移量，算出<code>符号表</code>，<code>动态符号表</code>，<code>字符串表</code>的内存地址</li>
+<li>遍历LoadCommand，找出<code>__DATA</code>段和<code>__DATA_CONST</code>段，遍历<code>S_LAZY_SYMBOL_POINTERS</code>和<code>S_NON_LAZY_SYMBOL_POINTERS</code>段信息</li>
+<li>如果是<code>__DATA_CONST</code>，则需要修改内存权限为可读写</li>
+<li>遍历上面两个段，过滤<code>abs</code>和<code>本地符号</code>，找到匹配符号的，保存原来的地址，替换为新的符号地址<ul>
+<li>通过<code>__la_symbol_ptr</code>的<code>reserved1</code>字段找到第一个需要动态绑定的符号在<code>Dynamic Symbol Table</code>中的位置<img src="/images/post/fish/data-la-symbol-ptr-reserved1.png" class="">
+<img src="/images/post/fish/dynamic-symbol-table-reserved1.png" class=""></li>
+<li><code>Dynamic Symbol Table</code>中获取到<code>Symbol Table</code>的Index<img src="/images/post/fish/symbol-table-info.png" class=""></li>
+<li>在<code>Symbol Table</code>获取<code>String Table</code>的偏移量，得到<code>符号名</code><img src="/images/post/fish/string-table-offset.png" class=""></li>
+<li>找到匹配的符号名，替换对应的段信息</li>
+</ul>
+</li>
+<li>恢复<code>__DATA_CONST</code>内存权限为只读</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2020-05-14/fishhook-learn/" title="fishhook源码学习">http://zhengbomo.github.io/2020-05-14/fishhook-learn/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-05-05/os-learn-memory/" rel="prev" title="《操作系统》内存管理（三）">
+      <i class="fa fa-chevron-left"></i> 《操作系统》内存管理（三）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-05-23/swift-method-dispatch/" rel="next" title="Swift方法派发机制">
+      Swift方法派发机制 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%87%92%E5%8A%A0%E8%BD%BD%E4%BE%8B%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">懒加载例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fishhook%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">fishhook源码分析</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、背景编译对于开发者可以说是最为频繁的操作，编译速度的快慢会极大的影响我们的开发效率，对于xx直播App来说，由于代码量大，加上代码结构设计不合理等原因，导致编译速度非常慢，每次启动App（即使不改动代码）需要3分钟的时间才能跑在手机上，而一次完整的编译，则需要15分钟，严重影响日常的业务开发和调试，现阶段编译速度的优化显得尤为重要，主要的时间消耗有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xx直播编译优化(减少372.7s)">
+<meta property="og:url" content="http://zhengbomo.github.io/2021-09-27/fanxing-build-optimize/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="一、背景编译对于开发者可以说是最为频繁的操作，编译速度的快慢会极大的影响我们的开发效率，对于xx直播App来说，由于代码量大，加上代码结构设计不合理等原因，导致编译速度非常慢，每次启动App（即使不改动代码）需要3分钟的时间才能跑在手机上，而一次完整的编译，则需要15分钟，严重影响日常的业务开发和调试，现阶段编译速度的优化显得尤为重要，主要的时间消耗有">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/fanxingbuild/build_tracing.png">
+<meta property="article:published_time" content="2021-09-27T09:49:32.000Z">
+<meta property="article:modified_time" content="2021-09-27T09:49:32.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/fanxingbuild/build_tracing.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2021-09-27/fanxing-build-optimize/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>xx直播编译优化(减少372.7s) | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2021-09-27/fanxing-build-optimize/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          xx直播编译优化(减少372.7s)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-27 17:49:32" itemprop="dateCreated datePublished" datetime="2021-09-27T17:49:32+08:00">2021-09-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、背景"><a href="#一、背景" class="headerlink" title="一、背景"></a>一、背景</h2><p><code>编译</code>对于开发者可以说是最为频繁的操作，编译速度的快慢会极大的影响我们的开发效率，对于xx直播App来说，由于代码量大，加上代码结构设计不合理等原因，导致编译速度非常慢，每次启动App（即使不改动代码）需要3分钟的时间才能跑在手机上，而一次完整的编译，则需要15分钟，严重影响日常的业务开发和调试，现阶段编译速度的优化显得尤为重要，主要的时间消耗有</p>
+<span id="more"></span>
+
+<ul>
+<li>Compile</li>
+<li>Linking</li>
+<li>Run Script</li>
+<li>Sign</li>
+<li>Install（文件多可能是主因）</li>
+</ul>
+<p>其中<code>Compile</code>时间占用<code>90%</code>以上，这里只关注Compile</p>
+<h2 id="二、调研"><a href="#二、调研" class="headerlink" title="二、调研"></a>二、调研</h2><p>Xcode是基于<code>llvm</code>编译的，llvm编译器的编译过程主要分为3个部分</p>
+<ul>
+<li>前端（Frontend）：负责解析源码，检查错误，生成抽象语法树（AST），并把 AST 转化成类汇编中间代码</li>
+<li>优化器（Optimizer）：对中间代码进行架构无关的优化，提高运行效率，减少代码体积，例如无效代码，无用变量等</li>
+<li>后端（Backend）：把中间代码转换成目标平台的机器码</li>
+</ul>
+<p>其中我们代码影响最大的<code>前端</code>，这里我们只关注前端，前端处理主要有</p>
+<ol>
+<li>预处理：这阶段的工作主要是</li>
+<li>头文件展开处理</li>
+<li>宏展开&#x2F;替换，预编译指令处理</li>
+<li>注释去除处理</li>
+<li>编译：这阶段做的事情比较多</li>
+<li>词法分析（Lexical Analysis）：将代码转换成一系列 token</li>
+<li>语法分析（Semantic Analysis）：将token树抽象语法树 AST</li>
+<li>静态分析（Static Analysis）：检查代码错误，例如参数类型是否错误，调用对象方法是否有实现</li>
+<li>中间代码生成（Code Generation）：将语法树自顶向下遍历逐步翻译成 LLVM IR</li>
+</ol>
+<p>llvm9.0之后添加了一个新的编译参数可以用于统计编译过程中各个阶段的耗时（<code>-ftime-trace</code>），利用该参数和编译器我们可以得到项目中所有文件编译的详细时间信息</p>
+<h3 id="2-1-ftime-trace测试"><a href="#2-1-ftime-trace测试" class="headerlink" title="2.1 -ftime-trace测试"></a>2.1 -ftime-trace测试</h3><ol>
+<li><p>下载llvm编译器，<code>9.0</code>以上的版本均可，解压后得到clang+llvm-9.0.0，我这里放到（~&#x2F;development&#x2F;clang+llvm-9.0.0）</p>
+</li>
+<li><p>在需要统计编译时间的Target中修改clang前端编译器（CC和CXX），和编译参数（OtherCFlag）</p>
+ <figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CC: <span class="regexp">/path/</span>to/clang</span><br><span class="line">CXX: <span class="regexp">/path/</span>to/clang++</span><br><span class="line">Other C Flag: 添加-ftime-trace</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关闭INDEX：<code>COMPILER_INDEX_STORE_ENABLE=NO</code></p>
+</li>
+<li><p>编译后，在目标文件（<code>xxx.o</code>）同个目录下，会生成<code>xxx.json</code>文件，如</p>
+<ul>
+<li>YYTimer.o</li>
+<li>YYTimer.json</li>
+</ul>
+</li>
+<li><p>整个json文件如下</p>
+ <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;traceEvents&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">21778</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">43204</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Module Load&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span><span class="string">&quot;UIKit&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">21329</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">44253</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Source&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span><span class="string">&quot;/Users/bomo/Documents/Code/iOS/Work/Analyze/4986-02-header2/FanXing/Pods/Target Support Files/KGThirdParty/KGThirdParty-prefix.pch&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">66818</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">1868</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Source&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span><span class="string">&quot;/Users/bomo/Documents/Code/iOS/Work/Analyze/4986-02-header2/FanXing/Pods/KGThirdParty/KGThirdParty/YYKit/Utility/YYTimer.h&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">20679</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">70778</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Frontend&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">91457</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">595</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Frontend&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">94811</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">617</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;RunPass&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span><span class="string">&quot;AArch64 Assembly Printer&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">94084</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">1370</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;OptFunction&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span><span class="string">&quot;\u0001+[YYTimer timerWithTimeInterval:target:selector:repeats:]&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">95456</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">526</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;OptFunction&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span><span class="string">&quot;\u0001-[YYTimer init]&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">95983</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">1123</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;OptFunction&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span><span class="string">&quot;\u0001-[YYTimer initWithFireTime:interval:target:selector:repeats:]&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">93022</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">6873</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;OptModule&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span><span class="string">&quot;/Users/bomo/Documents/Code/iOS/Work/Analyze/4986-02-header2/FanXing/Pods/KGThirdParty/KGThirdParty/YYKit/Utility/YYTimer.m&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">93013</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">6977</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;CodeGenPasses&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">92061</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">8108</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Backend&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">66</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">100526</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;ExecuteCompiler&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">100526</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total ExecuteCompiler&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">100</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">2</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">71372</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total Frontend&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">2</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">35</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">3</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">46121</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total Source&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">2</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">23</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">4</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">43318</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total Module Load&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">3</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">14</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">5</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">8108</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total Backend&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">8</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">6</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">7094</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total OptModule&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">2</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">3</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">7</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">6977</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total CodeGenPasses&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">6</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">8</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">5819</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total OptFunction&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">40</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">9</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">5585</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total RunPass&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">729</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">10</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">479</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total DebugType&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">88</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">11</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">279</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total CodeGen Function&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">12</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">223</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total PerModulePasses&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">13</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">56</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total Module LoadIndex&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">14</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">21</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total PerFunctionPasses&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">15</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;X&quot;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span><span class="number">3</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;Total PerformPendingInstantiations&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;count&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">&#123;</span><span class="attr">&quot;cat&quot;</span><span class="punctuation">:</span><span class="string">&quot;&quot;</span><span class="punctuation">,</span><span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span><span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span><span class="string">&quot;M&quot;</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;process_name&quot;</span><span class="punctuation">,</span><span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;clang-10&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>可以用Chrome打开<code>chrome://tracing</code>，然后拖入该json文件，可以直观的看到各个阶段编译消耗的时间</p>
+ <img src="/images/post/fanxingbuild/build_tracing.png" class="" width="1000">
+</li>
+<li><p>这里摘取<code>YYTimer.json</code>里面的一个片段</p>
+ <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span> <span class="string">&quot;X&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span> <span class="number">66818</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span> <span class="number">1868</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Source&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;args&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/Users/bomo/Documents/Code/iOS/Work/FanXing/Pods/KGThirdParty/KGThirdParty/YYKit/Utility/YYTimer.h&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;pid&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;tid&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ph&quot;</span><span class="punctuation">:</span> <span class="string">&quot;X&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;dur&quot;</span><span class="punctuation">:</span> <span class="number">100526</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Total ExecuteCompiler&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;args&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;count&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;avg ms&quot;</span><span class="punctuation">:</span> <span class="number">100</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p> 这里的<code>name=Source</code>为头文件YYTimer.h预编译处理的时间，dur为时间，单位为<code>微秒</code>，name&#x3D;Total ExecuteCompiler为该文件的编译时间</p>
+</li>
+</ol>
+<h2 id="三、项目测试"><a href="#三、项目测试" class="headerlink" title="三、项目测试"></a>三、项目测试</h2><p>通过上面的方法，编译整个项目，并统计所有文件的预编译处理时间，我这里用<code>python</code>扫描所有编译文件，然后做汇总统计</p>
+<h3 id="3-1-各编译阶段耗时"><a href="#3-1-各编译阶段耗时" class="headerlink" title="3.1 各编译阶段耗时"></a>3.1 各编译阶段耗时</h3><table>
+<thead>
+<tr>
+<th>编译类型</th>
+<th>耗时</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Total ExecuteCompiler:</td>
+<td>5077.09 秒</td>
+</tr>
+<tr>
+<td>Total Frontend:</td>
+<td>3571.56 秒</td>
+</tr>
+<tr>
+<td>Total Source:</td>
+<td>2479.86 秒</td>
+</tr>
+<tr>
+<td>Total Module Load:</td>
+<td>1598.68 秒</td>
+</tr>
+<tr>
+<td>Total Backend:</td>
+<td>396.09 秒</td>
+</tr>
+<tr>
+<td>Total CodeGenPasses:</td>
+<td>373.86 秒</td>
+</tr>
+<tr>
+<td>Total OptModule:</td>
+<td>371.34 秒</td>
+</tr>
+<tr>
+<td>Total OptFunction:</td>
+<td>272.03 秒</td>
+</tr>
+<tr>
+<td>Total RunPass:</td>
+<td>263.66 秒</td>
+</tr>
+<tr>
+<td>Total Module Compile:</td>
+<td>142.07 秒</td>
+</tr>
+</tbody></table>
+<p>从上面数据看出<code>Source</code>耗时最长，占用<code>2479.86s</code>，占比较大</p>
+<h3 id="3-2-头文件引用次数（TOP10）"><a href="#3-2-头文件引用次数（TOP10）" class="headerlink" title="3.2 头文件引用次数（TOP10）"></a>3.2 头文件引用次数（TOP10）</h3><p> 通过上面生成的json文件可以得到 </p>
+<table>
+<thead>
+<tr>
+<th>头文件</th>
+<th>引用次数</th>
+<th>平均耗时</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>******Common-prefix.pch</td>
+<td>1619次</td>
+<td>51.91毫秒</td>
+</tr>
+<tr>
+<td>******Singleton.h</td>
+<td>712次</td>
+<td>6.01毫秒</td>
+</tr>
+<tr>
+<td>******User-prefix.pch</td>
+<td>701次</td>
+<td>50.23毫秒</td>
+</tr>
+<tr>
+<td>******GiftList.h</td>
+<td>623次</td>
+<td>10.22毫秒</td>
+</tr>
+<tr>
+<td>******ModelObject.h</td>
+<td>617次</td>
+<td>3.42毫秒</td>
+</tr>
+<tr>
+<td>******Constants.h</td>
+<td>617次</td>
+<td>1.86毫秒</td>
+</tr>
+<tr>
+<td>******LiveInfo.h</td>
+<td>612次</td>
+<td>3.34毫秒</td>
+</tr>
+<tr>
+<td>******ProgramInfo.h</td>
+<td>612次</td>
+<td>5.58毫秒</td>
+</tr>
+<tr>
+<td>******AnimationView.h</td>
+<td>612次</td>
+<td>2.27毫秒</td>
+</tr>
+<tr>
+<td>******ViewDefine.h</td>
+<td>611次</td>
+<td>2.75毫秒</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注：这里的引用，包含间接引用 * A引用C * B引用A * D引用B</p>
+</blockquote>
+<p>则C被引用3次，会参与3次预编译处理，当D被引用100次时，A,B,C也会被引用处理100次，编译器在编译的时候会有其他优化策略，具体次数可能会细微差异 </p>
+<h3 id="3-3-头文件单次预处理耗时（TOP10）"><a href="#3-3-头文件单次预处理耗时（TOP10）" class="headerlink" title="3.3 头文件单次预处理耗时（TOP10）"></a>3.3 头文件单次预处理耗时（TOP10）</h3><table>
+<thead>
+<tr>
+<th>头文件</th>
+<th>耗时（平均）</th>
+<th>引用次数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>******ResultVC.h</td>
+<td>31971.25毫秒</td>
+<td>1</td>
+</tr>
+<tr>
+<td>******ListView.h</td>
+<td>17175.35毫秒</td>
+<td>1</td>
+</tr>
+<tr>
+<td>******ItemEntity.h</td>
+<td>16750.17毫秒</td>
+<td>1</td>
+</tr>
+<tr>
+<td>******GuideView.h</td>
+<td>16623.81毫秒</td>
+<td>1</td>
+</tr>
+<tr>
+<td>******RecommendView.h</td>
+<td>15125.93毫秒</td>
+<td>1</td>
+</tr>
+<tr>
+<td>******DrawerCell.h</td>
+<td>13072.67毫秒</td>
+<td>2</td>
+</tr>
+<tr>
+<td>******HelperMsgContainer.h</td>
+<td>13055.01毫秒</td>
+<td>2</td>
+</tr>
+<tr>
+<td>******RecordCell.h</td>
+<td>10176.65毫秒</td>
+<td>2</td>
+</tr>
+<tr>
+<td>******VerifyDao.h</td>
+<td>7482.75毫秒</td>
+<td>2</td>
+</tr>
+<tr>
+<td>******AppealModel.h</td>
+<td>7247.25毫秒</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注：由于头文件会多级引用，所以处理时间会叠加，这里仅供参考</p>
+</blockquote>
+<h3 id="3-4-头文件预处理总耗时（TOP10）"><a href="#3-4-头文件预处理总耗时（TOP10）" class="headerlink" title="3.4 头文件预处理总耗时（TOP10）"></a>3.4 头文件预处理总耗时（TOP10）</h3><table>
+<thead>
+<tr>
+<th>头文件</th>
+<th>总耗时</th>
+<th>引用次数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>****Common.h</td>
+<td>939.64秒</td>
+<td>610</td>
+</tr>
+<tr>
+<td>****AlertView.h</td>
+<td>267.89秒</td>
+<td>608</td>
+</tr>
+<tr>
+<td>****Common-prefix.pch</td>
+<td>84.04秒</td>
+<td>1619</td>
+</tr>
+<tr>
+<td>****MesageParse.h</td>
+<td>58.98秒</td>
+<td>600</td>
+</tr>
+<tr>
+<td>****RoomManager.h</td>
+<td>43.77秒</td>
+<td>598</td>
+</tr>
+<tr>
+<td>****User-prefix.pch</td>
+<td>35.21秒</td>
+<td>701</td>
+</tr>
+<tr>
+<td>****VideoInfoModel.h</td>
+<td>34.40秒</td>
+<td>10</td>
+</tr>
+<tr>
+<td>****VideoModel.h</td>
+<td>33.91秒</td>
+<td>8</td>
+</tr>
+<tr>
+<td>****ResultVC.h</td>
+<td>31.97秒</td>
+<td>1</td>
+</tr>
+<tr>
+<td>****Data-umbrella.h</td>
+<td>31.47秒</td>
+<td>64</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注：<code>xxxxCommon.h</code>文件引用次数不是最多，但总耗时最长</p>
+</blockquote>
+<h2 id="4-方案"><a href="#4-方案" class="headerlink" title="4. 方案"></a>4. 方案</h2><p>通过上面测试数据可以看出，<code>xxxxCommon.h</code>预处理耗时最长，通过查看该文件可以看出 </p>
+<ul>
+<li>该文件引用了非常多头文件（500+），完全展开的话会非常大，符合耗时的预期 </li>
+<li>项目中很多地方引用<code>xxxxCommon.h</code>文件可能只是用到里面其中一个或几个类，而有些地方为了图方便，就引用了这个大而全的文件，而引用整个<code>xxxxCommon.h</code>导致而预处理却花去了大量非必要的时间</li>
+</ul>
+<p>这里决定给<code>xxxxCommon.h</code>文件进行瘦身，逐步把引用迁移到更轻量的头文件引用，并在具体的文件中补齐其他缺失的头文件，**<code>头文件按需引用，减少不必要的预编译处理</code>** </p>
+<h2 id="5-成效"><a href="#5-成效" class="headerlink" title="5. 成效"></a>5. 成效</h2><ul>
+<li>机器：iMac (Retina 4K, 21.5-inch, 2019)， </li>
+<li>CPU: 3 GHz 六核Intel Core i5 * 内存：16 GB 2667 MHz DDR4 * 显卡：Radeon Pro 560X 4 GB </li>
+<li>Configuration: <code>DEBUG</code> </li>
+<li>编译架构：<code>arm64</code></li>
+</ul>
+<h3 id="5-1宏观统计（6核）（减少110-9s）"><a href="#5-1宏观统计（6核）（减少110-9s）" class="headerlink" title="5.1宏观统计（6核）（减少110.9s）"></a>5.1宏观统计（6核）（减少110.9s）</h3><p>测试方法：</p>
+<ol>
+<li>关闭Xcode，关闭Chrome等大进程 </li>
+<li>删除所有Xcode缓存文件（<code>~/Library/Developer/Xcode/DerivedData/</code>） </li>
+<li>打开Xcode编译 </li>
+<li>编译完成后，查看Xcode显示的编译总时间 </li>
+<li>测试结果去掉最高最低值</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>宏观统计</th>
+<th>测试1</th>
+<th>测试2</th>
+<th>测试3</th>
+<th>测试4</th>
+<th>平均</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基础工程</td>
+<td>447.9</td>
+<td>446.3</td>
+<td>452.7</td>
+<td>453.2</td>
+<td>450.025</td>
+</tr>
+<tr>
+<td>优化后工程</td>
+<td>339.8</td>
+<td>336.8</td>
+<td>338.1</td>
+<td>341.7</td>
+<td>339.1</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注：部分子库用了二进制，这里更多关注差值</p>
+</blockquote>
+<h3 id="5-2-微观统计（减少372-7s）"><a href="#5-2-微观统计（减少372-7s）" class="headerlink" title="5.2 微观统计（减少372.7s）"></a>5.2 微观统计（减少372.7s）</h3><p> 测试方法： </p>
+<ol>
+<li>使用上面提到的llvm自带统计工具，然后汇总结果统计所有文件的<code>Total ExecuteCompiler</code> </li>
+<li>测试结果去掉最高最低值 </li>
+<li>去掉所有的clang插件</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>微观统计</th>
+<th>测试1</th>
+<th>测试2</th>
+<th>测试3</th>
+<th>平均</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基础工程</td>
+<td>1449.3</td>
+<td>1445.8</td>
+<td>1456.3</td>
+<td>1450.4</td>
+</tr>
+<tr>
+<td>优化后工程</td>
+<td>1076.8</td>
+<td>1092.3</td>
+<td>1064.1</td>
+<td>1077.7</td>
+</tr>
+</tbody></table>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>上面优化修改了<code>2115</code>个文件，工作量还是比较大的，主要还是编码习惯和长期未规范使用带来量变积累，导致质变，平时养成良好的编码习惯，减少量变积累</li>
+<li>Xcode在编译的时候会把<code>#import &lt;AAA/BBB.h&gt;</code>自动转成<code>@import AAA.BBB</code>，为了统一风格，建议统一使用<code>#import &lt;AAA/BBB.h&gt;</code>方式引用，详情见<a target="_blank" rel="noopener" href="https://developer.apple.com/videos/play/wwdc2013/404/">WWDC2013-Advances in Objective-C</a> </li>
+<li>坚持一个原则：<strong>按需引用</strong>，<strong>按需引用</strong>（最小import原则），请引用<code>#import &lt;FAFuncUnit/XXX.h&gt;</code>，而不是<code>#import &lt;LibA/LibA-umbrella.h&gt;</code></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2021-09-27/fanxing-build-optimize/" title="xx直播编译优化(减少372.7s)">http://zhengbomo.github.io/2021-09-27/fanxing-build-optimize/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021-09-12/raspberrypi-gitea/" rel="prev" title="（六）树莓派4B安装gitea">
+      <i class="fa fa-chevron-left"></i> （六）树莓派4B安装gitea
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021-11-15/xcode-build-io-optimize/" rel="next" title="Xcode调试链优化(速度提升50&#37+)">
+      Xcode调试链优化(速度提升50&#37+) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">一、背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%B0%83%E7%A0%94"><span class="nav-number">2.</span> <span class="nav-text">二、调研</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-ftime-trace%E6%B5%8B%E8%AF%95"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 -ftime-trace测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%A1%B9%E7%9B%AE%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">三、项目测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%90%84%E7%BC%96%E8%AF%91%E9%98%B6%E6%AE%B5%E8%80%97%E6%97%B6"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 各编译阶段耗时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%A4%B4%E6%96%87%E4%BB%B6%E5%BC%95%E7%94%A8%E6%AC%A1%E6%95%B0%EF%BC%88TOP10%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 头文件引用次数（TOP10）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%A4%B4%E6%96%87%E4%BB%B6%E5%8D%95%E6%AC%A1%E9%A2%84%E5%A4%84%E7%90%86%E8%80%97%E6%97%B6%EF%BC%88TOP10%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 头文件单次预处理耗时（TOP10）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E5%A4%B4%E6%96%87%E4%BB%B6%E9%A2%84%E5%A4%84%E7%90%86%E6%80%BB%E8%80%97%E6%97%B6%EF%BC%88TOP10%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 头文件预处理总耗时（TOP10）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%96%B9%E6%A1%88"><span class="nav-number">4.</span> <span class="nav-text">4. 方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%88%90%E6%95%88"><span class="nav-number">5.</span> <span class="nav-text">5. 成效</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1%E5%AE%8F%E8%A7%82%E7%BB%9F%E8%AE%A1%EF%BC%886%E6%A0%B8%EF%BC%89%EF%BC%88%E5%87%8F%E5%B0%91110-9s%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">5.1宏观统计（6核）（减少110.9s）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%BE%AE%E8%A7%82%E7%BB%9F%E8%AE%A1%EF%BC%88%E5%87%8F%E5%B0%91372-7s%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 微观统计（减少372.7s）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhengbomo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="lldb是llvm的一个子项目，用于调试llvm编译的程序，做iOS调试时，和lldb打交道应该是最多的，本文对lldb常用的一些命令做一些整理，以便后续查阅">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lldb常用命令">
+<meta property="og:url" content="http://zhengbomo.github.io/2019-08-06/ios-lldb/index.html">
+<meta property="og:site_name" content="bomo的开发随笔">
+<meta property="og:description" content="lldb是llvm的一个子项目，用于调试llvm编译的程序，做iOS调试时，和lldb打交道应该是最多的，本文对lldb常用的一些命令做一些整理，以便后续查阅">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhengbomo.github.io/images/post/lldb-toolbar.png">
+<meta property="article:published_time" content="2019-08-06T08:40:58.000Z">
+<meta property="article:modified_time" content="2020-05-31T08:40:58.000Z">
+<meta property="article:author" content="bomo">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="lldb">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhengbomo.github.io/images/post/lldb-toolbar.png">
+
+<link rel="canonical" href="http://zhengbomo.github.io/2019-08-06/ios-lldb/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>lldb常用命令 | bomo的开发随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bomo的开发随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bomo的开发随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录工作学习点滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-exclamation-circle fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">45</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">99</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhengbomo.github.io/2019-08-06/ios-lldb/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="懒人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bomo的开发随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          lldb常用命令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-08-06 16:40:58" itemprop="dateCreated datePublished" datetime="2019-08-06T16:40:58+08:00">2019-08-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-31 16:40:58" itemprop="dateModified" datetime="2020-05-31T16:40:58+08:00">2020-05-31</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>lldb是llvm的一个子项目，用于调试llvm编译的程序，做iOS调试时，和<code>lldb</code>打交道应该是最多的，本文对lldb常用的一些命令做一些整理，以便后续查阅</p>
+<span id="more"></span>
+
+<h2 id="lldb常用操作"><a href="#lldb常用操作" class="headerlink" title="lldb常用操作"></a>lldb常用操作</h2><p>lldb的指令格式</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="built_in">command</span>&gt; [&lt;subcommand&gt; [&lt;subcommand&gt;...]] &lt;action&gt; [-options [optionvalue]] [argument [argument...]]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>命令</li>
+<li>子命令</li>
+<li>命令操作</li>
+<li>命令选项</li>
+<li>命令参数</li>
+</ul>
+<p>例如给函数test设置短点</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(lldb) breakpoint <span class="built_in">set</span> -n <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+
+<p>我们常用的命令有</p>
+<ul>
+<li>expression：表达式</li>
+<li>thread：线程</li>
+<li>frame：</li>
+<li>breakpoint：符号断点</li>
+<li>watchpoint：内存断点</li>
+<li>image：镜像</li>
+<li>register：寄存器</li>
+<li>memory：内存</li>
+<li>help：查看命令帮助</li>
+</ul>
+<p>所有命令可以通过<code>help &lt;command&gt; [&lt;subcommand&gt;]</code>查看详细文档</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">(lldb) <span class="built_in">help</span> breakpoint</span><br><span class="line">     Commands <span class="keyword">for</span> operating on breakpoints (see <span class="string">&#x27;help b&#x27;</span> <span class="keyword">for</span> shorthand.)</span><br><span class="line"></span><br><span class="line">Syntax: breakpoint &lt;subcommand&gt; [&lt;command-options&gt;]</span><br><span class="line"></span><br><span class="line">The following subcommands are supported:</span><br><span class="line"></span><br><span class="line">      clear   -- Delete or <span class="built_in">disable</span> breakpoints matching the specified <span class="built_in">source</span> file and line.</span><br><span class="line">      <span class="built_in">command</span> -- Commands <span class="keyword">for</span> adding, removing and listing LLDB commands executed when a breakpoint is hit.</span><br><span class="line">      delete  -- Delete the specified breakpoint(s).  If no breakpoints are specified, delete them all.</span><br><span class="line">      <span class="built_in">disable</span> -- Disable the specified breakpoint(s) without deleting them.  If none are specified, <span class="built_in">disable</span> all</span><br><span class="line">                 breakpoints.</span><br><span class="line">      <span class="built_in">enable</span>  -- Enable the specified disabled breakpoint(s). If no breakpoints are specified, <span class="built_in">enable</span> all of them.</span><br><span class="line">      list    -- List some or all breakpoints at configurable levels of detail.</span><br><span class="line">      modify  -- Modify the options on a breakpoint or <span class="built_in">set</span> of breakpoints <span class="keyword">in</span> the executable.  If no breakpoint is</span><br><span class="line">                 specified, acts on the last created breakpoint.  With the exception of -e, -d and -i, passing an</span><br><span class="line">                 empty argument clears the modification.</span><br><span class="line">      name    -- Commands to manage name tags <span class="keyword">for</span> breakpoints</span><br><span class="line">      <span class="built_in">read</span>    -- Read and <span class="built_in">set</span> the breakpoints previously saved to a file with <span class="string">&quot;breakpoint write&quot;</span>.</span><br><span class="line">      <span class="built_in">set</span>     -- Sets a breakpoint or <span class="built_in">set</span> of breakpoints <span class="keyword">in</span> the executable.</span><br><span class="line">      write   -- Write the breakpoints listed to a file that can be <span class="built_in">read</span> <span class="keyword">in</span> with <span class="string">&quot;breakpoint read&quot;</span>.  If given no</span><br><span class="line">                 arguments, writes all breakpoints.</span><br><span class="line"></span><br><span class="line">For more <span class="built_in">help</span> on any particular subcommand, <span class="built_in">type</span> <span class="string">&#x27;help &lt;command&gt; &lt;subcommand&gt;&#x27;</span>.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">(lldb) <span class="built_in">help</span> breakpoint <span class="built_in">set</span></span><br><span class="line">     Sets a breakpoint or <span class="built_in">set</span> of breakpoints <span class="keyword">in</span> the executable.</span><br><span class="line"></span><br><span class="line">Syntax: breakpoint <span class="built_in">set</span> &lt;cmd-options&gt;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h3 id="expression"><a href="#expression" class="headerlink" title="expression"></a>expression</h3><p><code>expression</code>命令是执行一个表达式，并将表达式返回的结果输出</p>
+<ol>
+<li><p>调用方法<code>expression</code></p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(lldb) expression self.view.hidden = 1</span><br><span class="line"></span><br><span class="line">(lldb) expression [self.view layoutIfNeeded]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加一个本地变量<code>expression</code></p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 命名以$开头</span></span><br><span class="line">(lldb) expression int <span class="variable">$a</span> = 10</span><br><span class="line">(lldb) p <span class="variable">$a</span></span><br><span class="line">(int) <span class="variable">$a</span> = 1</span><br></pre></td></tr></table></figure>
+
+<p> 我们可以通过添加本地变量实现页面跳转</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 定义变量并赋值</span></span><br><span class="line">(lldb) expression <span class="built_in">id</span> <span class="variable">$navVC</span> = self.navigationController;</span><br><span class="line"><span class="comment"># 定义变量</span></span><br><span class="line">(lldb) expression <span class="built_in">id</span> <span class="variable">$vc</span></span><br><span class="line"><span class="comment"># 创建vc</span></span><br><span class="line">(lldb) expression <span class="variable">$vc</span> = [[ViewController alloc] init];</span><br><span class="line"><span class="comment"># push跳转</span></span><br><span class="line">(lldb) expression [<span class="variable">$navVC</span> pushViewController:<span class="variable">$vc</span> animated:YES]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>打印变量地址<code>expression --</code>, <code>p</code></p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(lldb) expression button</span><br><span class="line">(UIButton *) <span class="variable">$4</span> = 0x00007f9d1ea05b50</span><br><span class="line"></span><br><span class="line"><span class="comment"># `--`表示选项结束</span></span><br><span class="line">(lldb) expression -- button</span><br><span class="line">(UIButton *) <span class="variable">$5</span> = 0x00007f9d1ea05b50</span><br><span class="line"></span><br><span class="line">(lldb) p button</span><br><span class="line">(UIButton *) <span class="variable">$6</span> = 0x00007f9d1ea05b50</span><br></pre></td></tr></table></figure>
+
+<p> <code>expression --</code>可以简写成<code>expression</code>，<code>print</code>，<code>p</code></p>
+</li>
+<li><p>打印变量值<code>expression -o --</code>,<code>po</code></p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># `--` 表示选项结束，`-o`表示按对象输出</span></span><br><span class="line">(lldb) expression -o -- button</span><br><span class="line">&lt;UIButton: 0x7f9d1ea05b50; frame = (184 433; 46 30); opaque = NO; autoresize = RM+BM; layer = &lt;CALayer: 0x600003a54ba0&gt;&gt;</span><br><span class="line"></span><br><span class="line">(lldb) po button</span><br><span class="line">&lt;UIButton: 0x7f9d1ea05b50; frame = (184 433; 46 30); opaque = NO; autoresize = RM+BM; layer = &lt;CALayer: 0x600003a54ba0&gt;&gt;</span><br></pre></td></tr></table></figure>
+
+<p> <code>expression -o --</code>可以简写成<code>po</code>，实际是调用对象的<code>description</code>方法，输出返回值</p>
+</li>
+</ol>
+<h3 id="thread"><a href="#thread" class="headerlink" title="thread"></a>thread</h3><ol>
+<li><p>打印调用堆栈信息<code>thread backtrace</code>, <code>bt</code></p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">(lldb) bt</span><br><span class="line">* thread <span class="comment">#1, queue = &#x27;com.apple.main-thread&#x27;, stop reason = step over</span></span><br><span class="line"> * frame <span class="comment">#0: 0x00000001087d1bbf Test`-[ViewController viewDidLoad](self=0x00007fba7cc0ce10, _cmd=&quot;viewDidLoad&quot;) at ViewController.m:101:1</span></span><br><span class="line">   frame <span class="comment">#1: 0x00007fff4856c066 UIKitCore`-[UIViewController _sendViewDidLoadWithAppearanceProxyObjectTaggingEnabled] + 83</span></span><br><span class="line">   frame <span class="comment">#2: 0x00007fff48570f84 UIKitCore`-[UIViewController loadViewIfRequired] + 1084</span></span><br><span class="line">   frame <span class="comment">#3: 0x00007fff485713a1 UIKitCore`-[UIViewController view] + 27</span></span><br><span class="line">   frame <span class="comment">#4: 0x00007fff48c51ae1 UIKitCore`-[UIWindow addRootViewControllerViewIfPossible] + 326</span></span><br><span class="line">   frame <span class="comment">#5: 0x00007fff48c5110a UIKitCore`-[UIWindow _updateLayerOrderingAndSetLayerHidden:actionBlock:] + 219</span></span><br><span class="line">   frame <span class="comment">#6: 0x00007fff48c52195 UIKitCore`-[UIWindow _setHidden:forced:] + 362</span></span><br><span class="line">   frame <span class="comment">#7: 0x00007fff48c655bc UIKitCore`-[UIWindow _mainQueue_makeKeyAndVisible] + 42</span></span><br><span class="line">   frame <span class="comment">#8: 0x00007fff48e84d2c UIKitCore`-[UIWindowScene _makeKeyAndVisibleIfNeeded] + 202</span></span><br><span class="line">   frame <span class="comment">#9: 0x00007fff48177720 UIKitCore`+[UIScene _sceneForFBSScene:create:withSession:connectionOptions:] + 1405</span></span><br><span class="line">   frame <span class="comment">#10: 0x00007fff48c15561 UIKitCore`-[UIApplication _connectUISceneFromFBSScene:transitionContext:] + 1019</span></span><br><span class="line">   frame <span class="comment">#11: 0x00007fff48c15898 UIKitCore`-[UIApplication workspace:didCreateScene:withTransitionContext:completion:] + 291</span></span><br><span class="line">   frame <span class="comment">#12: 0x00007fff4876a160 UIKitCore`-[UIApplicationSceneClientAgent scene:didInitializeWithEvent:completion:] + 361</span></span><br><span class="line">   frame <span class="comment">#13: 0x00007fff36c6091e FrontBoardServices`-[FBSSceneImpl _callOutQueue_agent_didCreateWithTransitionContext:completion:] + 419</span></span><br><span class="line">   frame <span class="comment">#14: 0x00007fff36c869b1 FrontBoardServices`__86-[FBSWorkspaceScenesClient sceneID:createWithParameters:transitionContext:completion:]_block_invoke.154 + 102</span></span><br><span class="line">   frame <span class="comment">#15: 0x00007fff36c6b347 FrontBoardServices`-[FBSWorkspace _calloutQueue_executeCalloutFromSource:withBlock:] + 220</span></span><br><span class="line">   frame <span class="comment">#16: 0x00007fff36c86642 FrontBoardServices`__86-[FBSWorkspaceScenesClient sceneID:createWithParameters:transitionContext:completion:]_block_invoke + 355</span></span><br><span class="line">   frame <span class="comment">#17: 0x0000000108a81e8e libdispatch.dylib`_dispatch_client_callout + 8</span></span><br><span class="line">   frame <span class="comment">#18: 0x0000000108a84da2 libdispatch.dylib`_dispatch_block_invoke_direct + 300</span></span><br><span class="line">   frame <span class="comment">#19: 0x00007fff36cac2d9 FrontBoardServices`__FBSSERIALQUEUE_IS_CALLING_OUT_TO_A_BLOCK__ + 30</span></span><br><span class="line">   frame <span class="comment">#20: 0x00007fff36cabfc7 FrontBoardServices`-[FBSSerialQueue _queue_performNextIfPossible] + 441</span></span><br><span class="line">   frame <span class="comment">#21: 0x00007fff36cac4d6 FrontBoardServices`-[FBSSerialQueue _performNextFromRunLoopSource] + 22</span></span><br><span class="line">   frame <span class="comment">#22: 0x00007fff23da1c71 CoreFoundation`__CFRUNLOOP_IS_CALLING_OUT_TO_A_SOURCE0_PERFORM_FUNCTION__ + 17</span></span><br><span class="line">   frame <span class="comment">#23: 0x00007fff23da1b9c CoreFoundation`__CFRunLoopDoSource0 + 76</span></span><br><span class="line">   frame <span class="comment">#24: 0x00007fff23da13cc CoreFoundation`__CFRunLoopDoSources0 + 268</span></span><br><span class="line">   frame <span class="comment">#25: 0x00007fff23d9bf6e CoreFoundation`__CFRunLoopRun + 974</span></span><br><span class="line">   frame <span class="comment">#26: 0x00007fff23d9b884 CoreFoundation`CFRunLoopRunSpecific + 404</span></span><br><span class="line">   frame <span class="comment">#27: 0x00007fff38b5ac1a GraphicsServices`GSEventRunModal + 139</span></span><br><span class="line">   frame <span class="comment">#28: 0x00007fff48c19220 UIKitCore`UIApplicationMain + 1605</span></span><br><span class="line">   frame <span class="comment">#29: 0x00000001087d2072 Test`main(argc=1, argv=0x00007ffee742dd98) at main.m:18:12</span></span><br><span class="line">   frame <span class="comment">#30: 0x00007fff519b910d libdyld.dylib`start + 1</span></span><br><span class="line">   frame <span class="comment">#31: 0x00007fff519b910d libdyld.dylib`start + 1</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>frame variable [value]</code><br> 打印当前调用栈的变量</p>
+ <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="type">int</span>)a:(<span class="built_in">NSSet</span> *)a b:(<span class="built_in">NSString</span> *)b c:(<span class="type">long</span>)c d:(<span class="type">int</span>)d e:(<span class="type">int</span>)e &#123;</span><br><span class="line">    <span class="built_in">NSString</span> *f = <span class="string">@&quot;v&quot;</span>;</span><br><span class="line">    <span class="built_in">NSUInteger</span> g = f.length;</span><br><span class="line">    g += <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">10</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用</span></span><br><span class="line">[<span class="keyword">self</span> a:<span class="literal">nil</span> b:<span class="string">@&quot;fdd&quot;</span> c:<span class="number">1231</span> d:<span class="number">2123</span> e:<span class="number">23</span>];</span><br></pre></td></tr></table></figure>
+
+<p> 在函数里面查看</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">(lldb) frame variable</span><br><span class="line">(ViewController *) self = 0x00007ffe4f4090b0</span><br><span class="line">(SEL) _cmd = <span class="string">&quot;a:b:c:d:e:&quot;</span></span><br><span class="line">(NSSet *) a = nil</span><br><span class="line">(__NSCFConstantString *) b = 0x0000000101b41088 @<span class="string">&quot;fdd&quot;</span></span><br><span class="line">(long) c = 1231</span><br><span class="line">(int) d = 2123</span><br><span class="line">(int) e = 23</span><br><span class="line">(__NSCFConstantString *) f = 0x0000000101b410a8 @<span class="string">&quot;v&quot;</span></span><br><span class="line">(NSUInteger) g = 2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>流程控制</p>
+<ul>
+<li><code>thread continue̵</code>&#x2F;<code>continue̵</code>&#x2F;<code>c</code>: 程序继续运行</li>
+<li><code>thread step-over</code>&#x2F;<code>next</code>&#x2F;<code>n</code>：单步运行（源码），不会进入子函数</li>
+<li><code>thread step-in</code>&#x2F;<code>step</code>&#x2F;<code>s</code>: 单步运行（源码），会进入子函数</li>
+<li><code>thread step-out</code>&#x2F;<code>finish</code>: 直接执行完当前函数的所有代码，返回到调用的地方</li>
+<li><code>thread return [value]</code>&#x2F;<code>thread r</code>：让当前函数直接返回，不执行当前断点后面代码</li>
+<li><code>thread step-inst-over</code>&#x2F;<code>nexti</code>&#x2F;<code>ni</code>：单步运行（汇编），不会进入子函数</li>
+<li><code>thread step-inst</code>&#x2F;<code>stepi</code>&#x2F;<code>si</code>：单步运行（汇编），会进入子函数</li>
+</ul>
+<p> 前面四个对应Xcode工具栏的前四个<br> <img src="/images/post/lldb-toolbar.png" alt="-"></p>
+</li>
+<li><p>调用栈回退和前进  </p>
+<ul>
+<li><code>up</code>&#x2F;<code>down</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="breakpoint"><a href="#breakpoint" class="headerlink" title="breakpoint"></a>breakpoint</h3><ol>
+<li><p>设置断点<code>breakpoint set</code></p>
+<ul>
+<li><code>breakpoint set -a 函数地址</code></li>
+<li><code>breakpoint set -n 函数符号</code></li>
+</ul>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(lldb) breakpoint <span class="built_in">set</span> -a 0x0000000101b3eab3</span><br><span class="line">Breakpoint 6: <span class="built_in">where</span> = Test`-[ViewController viewDidLoad] + 147 at ViewController.m:101:5, address = 0x0000000101b3eab3</span><br><span class="line"></span><br><span class="line">(lldb) breakpoint <span class="built_in">set</span> -n <span class="string">&quot;-[ViewController viewDidLoad]&quot;</span></span><br><span class="line"></span><br><span class="line">(lldb) breakpoint <span class="built_in">set</span> -n touchesBegan:withEvent:</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>列出所有的断点：<code>breakpoint list</code></p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">(lldb) breakpoint list</span><br><span class="line">Current breakpoints:</span><br><span class="line">1: file = <span class="string">&#x27;/Users/bomo/Desktop/Test/Test/ViewController.m&#x27;</span>, line = 116, exact_match = 0, locations = 1, resolved = 1, hit count = 0</span><br><span class="line">1.1: <span class="built_in">where</span> = Test`-[ViewController <span class="built_in">test</span>:] + 60 at ViewController.m:116:21, address = 0x0000000101b3ebec, resolved, hit count = 0</span><br><span class="line"></span><br><span class="line">2: file = <span class="string">&#x27;/Users/bomo/Desktop/Test/Test/ViewController.m&#x27;</span>, line = 114, exact_match = 0, locations = 1, resolved = 1, hit count = 0</span><br><span class="line">2.1: <span class="built_in">where</span> = Test`-[ViewController <span class="built_in">test</span>:] + 36 at ViewController.m:114:21, address = 0x0000000101b3ebd4, resolved, hit count = 0</span><br><span class="line"></span><br><span class="line">3: file = <span class="string">&#x27;/Users/bomo/Desktop/Test/Test/ViewController.m&#x27;</span>, line = 109, exact_match = 0, locations = 1, resolved = 1, hit count = 1</span><br><span class="line">3.1: <span class="built_in">where</span> = Test`-[ViewController a:b:c:d:e:] + 162 at ViewController.m:110:1, address = 0x0000000101b3eb72, resolved, hit count = 1</span><br><span class="line"></span><br><span class="line">4: address = 0x00000001007f1cac, locations = 1</span><br><span class="line">4.1: address = 0x00000001007f1cac, unresolved, hit count = 0 </span><br></pre></td></tr></table></figure>
+
+<p> 上面有4个断点，每个断点都有一个整数编号</p>
+</li>
+<li><p>设置断点状态</p>
+<ul>
+<li><code>breakpoint disable 断点编号</code>: 禁用断点</li>
+<li><code>breakpoint enable 断点编号</code>: 启用断点</li>
+<li><code>breakpoint delete 断点编号</code>: 删除断点</li>
+</ul>
+</li>
+<li><p>断点命令：</p>
+<ul>
+<li><p><code>breakpoint command add 断点编号</code>: 给断点预先设置需要执行的命令，当触发断点时候，就会执行</p>
+</li>
+<li><p><code>breakpoint command list 断点编号</code>: 列出断点的绑定的命令</p>
+</li>
+<li><p><code>breakpoint command delete 断点编号</code>: 删除断点绑定的命令</p>
+   <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(lldb) breakpoint <span class="built_in">command</span> add 1</span><br><span class="line">Enter your debugger <span class="built_in">command</span>(s).  Type <span class="string">&#x27;DONE&#x27;</span> to end.</span><br><span class="line">&gt; <span class="built_in">print</span> <span class="string">&quot;断点命中了&quot;</span></span><br><span class="line">&gt; <span class="built_in">print</span> <span class="string">&quot;断点参数为&quot;</span></span><br><span class="line">&gt; po sender</span><br><span class="line">&gt; DONE</span><br></pre></td></tr></table></figure>
+
+<p>   当断点命中的时候时候</p>
+   <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span> <span class="string">&quot;断点命中了&quot;</span></span><br><span class="line">(const char [16]) <span class="variable">$0</span> = <span class="string">&quot;断点命中了&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;断点参数为&quot;</span></span><br><span class="line">(const char [16]) <span class="variable">$1</span> = <span class="string">&quot;断点参数为&quot;</span></span><br><span class="line"></span><br><span class="line">po sender</span><br><span class="line">&lt;UIButton: 0x7fa86f80bf10; frame = (184 433; 46 30); opaque = NO; autoresize = RM+BM; layer = &lt;CALayer: 0x600001826580&gt;&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看断点的命令</span></span><br><span class="line">(lldb) breakpoint <span class="built_in">command</span> list 1</span><br><span class="line">1: file = <span class="string">&#x27;/Users/bomo/Desktop/Test/Test/ViewController.m&#x27;</span>, line = 105, exact_match = 0, locations = 1, resolved = 1, hit count = 4</span><br><span class="line">    Breakpoint commands:</span><br><span class="line">    <span class="built_in">print</span> <span class="string">&quot;断点命中了&quot;</span></span><br><span class="line">    <span class="built_in">print</span> <span class="string">&quot;断点参数为&quot;</span></span><br><span class="line">    po sender</span><br><span class="line"></span><br><span class="line">1.1: <span class="built_in">where</span> = Test`-[ViewController <span class="built_in">test</span>:] + 36 at ViewController.m:105:20, address = 0x000000010375ed24, resolved, hit count = 4</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除断点的命令</span></span><br><span class="line">(lldb) breakpoint <span class="built_in">command</span> delete 1</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h3 id="内存断点"><a href="#内存断点" class="headerlink" title="内存断点"></a>内存断点</h3><p>内存断点与符号断点用法类似</p>
+<ul>
+<li><p><code>watchpoint set variable 变量</code></p>
+  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(lldb) watchpoint <span class="built_in">set</span> variable self-&gt;age</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>watchpoint set expression 地址</code></p>
+  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(lldb) watchpoint <span class="built_in">set</span> expression 0x0000000101b3eab3</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>watchpoint list</code></p>
+</li>
+<li><p><code>watchpoint diable 断点编号</code></p>
+</li>
+<li><p><code>watchpoint enable 断点编号</code></p>
+</li>
+<li><p><code>watchpoint delete 断点编号</code></p>
+</li>
+<li><p><code>watchpoint command add 断点编号</code></p>
+</li>
+<li><p><code>watchpoint command list 断点编号</code></p>
+</li>
+<li><p><code>watchpoint command delete 断点编号</code></p>
+</li>
+</ul>
+<h3 id="image"><a href="#image" class="headerlink" title="image"></a>image</h3><ol>
+<li><p>列出所加载的模块信息<code>image list -o -f</code></p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(lldb) image list -o -f</span><br><span class="line">[  0] 0x000000000375d000 /Users/bomo/Library/Developer/Xcode/DerivedData/Test-frsrzegtqyfuthfhcjefdlbaqmgi/Build/Products/Debug-iphonesimulator/Test.app/Test</span><br><span class="line">[  1] 0x0000000108ca5000 /usr/lib/dyld</span><br><span class="line">[  2] 0x000000010376c000 /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/usr/lib/dyld_sim</span><br><span class="line">[  3] 0x00000001039c7000 /Users/bomo/Library/Developer/Xcode/DerivedData/Test-frsrzegtqyfuthfhcjefdlbaqmgi/Build/Products/Debug-iphonesimulator/Test.app/Frameworks/AppOrderFiles.framework/AppOrderFiles</span><br><span class="line">[  4] 0x00007fff2587b000 /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/System/Library/Frameworks/Foundation.framework/Foundation</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p> 可以使用<code>grep</code>过滤</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(lldb) image list -o -f Test</span><br><span class="line">[  0] /Users/bomo/Library/Developer/Xcode/DerivedData/Test-frsrzegtqyfuthfhcjefdlbaqmgi/Build/Products/Debug-iphoneos/Test.app/Test 0x0000000004a2c000</span><br><span class="line"></span><br><span class="line">(lldb) image list -o -f | grep Test</span><br><span class="line">[  0] /Users/bomo/Library/Developer/Xcode/DerivedData/Test-frsrzegtqyfuthfhcjefdlbaqmgi/Build/Products/Debug-iphoneos/Test.app/Test 0x0000000004a2c000</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>可以使用<code>image list</code>命令查看<code>ASLR偏移地址</code>，上面表示Test文件的偏移地址为<code>0x0000000004a2c000</code>，MachO的TEXT段的偏移地址为<code>0x0000000104a2c000</code>（ASLR+PAGEZERO）</p>
+</blockquote>
+</li>
+<li><p>查找模块<code>image lookup</code></p>
+<ul>
+<li><code>image lookup -t 类型</code></li>
+<li><code>image lookup -a 地址</code></li>
+<li><code>image lookup -n 符号</code></li>
+</ul>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">(lldb) image lookup -t AppDelegate</span><br><span class="line">Best match found <span class="keyword">in</span> /Users/bomo/Library/Developer/Xcode/DerivedData/Test-frsrzegtqyfuthfhcjefdlbaqmgi/Build/Products/Debug-iphonesimulator/Test.app/Test:</span><br><span class="line"><span class="built_in">id</span> = &#123;0x20000002b&#125;, name = <span class="string">&quot;AppDelegate&quot;</span>, byte-size = 8, decl = AppDelegate.h:11, compiler_type = <span class="string">&quot;@interface AppDelegate : UIResponder</span></span><br><span class="line"><span class="string">@end&quot;</span></span><br><span class="line"></span><br><span class="line">(lldb) image lookup -n <span class="built_in">test</span>:</span><br><span class="line">1 match found <span class="keyword">in</span> /Users/bomo/Library/Developer/Xcode/DerivedData/Test-frsrzegtqyfuthfhcjefdlbaqmgi/Build/Products/Debug-iphonesimulator/Test.app/Test:</span><br><span class="line">    Address: Test[0x0000000100001d00] (Test.__TEXT.__text + 688)</span><br><span class="line">    Summary: Test`-[ViewController <span class="built_in">test</span>:] at ViewController.m:103</span><br><span class="line"></span><br><span class="line">(lldb) image lookup -a 0x000000010375ed24</span><br><span class="line">    Address: Test[0x0000000100001d24] (Test.__TEXT.__text + 724)</span><br><span class="line">    Summary: Test`-[ViewController <span class="built_in">test</span>:] + 36 at ViewController.m:105:20</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>其中<code>image lookup -a 地址</code>经常用于查询崩溃位置，通过地址查询崩溃的地方位于哪个模块哪个文件哪个位置</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="register"><a href="#register" class="headerlink" title="register"></a>register</h3><p><code>register</code>指令能够获取和修改各个寄存器的信息</p>
+<ol>
+<li><p>读取所有寄存器信息</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">(lldb) register <span class="built_in">read</span></span><br><span class="line">General Purpose Registers:</span><br><span class="line">    x0 = 0x0000000000000000</span><br><span class="line">    x1 = 0x00000001bcf641e4  </span><br><span class="line">    x2 = 0x000000010536d050</span><br><span class="line">    x3 = 0x000000028283b840</span><br><span class="line">    x4 = 0x000000028283b840</span><br><span class="line">    x5 = 0x000000028283b840</span><br><span class="line">    x6 = 0x0000000000000000</span><br><span class="line">    x7 = 0x0000000000000403</span><br><span class="line">    x8 = 0x0000000104dd1568  (void *)0x0000000104dd15b8: ABC</span><br><span class="line">    x9 = 0x0000000000000006</span><br><span class="line">   x10 = 0x0000000000000008</span><br><span class="line">   x11 = 0x0000000000000000</span><br><span class="line">   x12 = 0x000000010a811840</span><br><span class="line">   x13 = 0x000005a1ce8843c7 (0x00000001ce8843c7) (void *)0x000001ce88448800</span><br><span class="line">   x14 = 0x00000001bd054dde  </span><br><span class="line">   x15 = 0x0000000104dd0220  (void *)0x00000001bd054dde</span><br><span class="line">   x16 = 0x00000001818daa90  libobjc.A.dylib`objc_release</span><br><span class="line">   x17 = 0x0000000186100418  UIKitCore`-[UIView(UIKitManual) retain]</span><br><span class="line">   x18 = 0x0000000000000000</span><br><span class="line">   x19 = 0x000000028283b840</span><br><span class="line">   x20 = 0x000000010536d050</span><br><span class="line">   x21 = 0x00000001be56b4fe  </span><br><span class="line">   x22 = 0x0000000106c04bd0</span><br><span class="line">   x23 = 0x0000000000000001</span><br><span class="line">   x24 = 0x00000001ce893fe8  UIKitCore`UIApp</span><br><span class="line">   x25 = 0x0000000000000000</span><br><span class="line">   x26 = 0x00000001bcf656b4  </span><br><span class="line">   x27 = 0x0000000106c04bd0</span><br><span class="line">   x28 = 0x00000002813adfe0</span><br><span class="line">    fp = 0x000000016b039390</span><br><span class="line">    lr = 0x0000000104dc9d1c  Test`-[ViewController <span class="built_in">test</span>:] + 40 at ViewController.m:104</span><br><span class="line">    sp = 0x000000016b039340</span><br><span class="line">    pc = 0x0000000104dc9d24  Test`-[ViewController <span class="built_in">test</span>:] + 48 at ViewController.m:106:20</span><br><span class="line">  cpsr = 0x00000000</span><br></pre></td></tr></table></figure></li>
+</ol>
+<ul>
+<li><p><code>register read/格式 寄存器名称</code></p>
+  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取寄存器x0的值</span></span><br><span class="line">registe <span class="built_in">read</span> <span class="variable">$x0</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>register write 寄存器名称 数值</code></p>
+  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">registe write <span class="variable">$x1</span> 10</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="查看内存"><a href="#查看内存" class="headerlink" title="查看内存"></a>查看内存</h3><p>memory read&#x2F;数量+格式+字节数 内存地址</p>
+<p>格式：<code>x</code>为16进制，<code>f</code>位浮点数，<code>d</code>为10进制<br>字节数：<code>b</code>为1个字节，<code>h</code>为2个字节，<code>w</code>为4个字节，<code>g</code>为8个字节</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">(lldb) memory <span class="built_in">read</span> 0x00006000001600b0</span><br><span class="line">0x6000001600b0: 00 ed c1 89 ff 7f 00 00 00 00 00 00 00 00 00 00  ................</span><br><span class="line">0x6000001600c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................</span><br><span class="line"></span><br><span class="line">(lldb) memory <span class="built_in">read</span>/3xg 0x00006000001600b0</span><br><span class="line">0x6000001600b0: 0x00007fff89c1ed00 0x0000000000000000</span><br><span class="line">0x6000001600c0: 0x0000000000000000</span><br><span class="line"></span><br><span class="line">(lldb) memory <span class="built_in">read</span>/8xg 0x00006000001600b0</span><br><span class="line">0x6000001600b0: 0x00007fff89c1ed00 0x0000000000000000</span><br><span class="line">0x6000001600c0: 0x0000000000000000 0x0000000000000000</span><br><span class="line">0x6000001600d0: 0x0000000000000000 0x0000000000000000</span><br><span class="line">0x6000001600e0: 0x0000000000000000 0x0000000000000000</span><br><span class="line"></span><br><span class="line">(lldb) memory <span class="built_in">read</span>/8xw 0x00006000001600b0</span><br><span class="line">0x6000001600b0: 0x89c1ed00 0x00007fff 0x00000000 0x00000000</span><br><span class="line">0x6000001600c0: 0x00000000 0x00000000 0x00000000 0x00000000</span><br><span class="line"></span><br><span class="line">(lldb) memory <span class="built_in">read</span>/3dw 0x00006000001600b0</span><br><span class="line">0x6000001600b0: -1983779584</span><br><span class="line">0x6000001600b4: 32767</span><br><span class="line">0x6000001600b8: 0</span><br><span class="line"></span><br><span class="line">(lldb) memory <span class="built_in">read</span>/3fw 0x00006000001600b0</span><br><span class="line">0x6000001600b0: -4.66859336E-33</span><br><span class="line">0x6000001600b4: 4.59163468E-41</span><br><span class="line">0x6000001600bc: 0</span><br></pre></td></tr></table></figure>
+
+<p>也可以直接使用<code>x</code>查看内存，用法和<code>memory read</code>一样</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(lldb) x/4xg 0x00006000001600b0</span><br><span class="line">0x6000001600b0: 0x00007fff89c1ed00 0x0000000000000000</span><br><span class="line">0x6000001600c0: 0x0000000000000000 0x0000000000000000</span><br></pre></td></tr></table></figure>
+
+<p>写内存</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">memory write 内存地址 述职</span><br></pre></td></tr></table></figure>
+
+<h3 id="缩写"><a href="#缩写" class="headerlink" title="缩写"></a>缩写</h3><p>lldb大部分命令都支持缩写</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>缩写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>expression</td>
+<td><code>exp</code></td>
+</tr>
+<tr>
+<td>thread backtrace</td>
+<td><code>bt</code></td>
+</tr>
+<tr>
+<td>breakpoint list</td>
+<td><code>br l</code></td>
+</tr>
+<tr>
+<td>process continue</td>
+<td><code>continue</code>, <code>c</code></td>
+</tr>
+<tr>
+<td>thread step-over</td>
+<td><code>next</code>, <code>n</code></td>
+</tr>
+<tr>
+<td>thread step-in</td>
+<td><code>step</code>, <code>s</code></td>
+</tr>
+<tr>
+<td>thread step-out</td>
+<td><code>finish</code>, <code>f</code></td>
+</tr>
+<tr>
+<td>thread step-inst-over</td>
+<td><code>nexti</code>, <code>ni</code></td>
+</tr>
+<tr>
+<td>thread step-inst</td>
+<td><code>stepi</code>, <code>si</code></td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Author
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://zhengbomo.github.io/2019-08-06/ios-lldb/" title="lldb常用命令">http://zhengbomo.github.io/2019-08-06/ios-lldb/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/lldb/" rel="tag"># lldb</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019-08-04/ios-entitlement/" rel="prev" title="【iOS逆向】iOS可执行文件权限签名">
+      <i class="fa fa-chevron-left"></i> 【iOS逆向】iOS可执行文件权限签名
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019-08-17/ios-lldb-debug/" rel="next" title="【iOS逆向】LLDB动态调试">
+      【iOS逆向】LLDB动态调试 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#lldb%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">lldb常用操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#expression"><span class="nav-number">1.1.</span> <span class="nav-text">expression</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#thread"><span class="nav-number">1.2.</span> <span class="nav-text">thread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#breakpoint"><span class="nav-number">1.3.</span> <span class="nav-text">breakpoint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%96%AD%E7%82%B9"><span class="nav-number">1.4.</span> <span class="nav-text">内存断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#image"><span class="nav-number">1.5.</span> <span class="nav-text">image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#register"><span class="nav-number">1.6.</span> <span class="nav-text">register</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%86%85%E5%AD%98"><span class="nav-number">1.7.</span> <span class="nav-text">查看内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%A9%E5%86%99"><span class="nav-number">1.8.</span> <span class="nav-text">缩写</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Author"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description">懒人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhengbomo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zhengbomo@hotmail.com" title="Email → mailto:zhengbomo@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>Email</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/intent/user?user_id=371531868" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;intent&#x2F;user?user_id&#x3D;371531868" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://facebook.com/zhengbomo" title="Facebook → http:&#x2F;&#x2F;facebook.com&#x2F;zhengbomo" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>Facebook</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="tencent://message/?uin=449179249&Site=&Menu=yes" title="QQ → tencent:&#x2F;&#x2F;message&#x2F;?uin&#x3D;449179249&amp;Site&#x3D;&amp;Menu&#x3D;yes" rel="noopener" target="_blank"><i class="fab fa-qq fa-fw"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://weibo.com/1891587992" title="Weibo → http:&#x2F;&#x2F;weibo.com&#x2F;1891587992" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bomo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
